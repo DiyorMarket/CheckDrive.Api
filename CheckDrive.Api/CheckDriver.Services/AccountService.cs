@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CheckDrive.Domain.DTOs.Account;
+using CheckDrive.DTOs.Account;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;
 using CheckDrive.Domain.ResourceParameters;

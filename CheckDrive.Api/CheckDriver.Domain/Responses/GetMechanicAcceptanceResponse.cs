@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.MechanicAcceptance;
+﻿using CheckDrive.DTOs.MechanicAcceptance;
 
 namespace CheckDrive.Domain.Responses
 {

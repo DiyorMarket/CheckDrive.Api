@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.MechanicAcceptance;
+﻿using CheckDrive.DTOs.MechanicAcceptance;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 

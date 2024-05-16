@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.Role;
+﻿using CheckDrive.DTOs.Role;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CheckDrive.Domain.DTOs.Role;
+using CheckDrive.DTOs.Role;
 using CheckDriver.Domain.Entities;
 
 namespace CheckDrive.Domain.Mappings

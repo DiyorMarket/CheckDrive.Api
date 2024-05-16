@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.DoctorReview;
+﻿using CheckDrive.DTOs.DoctorReview;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 

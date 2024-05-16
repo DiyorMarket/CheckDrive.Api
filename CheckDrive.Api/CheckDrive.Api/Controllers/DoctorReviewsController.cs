@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.DoctorReview;
+﻿using CheckDrive.DTOs.DoctorReview;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using Microsoft.AspNetCore.Mvc;

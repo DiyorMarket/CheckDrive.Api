@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.Doctor;
+﻿using CheckDrive.DTOs.Doctor;
 
 namespace CheckDrive.Domain.Responses
 {

@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.Operator;
+﻿using CheckDrive.DTOs.Operator;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using Microsoft.AspNetCore.Mvc;

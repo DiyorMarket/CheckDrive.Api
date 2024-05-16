@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using CheckDrive.Domain.DTOs.Dispatcher;
 using CheckDriver.Domain.Entities;
+using CheckDrive.DTOs.Dispatcher;
 
 namespace CheckDrive.Domain.Mappings
 {
     public class DispatcherMappings : Profile
     {
-        public DispatcherMappings() 
+        public DispatcherMappings()
         {
             CreateMap<DispatcherDto, Dispatcher>();
             CreateMap<Dispatcher, DispatcherDto>();

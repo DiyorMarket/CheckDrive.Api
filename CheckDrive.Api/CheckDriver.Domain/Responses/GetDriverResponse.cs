@@ -1,4 +1,4 @@
-﻿using CheckDrive.Domain.DTOs.Driver;
+﻿using CheckDrive.DTOs.Driver;
 
 namespace CheckDrive.Domain.Responses
 {

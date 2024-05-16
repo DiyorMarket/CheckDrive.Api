@@ -1,5 +1,5 @@
-﻿using CheckDrive.Domain.DTOs.Driver;
-using CheckDrive.Domain.DTOs.MechanicAcceptance;
+﻿using CheckDrive.DTOs.Driver;
+using CheckDrive.DTOs.MechanicAcceptance;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using Microsoft.AspNetCore.Mvc;

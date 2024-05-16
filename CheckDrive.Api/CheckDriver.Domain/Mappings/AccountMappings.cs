@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using CheckDrive.Domain.DTOs.Account;
 using CheckDriver.Domain.Entities;
+using CheckDrive.DTOs.Account;
 
 namespace CheckDrive.Domain.Mappings
 {
