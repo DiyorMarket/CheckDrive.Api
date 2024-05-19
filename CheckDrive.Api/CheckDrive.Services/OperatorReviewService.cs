@@ -31,6 +31,7 @@ namespace CheckDrive.Services
 
             var paginatedResult = new PaginatedList<OperatorReviewDto>(operatorReviewsDto, operatorReviews.TotalCount, operatorReviews.CurrentPage, operatorReviews.PageSize);
 
+
             return paginatedResult.ToResponse();
         }
 
@@ -76,7 +77,12 @@ namespace CheckDrive.Services
         private IQueryable<OperatorReview> GetQueryOperatorReviewResParameters(
        OperatorReviewResourceParameters operatorReviewResource)
         {
-            var query = _context.OperatorReviews.Include(a=>a.Operator).ThenInclude(a=>a.Account).AsQueryable();
+            var query = _context.OperatorReviews
+                .Include(a => a.Driver)
+                .ThenInclude(a => a.Account)
+                .Include(o => o.Operator)
+                .ThenInclude(o => o.Account)
+                .AsQueryable();
 
             if (operatorReviewResource.Date is not null)
             {
