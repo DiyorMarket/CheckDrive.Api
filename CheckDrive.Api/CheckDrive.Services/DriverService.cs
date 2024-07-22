@@ -28,6 +28,7 @@ public class DriverService : IDriverService
         if (resourceParameters.RoleId == 1)
         {
             var countOfDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfDrivers;
             resourceParameters.PageSize = countOfDrivers;
         }
 

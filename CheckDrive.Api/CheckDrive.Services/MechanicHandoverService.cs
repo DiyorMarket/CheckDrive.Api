@@ -30,15 +30,17 @@ public class MechanicHandoverService : IMechanicHandoverService
     {
         var query = GetQueryMechanicHandoverResParameters(resourceParameters);
 
+        if (resourceParameters.Status == Status.Completed || resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
+
         var mechanicHandovers = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var mechanicHandoverDtos = _mapper.Map<List<MechanicHandoverDto>>(mechanicHandovers);
 
-        if (resourceParameters.Status == Status.Completed)
-        {
-            var countOfHealthyDrivers = query.Count();
-            mechanicHandovers.PageSize = countOfHealthyDrivers;
-        }
 
         var paginatedResult = new PaginatedList<MechanicHandoverDto>(mechanicHandoverDtos, mechanicHandovers.TotalCount, mechanicHandovers.CurrentPage, mechanicHandovers.PageSize);
 

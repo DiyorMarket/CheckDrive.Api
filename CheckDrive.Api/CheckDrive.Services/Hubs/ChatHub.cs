@@ -37,7 +37,7 @@ namespace CheckDrive.Services.Hubs
             else
             {
                 _logger.LogWarning($"User {undeliveredMessageForDto.UserId} is not connected. Storing message.");
-                StoreUndeliveredMessage(undeliveredMessageForDto);
+                await StoreUndeliveredMessage(undeliveredMessageForDto);
             }
         }
 

@@ -32,15 +32,15 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var query = GetQueryDoctorReviewResParameters(resourceParameters);
 
+        if (resourceParameters.IsHealthy == true || resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
         var doctorReviews = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var doctorReviewsDto = _mapper.Map<List<DoctorReviewDto>>(doctorReviews);
-
-        if (resourceParameters.IsHealthy == true)
-        {
-            var countOfHealthyDrivers = query.Count();
-            doctorReviews.PageSize = countOfHealthyDrivers;
-        }
 
         var paginatedResult = new PaginatedList<DoctorReviewDto>(doctorReviewsDto, doctorReviews.TotalCount, doctorReviews.CurrentPage, doctorReviews.PageSize);
 
