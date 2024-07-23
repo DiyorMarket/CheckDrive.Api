@@ -32,15 +32,16 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         query = query.OrderByDescending(item => item.Date);
 
+        if (resourceParameters.Status == Status.Completed || resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
+
         var mechanicAcceptances = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var mechanicAcceptanceDtos = _mapper.Map<List<MechanicAcceptanceDto>>(mechanicAcceptances);
-
-        if (resourceParameters.Status == Status.Completed)
-        {
-            var countOfHealthyDrivers = query.Count();
-            mechanicAcceptances.PageSize = countOfHealthyDrivers;
-        }
 
         var paginatedResult = new PaginatedList<MechanicAcceptanceDto>(mechanicAcceptanceDtos, mechanicAcceptances.TotalCount, mechanicAcceptances.CurrentPage, mechanicAcceptances.PageSize);
 

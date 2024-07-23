@@ -34,15 +34,16 @@ namespace CheckDrive.Services
         {
             var query = GetQueryOperatorReviewResParameters(resourceParameters);
 
+            if (resourceParameters.Status == Status.Completed || resourceParameters.RoleId == 10)
+            {
+                var countOfHealthyDrivers = query.Count();
+                resourceParameters.MaxPageSize = countOfHealthyDrivers;
+                resourceParameters.PageSize = countOfHealthyDrivers;
+            }
+
             var operatorReviews = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
             var operatorReviewsDto = _mapper.Map<List<OperatorReviewDto>>(operatorReviews);
-
-            if (resourceParameters.Status == Status.Completed)
-            {
-                var countOfHealthyDrivers = query.Count();
-                operatorReviews.PageSize = countOfHealthyDrivers;
-            }
 
             var paginatedResult = new PaginatedList<OperatorReviewDto>(operatorReviewsDto, operatorReviews.TotalCount, operatorReviews.CurrentPage, operatorReviews.PageSize);
 

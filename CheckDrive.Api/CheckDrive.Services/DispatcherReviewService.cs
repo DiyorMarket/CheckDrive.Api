@@ -29,6 +29,13 @@ public class DispatcherReviewService : IDispatcherReviewService
     {
         var query = GetQueryDispatcherReviewResParameters(resourceParameters);
 
+        if (resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
+
         var dispatcherReviews = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var dispatcherReviewsDto = _mapper.Map<List<DispatcherReviewDto>>(dispatcherReviews);
