@@ -78,8 +78,13 @@ namespace CheckDrive.Services.Hubs
         }
 
         public override async Task OnConnectedAsync()
+        
         {
-            string userId = Context.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return;
+            }
             userConnections[userId] = Context.ConnectionId;
             _logger.LogInformation($"User connected: {userId}, ConnectionId: {Context.ConnectionId}");
 
