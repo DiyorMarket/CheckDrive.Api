@@ -80,7 +80,7 @@ namespace CheckDrive.Services
                     SendingMessageStatus = (SendingMessageStatusForDto)SendingMessageStatus.OperatorReview,
                     ReviewId = operatorReviewEntity.Id,
                     UserId = data.AccountDriverId.ToString(),
-                    Message = $"Sizga {data.OperatorName} shu {data.CarModel} avtomobilga {data.OilMarks} markali {data.OilAmount} litr benzin quydimi ?"
+                    Message = $"Sizga {data.OperatorName} {data.CarModel} avtomobilga {data.OilMarks} markali {data.OilAmount} litr benzin quydimi ?"
                 });
             }
 
@@ -171,7 +171,7 @@ namespace CheckDrive.Services
         {
             var reviewsResponse = await _context.OperatorReviews
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.Today)
+                .Where(x => x.Date.Date == DateTime.UtcNow.Date)
                 .Include(x => x.Operator)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Driver)
@@ -181,7 +181,7 @@ namespace CheckDrive.Services
 
             var mechanicHandoverResponse = await _context.MechanicsHandovers
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.Today && x.Status == Status.Completed)
+                .Where(x => x.Date.Date == DateTime.UtcNow.Date && x.Status == Status.Completed)
                 .Include(x => x.Mechanic)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)

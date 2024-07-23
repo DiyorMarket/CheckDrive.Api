@@ -80,13 +80,14 @@ public class MechanicHandoverService : IMechanicHandoverService
         if (mechanicHandoverEntity.IsHanded == true)
         {
             var data = await GetMechanicHandoverByIdAsync(mechanicHandoverEntity.Id);
+            var carData = await _context.Cars.FirstOrDefaultAsync(x => x.Id == data.CarId);
 
             await _chatHub.SendPrivateRequest(new UndeliveredMessageForDto
             {
                 SendingMessageStatus = (SendingMessageStatusForDto)SendingMessageStatus.MechanicHandover,
                 ReviewId = mechanicHandoverEntity.Id,
                 UserId = data.AccountDriverId.ToString(),
-                Message = $"Sizga {data.MechanicName} shu {data.CarName} ni topshirdimi ?"
+                Message = $"Sizga {data.MechanicName} {data.CarName} ni {carData.RemainingFuel} l yoqilg'isi va {carData.Mileage} km bosib o'tilgan masofasi bilan topshirdimi ?"
             });
         }
 
@@ -181,7 +182,7 @@ public class MechanicHandoverService : IMechanicHandoverService
     {
         var response = await _context.MechanicsHandovers
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.Today)
+            .Where(x => x.Date.Date == DateTime.UtcNow.Date)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -191,7 +192,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.Today)
+            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.UtcNow.Date)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -234,7 +235,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                     IsHanded = false,
                     Distance = 0,
                     Comments = "",
-                    Date = DateTime.Today,
+                    Date = DateTime.UtcNow.Date,
                     Status = ApiContracts.StatusForDto.Unassigned,
                 });
             }
