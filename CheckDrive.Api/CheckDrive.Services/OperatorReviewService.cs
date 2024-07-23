@@ -71,7 +71,7 @@ namespace CheckDrive.Services
             await _context.OperatorReviews.AddAsync(operatorReviewEntity);
             await _context.SaveChangesAsync();
 
-            if (operatorReviewEntity.IsGiven = true)
+            if (operatorReviewEntity.IsGiven)
             {
                 var data = await GetOperatorReviewByIdAsync(operatorReviewEntity.Id);
 
