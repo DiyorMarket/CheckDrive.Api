@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicHandover;
@@ -171,7 +172,7 @@ namespace CheckDrive.Services
         {
             var reviewsResponse = await _context.OperatorReviews
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.UtcNow.Date)
+                .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
                 .Include(x => x.Operator)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Driver)
@@ -181,7 +182,7 @@ namespace CheckDrive.Services
 
             var mechanicHandoverResponse = await _context.MechanicsHandovers
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.UtcNow.Date && x.Status == Status.Completed)
+                .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime() && x.Status == Status.Completed)
                 .Include(x => x.Mechanic)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)

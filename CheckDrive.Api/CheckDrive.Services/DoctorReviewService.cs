@@ -13,6 +13,7 @@ using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.ApiContracts.Driver;
 using Microsoft.Identity.Client;
+using CheckDrive.Api.Extensions;
 
 namespace CheckDrive.Services;
 
@@ -51,7 +52,7 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var reviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.UtcNow.Date)
+            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -93,7 +94,7 @@ public class DoctorReviewService : IDoctorReviewService
                     DoctorName = "",
                     IsHealthy = false,
                     Comments = "",
-                    Date = DateTime.UtcNow.Date
+                    Date = DateTime.Today.ToTashkentTime()
                 });
             }
         }

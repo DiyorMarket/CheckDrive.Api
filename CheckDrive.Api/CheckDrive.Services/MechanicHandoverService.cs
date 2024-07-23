@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.MechanicHandover;
@@ -182,7 +183,7 @@ public class MechanicHandoverService : IMechanicHandoverService
     {
         var response = await _context.MechanicsHandovers
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.UtcNow.Date)
+            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -192,7 +193,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.UtcNow.Date)
+            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -235,7 +236,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                     IsHanded = false,
                     Distance = 0,
                     Comments = "",
-                    Date = DateTime.UtcNow.Date,
+                    Date = DateTime.Today.ToTashkentTime(),
                     Status = ApiContracts.StatusForDto.Unassigned,
                 });
             }
