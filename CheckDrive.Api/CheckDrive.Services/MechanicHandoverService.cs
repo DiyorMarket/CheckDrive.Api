@@ -181,7 +181,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
     public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(MechanicHandoverResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime();
+        var date = DateTime.Today.ToTashkentTime().Date;
         var response = await _context.MechanicsHandovers
             .AsNoTracking()
             .Where(x => x.Date.Date == date)
@@ -237,7 +237,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                     IsHanded = false,
                     Distance = 0,
                     Comments = "",
-                    Date = DateTime.Today.ToTashkentTime(),
+                    Date = DateTime.Today.ToTashkentTime().Date,
                     Status = ApiContracts.StatusForDto.Unassigned,
                 });
             }

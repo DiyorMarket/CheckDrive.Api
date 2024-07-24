@@ -170,7 +170,7 @@ namespace CheckDrive.Services
 
         public async Task<GetBaseResponse<OperatorReviewDto>> GetOperatorReviewsForOperatorAsync(OperatorReviewResourceParameters resourceParameters)
         {
-            var date = DateTime.Today.ToTashkentTime();
+            var date = DateTime.Today.ToTashkentTime().Date;
             var reviewsResponse = await _context.OperatorReviews
                 .AsNoTracking()
                 .Where(x => x.Date.Date == date)

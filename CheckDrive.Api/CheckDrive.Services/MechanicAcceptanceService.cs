@@ -188,7 +188,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
     public async Task<GetBaseResponse<MechanicAcceptanceDto>> GetMechanicAcceptencesForMechanicAsync(MechanicAcceptanceResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime();
+        var date = DateTime.Today.ToTashkentTime().Date;
         var response = await _context.MechanicsAcceptances
             .AsNoTracking()
             .Where(x => x.Date.Date == date)

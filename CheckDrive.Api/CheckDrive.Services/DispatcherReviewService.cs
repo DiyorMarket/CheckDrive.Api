@@ -181,7 +181,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
     public async Task<GetBaseResponse<DispatcherReviewDto>> GetDispatcherReviewsForDispatcherAsync(DispatcherReviewResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime();
+        var date = DateTime.Today.ToTashkentTime().Date;
         var reviewsResponse = await _context.DispatchersReviews
             .AsNoTracking()
             .Where(x => x.Date.Date == date)
@@ -289,7 +289,7 @@ public class DispatcherReviewService : IDispatcherReviewService
                     OperatorReviewId = operatorReviewDto.Id,
                     DispatcherName = "",
                     MechanicName = mechanicAcceptanceDto.MechanicName,
-                    Date = DateTime.Today.ToTashkentTime(),
+                    Date = DateTime.Today.ToTashkentTime().Date,
                     MechanicAcceptanceId = mechanicAcceptanceDto.Id,
                     MechanicHandoverId = mechanicHandoverReviewDto.Id,
                     OperatorId = operatorReviewDto.OperatorId,
