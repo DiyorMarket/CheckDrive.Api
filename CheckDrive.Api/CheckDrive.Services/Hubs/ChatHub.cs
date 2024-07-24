@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace CheckDrive.Services.Hubs
@@ -29,15 +30,23 @@ namespace CheckDrive.Services.Hubs
 
         public async Task SendPrivateRequest(UndeliveredMessageForDto undeliveredMessageForDto)
         {
-            _logger.LogInformation($"SendPrivateMessage: {undeliveredMessageForDto.UserId}, {undeliveredMessageForDto.Message}");
-            if (userConnections.TryGetValue(undeliveredMessageForDto.UserId, out var connectionId))
+            try
             {
-                await _context.Clients.Client(connectionId).SendAsync("ReceiveMessage", undeliveredMessageForDto.SendingMessageStatus, undeliveredMessageForDto.ReviewId, undeliveredMessageForDto.Message);
+                _logger.LogInformation($"SendPrivateMessage: {undeliveredMessageForDto.UserId}, {undeliveredMessageForDto.Message}");
+                if (userConnections.TryGetValue(undeliveredMessageForDto.UserId, out var connectionId))
+                {
+                    await _context.Clients.Client(connectionId).SendAsync("ReceiveMessage", undeliveredMessageForDto.SendingMessageStatus, undeliveredMessageForDto.ReviewId, undeliveredMessageForDto.Message);
+                }
+                else
+                {
+                    _logger.LogWarning($"User {undeliveredMessageForDto.UserId} is not connected. Storing message.");
+                    await StoreUndeliveredMessage(undeliveredMessageForDto);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogWarning($"User {undeliveredMessageForDto.UserId} is not connected. Storing message.");
-                StoreUndeliveredMessage(undeliveredMessageForDto);
+
+                _logger.LogError(ex, $"Send qvotkanda error chiqti");
             }
         }
 
@@ -69,8 +78,13 @@ namespace CheckDrive.Services.Hubs
         }
 
         public override async Task OnConnectedAsync()
+        
         {
-            string userId = Context.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return;
+            }
             userConnections[userId] = Context.ConnectionId;
             _logger.LogInformation($"User connected: {userId}, ConnectionId: {Context.ConnectionId}");
 
@@ -89,10 +103,17 @@ namespace CheckDrive.Services.Hubs
 
         private async Task StoreUndeliveredMessage(UndeliveredMessageForDto undeliveredMessageForDto)
         {
-            var undeliveredMassage = _mapper.Map<UndeliveredMessage>(undeliveredMessageForDto);
+            try
+            {
+                var undeliveredMassage = _mapper.Map<UndeliveredMessage>(undeliveredMessageForDto);
 
-            _dbContext.UndeliveredMessages.Add(undeliveredMassage);
-            await _dbContext.SaveChangesAsync();
+                _dbContext.UndeliveredMessages.Add(undeliveredMassage);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Store Under Liver bir balo");
+            }
         }
 
         private async Task SendPendingMessages(string userId)

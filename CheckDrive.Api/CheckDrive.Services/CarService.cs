@@ -27,6 +27,7 @@ public class CarService : ICarService
         if (resourceParameters.RoleId == 1)
         {
             var countOfCars = query.Count();
+            resourceParameters.MaxPageSize = countOfCars;
             resourceParameters.PageSize = countOfCars;
         }
 

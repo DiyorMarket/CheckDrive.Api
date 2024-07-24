@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.MechanicHandover;
@@ -30,15 +31,17 @@ public class MechanicHandoverService : IMechanicHandoverService
     {
         var query = GetQueryMechanicHandoverResParameters(resourceParameters);
 
+        if (resourceParameters.Status == Status.Completed || resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
+
         var mechanicHandovers = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var mechanicHandoverDtos = _mapper.Map<List<MechanicHandoverDto>>(mechanicHandovers);
 
-        if (resourceParameters.Status == Status.Completed)
-        {
-            var countOfHealthyDrivers = query.Count();
-            mechanicHandovers.PageSize = countOfHealthyDrivers;
-        }
 
         var paginatedResult = new PaginatedList<MechanicHandoverDto>(mechanicHandoverDtos, mechanicHandovers.TotalCount, mechanicHandovers.CurrentPage, mechanicHandovers.PageSize);
 
@@ -180,7 +183,7 @@ public class MechanicHandoverService : IMechanicHandoverService
     {
         var response = await _context.MechanicsHandovers
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.UtcNow.Date)
+            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -190,7 +193,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.UtcNow.Date)
+            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -233,7 +236,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                     IsHanded = false,
                     Distance = 0,
                     Comments = "",
-                    Date = DateTime.UtcNow.Date,
+                    Date = DateTime.Today.ToTashkentTime(),
                     Status = ApiContracts.StatusForDto.Unassigned,
                 });
             }

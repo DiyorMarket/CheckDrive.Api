@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.OperatorReview;
@@ -32,15 +33,16 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         query = query.OrderByDescending(item => item.Date);
 
+        if (resourceParameters.Status == Status.Completed || resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
+
         var mechanicAcceptances = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var mechanicAcceptanceDtos = _mapper.Map<List<MechanicAcceptanceDto>>(mechanicAcceptances);
-
-        if (resourceParameters.Status == Status.Completed)
-        {
-            var countOfHealthyDrivers = query.Count();
-            mechanicAcceptances.PageSize = countOfHealthyDrivers;
-        }
 
         var paginatedResult = new PaginatedList<MechanicAcceptanceDto>(mechanicAcceptanceDtos, mechanicAcceptances.TotalCount, mechanicAcceptances.CurrentPage, mechanicAcceptances.PageSize);
 
@@ -188,7 +190,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
     {
         var response = await _context.MechanicsAcceptances
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.UtcNow.Date)
+            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -198,7 +200,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         var operatorReviewsResponse = await _context.OperatorReviews
             .AsNoTracking()
-            .Where(dr => dr.Date.Date == DateTime.UtcNow.Date && dr.Status == Status.Completed)
+            .Where(dr => dr.Date.Date == DateTime.Today.ToTashkentTime() && dr.Status == Status.Completed)
             .Include(x => x.Operator)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
