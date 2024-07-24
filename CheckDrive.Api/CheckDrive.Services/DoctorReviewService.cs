@@ -13,6 +13,7 @@ using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.ApiContracts.Driver;
 using Microsoft.Identity.Client;
+using CheckDrive.Api.Extensions;
 
 namespace CheckDrive.Services;
 
@@ -32,15 +33,15 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var query = GetQueryDoctorReviewResParameters(resourceParameters);
 
+        if (resourceParameters.IsHealthy == true || resourceParameters.RoleId == 10)
+        {
+            var countOfHealthyDrivers = query.Count();
+            resourceParameters.MaxPageSize = countOfHealthyDrivers;
+            resourceParameters.PageSize = countOfHealthyDrivers;
+        }
         var doctorReviews = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
         var doctorReviewsDto = _mapper.Map<List<DoctorReviewDto>>(doctorReviews);
-
-        if (resourceParameters.IsHealthy == true)
-        {
-            var countOfHealthyDrivers = query.Count();
-            doctorReviews.PageSize = countOfHealthyDrivers;
-        }
 
         var paginatedResult = new PaginatedList<DoctorReviewDto>(doctorReviewsDto, doctorReviews.TotalCount, doctorReviews.CurrentPage, doctorReviews.PageSize);
 
@@ -51,7 +52,7 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var reviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.Today)
+            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -93,7 +94,7 @@ public class DoctorReviewService : IDoctorReviewService
                     DoctorName = "",
                     IsHealthy = false,
                     Comments = "",
-                    Date = DateTime.Today
+                    Date = DateTime.Today.ToTashkentTime()
                 });
             }
         }

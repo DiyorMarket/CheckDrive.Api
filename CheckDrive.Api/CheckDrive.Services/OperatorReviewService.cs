@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicHandover;
@@ -34,15 +35,16 @@ namespace CheckDrive.Services
         {
             var query = GetQueryOperatorReviewResParameters(resourceParameters);
 
+            if (resourceParameters.Status == Status.Completed || resourceParameters.RoleId == 10)
+            {
+                var countOfHealthyDrivers = query.Count();
+                resourceParameters.MaxPageSize = countOfHealthyDrivers;
+                resourceParameters.PageSize = countOfHealthyDrivers;
+            }
+
             var operatorReviews = await query.ToPaginatedListAsync(resourceParameters.PageSize, resourceParameters.PageNumber);
 
             var operatorReviewsDto = _mapper.Map<List<OperatorReviewDto>>(operatorReviews);
-
-            if (resourceParameters.Status == Status.Completed)
-            {
-                var countOfHealthyDrivers = query.Count();
-                operatorReviews.PageSize = countOfHealthyDrivers;
-            }
 
             var paginatedResult = new PaginatedList<OperatorReviewDto>(operatorReviewsDto, operatorReviews.TotalCount, operatorReviews.CurrentPage, operatorReviews.PageSize);
 
@@ -70,16 +72,16 @@ namespace CheckDrive.Services
             await _context.OperatorReviews.AddAsync(operatorReviewEntity);
             await _context.SaveChangesAsync();
 
-            if (operatorReviewEntity.IsGiven = true)
+            if (operatorReviewEntity.IsGiven)
             {
                 var data = await GetOperatorReviewByIdAsync(operatorReviewEntity.Id);
 
                 await _chat.SendPrivateRequest(new UndeliveredMessageForDto
                 {
-                    SendingMessageStatus = (SendingMessageStatusForDto)SendingMessageStatus.MechanicHandover,
+                    SendingMessageStatus = (SendingMessageStatusForDto)SendingMessageStatus.OperatorReview,
                     ReviewId = operatorReviewEntity.Id,
                     UserId = data.AccountDriverId.ToString(),
-                    Message = $"Sizga {data.OperatorName} shu {data.CarModel} avtomobilga {data.OilMarks} markali {data.OilAmount} litr benzin quydimi ?"
+                    Message = $"Sizga {data.OperatorName} {data.CarModel} avtomobilga {data.OilMarks} markali {data.OilAmount} litr benzin quydimi ?"
                 });
             }
 
@@ -170,7 +172,7 @@ namespace CheckDrive.Services
         {
             var reviewsResponse = await _context.OperatorReviews
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.Today)
+                .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
                 .Include(x => x.Operator)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Driver)
@@ -180,7 +182,7 @@ namespace CheckDrive.Services
 
             var mechanicHandoverResponse = await _context.MechanicsHandovers
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.Today && x.Status == Status.Completed)
+                .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime() && x.Status == Status.Completed)
                 .Include(x => x.Mechanic)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)
