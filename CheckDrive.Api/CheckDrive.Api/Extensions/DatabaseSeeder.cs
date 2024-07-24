@@ -69,7 +69,7 @@ namespace CheckDrive.Api.Extensions
             
             var account = new Account()
                     {
-                        Login = "manager",
+                        Login = "mamager",
                         Password = "12345678",
                         PhoneNumber = "+998945242132",
                         FirstName = "Azamat",
