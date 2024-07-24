@@ -181,9 +181,10 @@ public class MechanicHandoverService : IMechanicHandoverService
 
     public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(MechanicHandoverResourceParameters resourceParameters)
     {
+        var date = DateTime.Today.ToTashkentTime();
         var response = await _context.MechanicsHandovers
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
+            .Where(x => x.Date.Date == date)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -193,7 +194,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.IsHealthy == true && x.Date.Date == DateTime.Today.ToTashkentTime())
+            .Where(x => x.IsHealthy == true && x.Date.Date == date)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)

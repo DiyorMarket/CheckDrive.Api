@@ -170,9 +170,10 @@ namespace CheckDrive.Services
 
         public async Task<GetBaseResponse<OperatorReviewDto>> GetOperatorReviewsForOperatorAsync(OperatorReviewResourceParameters resourceParameters)
         {
+            var date = DateTime.Today.ToTashkentTime();
             var reviewsResponse = await _context.OperatorReviews
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
+                .Where(x => x.Date.Date == date)
                 .Include(x => x.Operator)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Driver)
@@ -182,7 +183,7 @@ namespace CheckDrive.Services
 
             var mechanicHandoverResponse = await _context.MechanicsHandovers
                 .AsNoTracking()
-                .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime() && x.Status == Status.Completed)
+                .Where(x => x.Date.Date == date && x.Status == Status.Completed)
                 .Include(x => x.Mechanic)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)

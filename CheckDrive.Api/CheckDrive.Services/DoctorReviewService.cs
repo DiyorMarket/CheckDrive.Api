@@ -50,9 +50,10 @@ public class DoctorReviewService : IDoctorReviewService
 
     public async Task<GetBaseResponse<DoctorReviewDto>> GetDoctorReviewsForDoctorAsync(DoctorReviewResourceParameters resourceParameters)
     {
+        var date = DateTime.Today.ToTashkentTime();
         var reviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
+            .Where(x => x.Date.Date == date)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)

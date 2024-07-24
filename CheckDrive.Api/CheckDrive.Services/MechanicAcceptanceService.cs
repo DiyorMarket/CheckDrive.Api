@@ -188,9 +188,10 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
     public async Task<GetBaseResponse<MechanicAcceptanceDto>> GetMechanicAcceptencesForMechanicAsync(MechanicAcceptanceResourceParameters resourceParameters)
     {
+        var date = DateTime.Today.ToTashkentTime();
         var response = await _context.MechanicsAcceptances
             .AsNoTracking()
-            .Where(x => x.Date.Date == DateTime.Today.ToTashkentTime())
+            .Where(x => x.Date.Date == date)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -200,7 +201,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         var operatorReviewsResponse = await _context.OperatorReviews
             .AsNoTracking()
-            .Where(dr => dr.Date.Date == DateTime.Today.ToTashkentTime() && dr.Status == Status.Completed)
+            .Where(dr => dr.Date.Date == date && dr.Status == Status.Completed)
             .Include(x => x.Operator)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
