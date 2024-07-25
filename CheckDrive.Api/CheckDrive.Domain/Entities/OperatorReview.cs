@@ -7,11 +7,12 @@ namespace CheckDrive.Domain.Entities
         public bool IsGiven { get; set; }
         public double OilAmount { get; set; }
         public string? Comments { get; set; }
-        public string OilMarkValue { get; set; }
-        public OilMarks OilMark { get; set; }
         public Status Status { get; set; }
         public DateTime Date { get; set; }
 
+
+        public int OilMarkId { get; set; }
+        public OilMarks OilMark { get; set; }
         public int OperatorId { get; set; }
         public Operator Operator { get; set; }
         public int CarId { get; set; }
