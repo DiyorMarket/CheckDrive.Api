@@ -21,7 +21,7 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .HasMaxLength(255)
                 .IsRequired();
 
-            builder.Property(x => x.OilMarks)
+            builder.Property(x => x.OilMark)
                 .HasMaxLength(255)
                 .IsRequired();
 

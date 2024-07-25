@@ -42,10 +42,10 @@ public class DashboardService : IDashboardService
                                    {
                                        Year = g.Key.Year,
                                        Month = g.Key.Month,
-                                       Ai80 = g.Where(x => x.OilMarks == OilMarks.A80).Sum(x => (decimal?)x.OilAmount) ?? 0,
-                                       Ai91 = g.Where(x => x.OilMarks == OilMarks.A91).Sum(x => (decimal?)x.OilAmount) ?? 0,
-                                       Ai92 = g.Where(x => x.OilMarks == OilMarks.A92).Sum(x => (decimal?)x.OilAmount) ?? 0,
-                                       Ai95 = g.Where(x => x.OilMarks == OilMarks.A95).Sum(x => (decimal?)x.OilAmount) ?? 0
+                                       //Ai80 = g.Where(x => x.OilMarks == OilMarks.A80).Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       //Ai91 = g.Where(x => x.OilMarks == OilMarks.A91).Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       //Ai92 = g.Where(x => x.OilMarks == OilMarks.A92).Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       //Ai95 = g.Where(x => x.OilMarks == OilMarks.A95).Sum(x => (decimal?)x.OilAmount) ?? 0
                                    })
                                    .ToListAsync();
 
@@ -53,10 +53,10 @@ public class DashboardService : IDashboardService
                      .Select(r => new SpliteChartData
                      {
                          Month = new DateTime(r.Year, r.Month, 1).ToString("MMMM"),
-                         Ai80 = r.Ai80,
-                         Ai91 = r.Ai91,
-                         Ai92 = r.Ai92,
-                         Ai95 = r.Ai95
+                         //Ai80 = r.Ai80,
+                         //Ai91 = r.Ai91,
+                         //Ai92 = r.Ai92,
+                         //Ai95 = r.Ai95
                      })
                      .ToList();
 
