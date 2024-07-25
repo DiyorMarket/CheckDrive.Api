@@ -44,6 +44,11 @@ namespace CheckDrive.Api.Extensions
         {
             var connectionString = configuration.GetConnectionString("CheckDriveConnection");
 
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException($"Invalid connection string.");
+            }
+
             services.AddDbContext<CheckDriveDbContext>(options =>
                 options.UseSqlServer(connectionString));
         }

@@ -66,7 +66,12 @@ namespace CheckDrive.Api.Extensions
         private static void CreateAccounts(CheckDriveDbContext context)
         {
             if (context.Accounts.Any()) return;
-            
+
+            // Create only manager
+            var managerId = context
+                .Roles
+                .First(x => x != null && x.Name.ToLower().Contains("manager"))
+                .Id;
             var account = new Account()
                     {
                         Login = "manager",

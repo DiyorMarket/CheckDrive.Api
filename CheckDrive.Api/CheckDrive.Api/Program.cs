@@ -1,6 +1,7 @@
 using CheckDrive.Api.Extensions;
 using CheckDrive.Services.Hubs;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,17 +23,17 @@ builder.Services
 
 var app = builder.Build();
 
-if (!app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     builder.Services.SeedDatabase(services);
 }
 
+app.UseErrorHandler();
+
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseErrorHandler();
 
 app.UseHttpsRedirection();
 
