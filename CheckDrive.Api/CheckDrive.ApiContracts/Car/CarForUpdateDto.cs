@@ -19,6 +19,10 @@ namespace CheckDrive.ApiContracts.Car
         [Required(ErrorMessage = "Avtomobil bosib o'tgan masofasini kiritish majburiy")]
         public int Mileage { get; set; }
 
+        [Required(ErrorMessage = "Avtomobilni 1 yillik bosib o'tish meyorini kiritish majburiy")]
+        [Range(0, int.MaxValue, ErrorMessage = "Avtomobilni 1 yillik bosib o'tish meyori manfiy bo'lishi mumkin emas")]
+        public int OneYearMediumDistance { get; set; }
+
         [Required(ErrorMessage = "O'rtacha yoqilg'i sarfini kiritish majburiy")]
         [Range(0, double.MaxValue, ErrorMessage = "O'rtacha yoqilg'i sarfi manfiy bo'lishi mumkin emas")]
         public double MeduimFuelConsumption { get; set; }
