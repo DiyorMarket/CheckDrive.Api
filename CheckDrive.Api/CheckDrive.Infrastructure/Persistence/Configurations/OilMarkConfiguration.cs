@@ -8,7 +8,7 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<OilMarks> builder)
         {
-            builder.ToTable(nameof(Role));
+            builder.ToTable(nameof(OilMarks));
             builder.HasKey(x => x.Id);
 
 

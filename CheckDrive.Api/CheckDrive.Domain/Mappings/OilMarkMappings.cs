@@ -1,7 +1,6 @@
-﻿using CheckDrive.ApiContracts.OilMark;
+﻿using AutoMapper;
+using CheckDrive.ApiContracts.OilMark;
 using CheckDrive.Domain.Entities;
-using AutoMapper;
-using CheckDrive.ApiContracts.Role;
 
 namespace CheckDrive.Domain.Mappings
 {
@@ -9,10 +8,10 @@ namespace CheckDrive.Domain.Mappings
     {
         public OilMarkMappings()
         {
-            CreateMap<OilMarkDto, Role>();
-            CreateMap<Role, OilMarkDto>();
-            CreateMap<OilMarkForCreateDto, Role>();
-            CreateMap<OilMarkForUpdateDto, Role>();
+            CreateMap<OilMarkDto, OilMarks>();
+            CreateMap<OilMarks, OilMarkDto>();
+            CreateMap<OilMarkForCreateDto, OilMarks>();
+            CreateMap<OilMarkForUpdateDto, OilMarks>();
         }
     }
 }

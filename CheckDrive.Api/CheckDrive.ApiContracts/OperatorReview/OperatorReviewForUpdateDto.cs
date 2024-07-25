@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CheckDrive.ApiContracts.OilMark;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CheckDrive.ApiContracts.OperatorReview
@@ -12,7 +13,7 @@ namespace CheckDrive.ApiContracts.OperatorReview
         public bool? IsGiven { get; set; }
         public string Comments { get; set; } = "";
         public StatusForDto Status { get; set; }
-        public OilMarksForDto OilMarks { get; set; }
+        public OilMarkDto OilMarks { get; set; }
         public DateTime Date { get; set; }
 
         public int OperatorId { get; set; }
