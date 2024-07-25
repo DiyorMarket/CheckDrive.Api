@@ -1,10 +1,10 @@
-﻿namespace CheckDrive.Domain.Entities
+﻿using CheckDrive.Domain.Common;
+
+namespace CheckDrive.Domain.Entities
 {
-    public enum OilMarks
+    public class OilMarks : EntityBase
     {
-        A80,
-        A91,
-        A92,
-        A95
+        public string OilMark { get; set; }
+        public virtual ICollection<OperatorReview> OperatorReviews { get; set; }
     }
 }
