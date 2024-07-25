@@ -103,6 +103,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<int>("OneYearMediumDistance")
+                        .HasColumnType("int");
+
                     b.Property<double>("RemainingFuel")
                         .HasColumnType("float");
 
@@ -368,6 +371,24 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.ToTable("MechanicHandover", (string)null);
                 });
 
+            modelBuilder.Entity("CheckDrive.Domain.Entities.OilMarks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("OilMark")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OilMarks", (string)null);
+                });
+
             modelBuilder.Entity("CheckDrive.Domain.Entities.Operator", b =>
                 {
                     b.Property<int>("Id")
@@ -413,8 +434,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<double>("OilAmount")
                         .HasColumnType("float");
 
-                    b.Property<int>("OilMarks")
-                        .HasMaxLength(255)
+                    b.Property<int>("OilMarkId")
                         .HasColumnType("int");
 
                     b.Property<int>("OperatorId")
@@ -429,6 +449,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasIndex("CarId");
 
                     b.HasIndex("DriverId");
+
+                    b.HasIndex("OilMarkId");
 
                     b.HasIndex("OperatorId");
 
@@ -703,6 +725,12 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("CheckDrive.Domain.Entities.OilMarks", "OilMark")
+                        .WithMany("OperatorReviews")
+                        .HasForeignKey("OilMarkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CheckDrive.Domain.Entities.Operator", "Operator")
                         .WithMany("OperatorReviews")
                         .HasForeignKey("OperatorId")
@@ -712,6 +740,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Navigation("Car");
 
                     b.Navigation("Driver");
+
+                    b.Navigation("OilMark");
 
                     b.Navigation("Operator");
                 });
@@ -780,6 +810,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CheckDrive.Domain.Entities.MechanicHandover", b =>
                 {
                     b.Navigation("DispatcherReviews");
+                });
+
+            modelBuilder.Entity("CheckDrive.Domain.Entities.OilMarks", b =>
+                {
+                    b.Navigation("OperatorReviews");
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.Operator", b =>

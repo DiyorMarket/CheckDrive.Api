@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace CheckDrive.Infrastructure.Persistence.Configurations
 {
@@ -21,8 +22,7 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .HasMaxLength(255)
                 .IsRequired();
 
-            builder.Property(x => x.OilMark)
-                .HasMaxLength(255)
+            builder.Property(x => x.OilMarkId)
                 .IsRequired();
 
             builder.HasOne(o => o.Operator)
@@ -39,6 +39,10 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .WithMany(x => x.OperatorReviews)
                 .HasForeignKey(o => o.CarId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(or => or.OilMark)
+            .WithMany(x => x.OperatorReviews)
+            .HasForeignKey(or => or.OilMarkId);
         }
     }
 
