@@ -90,6 +90,7 @@ namespace CheckDrive.Api.Extensions
             services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
             services.AddScoped<IOperatorService, OperatorService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IOilMarkService, OilMarkService>();
             services.AddScoped<IOperatorReviewService, OperatorReviewService>();
             services.AddScoped<IDashboardService, DashboardService>();
         }
