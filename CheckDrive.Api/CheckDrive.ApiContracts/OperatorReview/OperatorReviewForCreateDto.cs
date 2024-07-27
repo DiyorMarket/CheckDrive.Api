@@ -12,7 +12,7 @@ namespace CheckDrive.ApiContracts.OperatorReview
         public double OilAmount { get; set; }
         public string Comments { get; set; } = "";
         public StatusForDto Status { get; set; }
-        public OilMarkDto OilMarks { get; set; }
+        public string OilMarks { get; set; }
         public DateTime Date { get; set; }
 
         public int OperatorId { get; set; }
