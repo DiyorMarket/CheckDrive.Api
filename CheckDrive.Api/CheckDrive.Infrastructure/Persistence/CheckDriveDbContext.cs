@@ -7,6 +7,7 @@ namespace CheckDrive.Infrastructure.Persistence
     public class CheckDriveDbContext : DbContext
     {
         public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<OilMarks> OilMarks { get; set; }
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Car> Cars { get; set; }
         public virtual DbSet<Driver> Drivers { get; set; }
@@ -24,7 +25,7 @@ namespace CheckDrive.Infrastructure.Persistence
         public CheckDriveDbContext(DbContextOptions<CheckDriveDbContext> options)
             : base(options)
         {
-            Database.Migrate();
+            //Database.Migrate();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

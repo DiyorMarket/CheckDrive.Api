@@ -235,7 +235,10 @@ public class MechanicHandoverService : IMechanicHandoverService
                 x.Comments.Contains(resourceParameters.SearchString));
 
         if (resourceParameters.Date is not null)
+        {
+            resourceParameters.Date = DateTime.Today.ToTashkentTime();
             query = query.Where(x => x.Date.Date == resourceParameters.Date.Value.Date);
+        }
 
         if (resourceParameters.Status is not null)
             query = query.Where(x => x.Status == resourceParameters.Status);
@@ -245,6 +248,12 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         if (resourceParameters.DriverId is not null)
             query = query.Where(x => x.DriverId == resourceParameters.DriverId);
+
+        var mechanic = _context.Mechanics
+            .FirstOrDefault(x => x.AccountId == resourceParameters.AccountId);
+
+        if (resourceParameters.AccountId is not null)
+            query = query.Where(x => x.MechanicId == mechanic.Id);
 
         if (!string.IsNullOrEmpty(resourceParameters.OrderBy))
             query = resourceParameters.OrderBy.ToLowerInvariant() switch
@@ -304,6 +313,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                     IsHanded = reviewDto.IsHanded,
                     Distance = reviewDto.Distance,
                     Comments = reviewDto.Comments,
+                    RemainingFuel = reviewDto.RemainingFuel,
                     Date = reviewDto.Date,
                     CarId = reviewDto.CarId,
                     CarName = reviewDto.CarName,
@@ -319,6 +329,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                     DriverName = doctorDto.DriverName,
                     CarName = "",
                     MechanicName = "",
+                    RemainingFuel = 0,
                     IsHanded = false,
                     Distance = 0,
                     Comments = "",

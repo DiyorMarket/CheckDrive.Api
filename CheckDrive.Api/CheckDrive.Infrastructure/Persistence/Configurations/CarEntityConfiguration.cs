@@ -26,6 +26,9 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Mileage)
                 .IsRequired();
 
+            builder.Property(x => x.OneYearMediumDistance)
+                .IsRequired();
+
             builder.Property(x => x.ManufacturedYear)
                 .IsRequired();
 
