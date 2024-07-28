@@ -21,6 +21,8 @@ builder.Services
     .AddConfigurationOptions(configuration)
     .ConfigureServices(configuration);
 
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBMAY9C3t2U1hhQlJBfVddX2RWfFN0QXNYfVRwcF9GaEwxOX1dQl9nSXlRfkRhWXtbdXFVRWk=");
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

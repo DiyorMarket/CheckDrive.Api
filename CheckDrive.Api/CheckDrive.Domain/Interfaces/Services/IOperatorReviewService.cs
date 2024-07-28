@@ -14,5 +14,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<OperatorReviewDto> UpdateOperatorReviewAsync(OperatorReviewForUpdateDto reviewForUpdateDto);
         Task DeleteOperatorReviewAsync(int id);
         Task<IEnumerable<OperatorReviewDto>> GetOpearatorHistories(int? Id);
+        Task<byte[]> MonthlyExcelData(int year, int month);
     }
 }

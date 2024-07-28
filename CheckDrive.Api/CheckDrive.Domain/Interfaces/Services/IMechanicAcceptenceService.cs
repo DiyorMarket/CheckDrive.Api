@@ -12,5 +12,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<MechanicAcceptanceDto> CreateMechanicAcceptenceAsync(MechanicAcceptanceForCreateDto acceptanceForCreateDto);
         Task<MechanicAcceptanceDto> UpdateMechanicAcceptenceAsync(MechanicAcceptanceForUpdateDto acceptanceForUpdateDto);
         Task DeleteMechanicAcceptenceAsync(int id);
+        Task<byte[]> MonthlyExcelData(int year, int month);
     }
 }

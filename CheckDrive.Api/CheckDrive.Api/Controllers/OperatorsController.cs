@@ -4,6 +4,7 @@ using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
+using CheckDrive.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -150,6 +151,15 @@ public class OperatorsController : Controller
         await _operatorReviewService.DeleteOperatorReviewAsync(id);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = "AdminOrMechanic")]
+    [HttpGet("review/export")]
+    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] int year, [FromQuery] int month)
+    {
+        byte[] file = await _operatorReviewService.MonthlyExcelData(year, month);
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Operator Xizmatlari.xls");
     }
 }
 

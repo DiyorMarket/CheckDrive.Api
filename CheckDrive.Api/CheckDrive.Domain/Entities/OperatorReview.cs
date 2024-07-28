@@ -10,7 +10,6 @@ namespace CheckDrive.Domain.Entities
         public Status Status { get; set; }
         public DateTime Date { get; set; }
 
-
         public int OilMarkId { get; set; }
         public OilMarks OilMark { get; set; }
         public int OperatorId { get; set; }

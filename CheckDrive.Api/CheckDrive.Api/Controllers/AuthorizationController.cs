@@ -17,7 +17,7 @@ public class AuthorizationController(IAuthorizationService authorizationService)
 
         if (token == null)
         {
-            return Unauthorized("Invalid email or password");
+            return Unauthorized("Invalid login or password");
         }
 
         HttpContext.Response.Cookies.Append("tasty-cookies", token);
