@@ -1,19 +1,14 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.Driver;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using CheckDrive.ApiContracts.DoctorReview;
-using CheckDrive.Domain.Interfaces.Hubs;
-using CheckDrive.ApiContracts.Driver;
-using Microsoft.Identity.Client;
-using CheckDrive.Api.Extensions;
 
 namespace CheckDrive.Services;
 
@@ -21,7 +16,6 @@ public class DoctorReviewService : IDoctorReviewService
 {
     private readonly IMapper _mapper;
     private readonly CheckDriveDbContext _context;
-    private readonly IChatHub _chatHub;
 
     public DoctorReviewService(IMapper mapper, CheckDriveDbContext context)
     {
@@ -181,6 +175,14 @@ public class DoctorReviewService : IDoctorReviewService
 
         if (doctorReviewResource.DriverId is not null)
             query = query.Where(x => x.DriverId == doctorReviewResource.DriverId);
+
+
+        var doctor = _context.Doctors
+            .Where(x => x.AccountId == doctorReviewResource.AccountId)
+            .FirstOrDefault();
+
+        if (doctorReviewResource.AccountId is not null)
+            query = query.Where(x => x.DoctorId == doctor.Id);
 
         if (!string.IsNullOrEmpty(doctorReviewResource.OrderBy))
             query = doctorReviewResource.OrderBy.ToLowerInvariant() switch
