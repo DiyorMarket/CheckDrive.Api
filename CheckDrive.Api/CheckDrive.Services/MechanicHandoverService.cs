@@ -161,6 +161,12 @@ public class MechanicHandoverService : IMechanicHandoverService
         if (resourceParameters.DriverId is not null)
             query = query.Where(x => x.DriverId == resourceParameters.DriverId);
 
+        var mechanic = _context.Mechanics
+            .FirstOrDefault(x => x.AccountId == resourceParameters.AccountId);
+
+        if (resourceParameters.AccountId is not null)
+            query = query.Where(x => x.MechanicId == mechanic.Id);
+
         if (!string.IsNullOrEmpty(resourceParameters.OrderBy))
             query = resourceParameters.OrderBy.ToLowerInvariant() switch
             {
