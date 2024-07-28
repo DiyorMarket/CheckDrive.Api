@@ -131,6 +131,14 @@ namespace CheckDrive.Services
                     x.Operator.Account.LastName.Contains(operatorReviewResource.SearchString) ||
                     x.Comments.Contains(operatorReviewResource.SearchString));
 
+
+            var _operator = _context.Operators
+            .Where(x => x.AccountId == operatorReviewResource.AccountId)
+            .FirstOrDefault();
+
+            if (operatorReviewResource.AccountId is not null)
+                query = query.Where(x => x.OperatorId == _operator.Id);
+
             if (operatorReviewResource.Status is not null)
                 query = query.Where(x => x.Status == operatorReviewResource.Status);
 
