@@ -13,7 +13,7 @@ namespace CheckDrive.ApiContracts.MechanicHandover
         [Required(ErrorMessage = "Boshlang'ich masofani kiritish majburiy")]
         [Range(0, double.MaxValue, ErrorMessage = "Boshlang'ich masofa manfiy bo'lishi mumkin emas")]
         public double Distance { get; set; }
-        public int RemainingFuel { get; set; }
+        public double RemainingFuel { get; set; }
         public int MechanicId { get; set; }
         public int CarId { get; set; }
         public int DriverId { get; set; }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Entities;
@@ -152,8 +153,10 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
                 x.Comments.Contains(resourceParameters.SearchString));
 
         if (resourceParameters.Date is not null)
+        {
+            resourceParameters.Date = DateTime.Today.ToTashkentTime();
             query = query.Where(x => x.Date.Date == resourceParameters.Date.Value.Date);
-
+        }
 
         if (resourceParameters.Status is not null)
             query = query.Where(x => x.Status == resourceParameters.Status);
@@ -170,8 +173,14 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         if (resourceParameters.DistanceGreaterThan is not null)
             query = query.Where(x => x.Distance > resourceParameters.DistanceGreaterThan);
 
+        var mechanic = _context.Mechanics
+            .FirstOrDefault(x => x.AccountId == resourceParameters.AccountId);
+
         if (resourceParameters.DriverId is not null)
             query = query.Where(x => x.DriverId == resourceParameters.DriverId);
+
+        if (resourceParameters.AccountId is not null)
+            query = query.Where(x => x.MechanicId == mechanic.Id);
 
         if (!string.IsNullOrEmpty(resourceParameters.OrderBy))
         {
@@ -209,6 +218,9 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             .Include(x => x.Car)
             .ToListAsync();
 
+        var carResponse = await _context.Cars
+            .ToListAsync();
+
         var mechanicAcceptance = new List<MechanicAcceptanceDto>();
 
         foreach (var operatorr in operatorReviewsResponse)
@@ -216,6 +228,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             var review = response.FirstOrDefault(r => r.DriverId == operatorr.DriverId);
             var reviewDto = _mapper.Map<MechanicAcceptanceDto>(review);
             var operatorReviewDto = _mapper.Map<OperatorReviewDto>(operatorr);
+            var carDto = _mapper.Map<CarDto>(carResponse);
             if (review != null)
             {
                 mechanicAcceptance.Add(new MechanicAcceptanceDto
@@ -225,6 +238,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
                     DriverId = reviewDto.DriverId,
                     DriverName = operatorReviewDto.DriverName,
                     MechanicName = reviewDto.MechanicName,
+                    RemainingFuel = reviewDto.RemainingFuel,
                     IsAccepted = reviewDto.IsAccepted,
                     Distance = reviewDto.Distance,
                     Comments = reviewDto.Comments,
@@ -241,6 +255,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
                     CarId = operatorReviewDto.CarId,
                     CarName = $"{operatorReviewDto.CarModel} ({operatorReviewDto.CarNumber})",
                     MechanicName = "",
+                    RemainingFuel = carDto.RemainingFuel,
                     IsAccepted = false,
                     Distance = 0,
                     Comments = "",
