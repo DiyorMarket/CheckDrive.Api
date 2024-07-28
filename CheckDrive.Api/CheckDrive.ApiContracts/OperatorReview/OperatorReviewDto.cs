@@ -12,7 +12,7 @@ namespace CheckDrive.ApiContracts.OperatorReview
         public DateTime? Date { get; set; }
 
         public string OilMarks { get; set; }
-        public int OilMarksId { get; set; }
+        public int OilMarkId { get; set; }
         public int OperatorId { get; set; }
         public string OperatorName { get; set; }
         public int CarId { get; set; }
