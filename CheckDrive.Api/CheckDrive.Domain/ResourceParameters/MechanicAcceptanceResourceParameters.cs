@@ -4,6 +4,7 @@ namespace CheckDrive.Domain.ResourceParameters
 {
     public class MechanicAcceptanceResourceParameters : ResourceParametersBase
     {
+        public int? AccountId { get; set; }
         public bool? IsAccepted { get; set; }
         public Status? Status { get; set; }
         public DateTime? Date { get; set; }

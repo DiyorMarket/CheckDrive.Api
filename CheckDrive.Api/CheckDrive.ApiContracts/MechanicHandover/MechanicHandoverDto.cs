@@ -9,7 +9,7 @@ namespace CheckDrive.ApiContracts.MechanicHandover
         public string Comments { get; set; } = "";
         public StatusForDto Status { get; set; }
         public DateTime Date { get; set; }
-        public int RemainingFuel { get; set; }
+        public double RemainingFuel { get; set; }
         public double Distance { get; set; }
         public int MechanicId { get; set; }
         public string MechanicName { get; set; }
