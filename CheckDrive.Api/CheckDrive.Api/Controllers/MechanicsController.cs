@@ -30,7 +30,6 @@ public class MechanicsController : Controller
         _mechanicHandoverService = mechanicHandoverService;
     }
 
-
     [HttpGet("mechanicHistories")]
     public async Task<ActionResult<IEnumerable<MechanicHistororiesDto>>> GetOperatorHistory(int accountId)
     {
@@ -158,6 +157,15 @@ public class MechanicsController : Controller
         return NoContent();
     }
 
+    [Authorize(Policy = "AdminOrMechanic")]
+    [HttpGet("acceptance/export")]
+    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] int year, [FromQuery] int month)
+    {
+        byte[] file = await _mechanicAcceptanceService.MonthlyExcelData(year, month);
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mexanik(Qabul qiluvchi).xls");
+    }
+
     [Authorize]
     [HttpGet("handovers")]
     public async Task<ActionResult<IEnumerable<MechanicHandoverDto>>> GetMechanichandoversAsync(
@@ -220,6 +228,15 @@ public class MechanicsController : Controller
         await _mechanicHandoverService.DeleteMechanicHandoverAsync(id);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = "AdminOrMechanic")]
+    [HttpGet("handover/export")]
+    public async Task<ActionResult> ExportMechanicHandoverToExcel([FromQuery] int year, [FromQuery] int month)
+    {
+        byte[] file = await _mechanicHandoverService.MonthlyExcelData(year, month);
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mexanik(Topshirish).xls");
     }
 }
 

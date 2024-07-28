@@ -11,6 +11,7 @@ using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.XlsIO;
 
 namespace CheckDrive.Services;
 
@@ -129,6 +130,89 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<byte[]> MonthlyExcelData(int year, int month)
+    {
+        var handovers = _context.MechanicsAcceptances
+            .Where(mh => mh.Date.Month == month && mh.Date.Year == year)
+            .Include(d => d.Car)
+            .Include(a => a.Driver)
+            .ThenInclude(a => a.Account)
+            .Include(m => m.Mechanic)
+            .ThenInclude(m => m.Account)
+            .ToList();
+
+        var statusMappings = new Dictionary<Status, string>
+        {
+            { Status.Pending, "Kutilmoqda" },
+            { Status.Completed, "Yakunlangan" },
+            { Status.Rejected, "Rad etilgan" },
+            { Status.Unassigned, "Tayinlanmagan" },
+            { Status.RejectedByDriver, "Haydovchi tomonidan rad etilgan" }
+        };
+
+        using (ExcelEngine excel = new ExcelEngine())
+        {
+            IApplication application = excel.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2016;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            // Adding title
+            worksheet.Range["A1:K1"].Merge();
+            worksheet.Range["A1"].Text = $"Информация о механик(приемник) на эту дату {month}.{year}";
+            worksheet.Range["A1"].CellStyle.Font.Bold = true;
+            worksheet.Range["A1"].CellStyle.Font.Size = 16;
+            worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            // Adding headers
+            worksheet.Range["A2"].Text = "Имя механика";
+            worksheet.Range["B2"].Text = "Имя водителя";
+            worksheet.Range["C2"].Text = "Название автомобиля";
+            worksheet.Range["D2"].Text = "Расстояние";
+            worksheet.Range["E2"].Text = "Дата";
+            worksheet.Range["F2"].Text = "Вручается";
+            worksheet.Range["G2"].Text = "Status";
+            worksheet.Range["H2"].Text = "Комментарии";
+
+            // Настройка ширины столбцов
+            worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
+            worksheet.Columns[0].ColumnWidth = 20; // MechanicName
+            worksheet.Columns[1].ColumnWidth = 20; // DriverName
+            worksheet.Columns[2].ColumnWidth = 25; // CarName
+            worksheet.Columns[3].ColumnWidth = 15; // Distance
+            worksheet.Columns[4].ColumnWidth = 20; // Date
+            worksheet.Columns[5].ColumnWidth = 10; // IsHanded
+            worksheet.Columns[6].ColumnWidth = 15; // Status
+            worksheet.Columns[7].ColumnWidth = 35; // Comments
+
+            // Adding data
+            for (int i = 0; i < handovers.Count; i++)
+            {
+                var handover = handovers[i];
+                var row = i + 3;
+
+                worksheet.Range["A" + row].Text = $"{handover.Mechanic.Account.FirstName} {handover.Mechanic.Account.LastName}";
+                worksheet.Range["B" + row].Text = $"{handover.Driver.Account.FirstName} {handover.Driver.Account.LastName}";
+                worksheet.Range["C" + row].Text = $"{handover.Car.Model} davlat raqami {handover.Car.Number}";
+                worksheet.Range["D" + row].Text = handover.Distance.ToString();
+                worksheet.Range["E" + row].DateTime = handover.Date;
+                worksheet.Range["F" + row].Text = handover.IsAccepted ? "qabul qilindi" : "qabul qilinmadi";
+                worksheet.Range["G" + row].Text = statusMappings[handover.Status];
+                worksheet.Range["H" + row].Text = handover.Comments;
+            }
+
+            worksheet.UsedRange.AutofitColumns();
+
+            // Save the workbook to a memory stream
+            using (MemoryStream stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                return stream.ToArray();
+            }
+        }
     }
 
     private IQueryable<MechanicAcceptance> GetQueryMechanicAcceptanceResParameters(
