@@ -13,6 +13,7 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using CheckDrive.Services.Hubs;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.XlsIO;
 
 namespace CheckDrive.Services
 {
@@ -109,6 +110,93 @@ namespace CheckDrive.Services
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<byte[]> MonthlyExcelData(int year, int month)
+        {
+            var handovers = _context.OperatorReviews
+                .Where(mh => mh.Date.Month == month && mh.Date.Year == year)
+                .Include(d => d.Car)
+                .Include(o => o.OilMark)
+                .Include(a => a.Driver)
+                .ThenInclude(a => a.Account)
+                .Include(m => m.Operator)
+                .ThenInclude(m => m.Account)
+                .ToList();
+
+            var statusMappings = new Dictionary<Status, string>
+            {
+                { Status.Pending, "Kutilmoqda" },
+                { Status.Completed, "Yakunlangan" },
+                { Status.Rejected, "Rad etilgan" },
+                { Status.Unassigned, "Tayinlanmagan" },
+                { Status.RejectedByDriver, "Haydovchi tomonidan rad etilgan" }
+            };
+
+            using (ExcelEngine excel = new ExcelEngine())
+            {
+                IApplication application = excel.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2016;
+
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+
+                // Adding title
+                worksheet.Range["A1:K1"].Merge();
+                worksheet.Range["A1"].Text = $"Информация об услуг оператора на эту дату {month}.{year}";
+                worksheet.Range["A1"].CellStyle.Font.Bold = true;
+                worksheet.Range["A1"].CellStyle.Font.Size = 16;
+                worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                // Adding headers
+                worksheet.Range["A2"].Text = "Имя оператора";
+                worksheet.Range["B2"].Text = "Имя водителя";
+                worksheet.Range["C2"].Text = "Название автомобиля";
+                worksheet.Range["D2"].Text = "Остаток топлива";
+                worksheet.Range["E2"].Text = "Количество и марка топлива";
+                worksheet.Range["F2"].Text = "Дата";
+                worksheet.Range["G2"].Text = "Дано топлива";
+                worksheet.Range["H2"].Text = "Status";
+                worksheet.Range["I2"].Text = "Комментарии";
+
+                // Настройка ширины столбцов
+                worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
+                worksheet.Columns[0].ColumnWidth = 20; // Имя оператора
+                worksheet.Columns[1].ColumnWidth = 20; // DriverName
+                worksheet.Columns[2].ColumnWidth = 25; // CarName
+                worksheet.Columns[3].ColumnWidth = 5; // Остаток топлива
+                worksheet.Columns[4].ColumnWidth = 10; // Количество топлива
+                worksheet.Columns[5].ColumnWidth = 10; // Дата
+                worksheet.Columns[6].ColumnWidth = 10; // Дано топлива
+                worksheet.Columns[7].ColumnWidth = 15; // Status
+                worksheet.Columns[8].ColumnWidth = 35; // Comments
+
+                // Adding data
+                for (int i = 0; i < handovers.Count; i++)
+                {
+                    var handover = handovers[i];
+                    var row = i + 3;
+
+                    worksheet.Range["A" + row].Text = $"{handover.Operator.Account.FirstName} {handover.Operator.Account.LastName}";
+                    worksheet.Range["B" + row].Text = $"{handover.Driver.Account.FirstName} {handover.Driver.Account.LastName}";
+                    worksheet.Range["C" + row].Text = $"{handover.Car.Model} davlat raqami {handover.Car.Number}";
+                    worksheet.Range["D" + row].Number = handover.Car.RemainingFuel;
+                    worksheet.Range["E" + row].Text = $"{handover.OilAmount} литр ({handover.OilMark.OilMark})";
+                    worksheet.Range["F" + row].DateTime = handover.Date;
+                    worksheet.Range["G" + row].Text = handover.IsGiven ? "topshirildi" : "topshirilmadi";
+                    worksheet.Range["H" + row].Text = statusMappings[handover.Status];
+                    worksheet.Range["I" + row].Text = handover.Comments;
+                }
+
+                worksheet.UsedRange.AutofitColumns();
+
+                // Save the workbook to a memory stream
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
+            }
         }
 
         private IQueryable<OperatorReview> GetQueryOperatorReviewResParameters(
