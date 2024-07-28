@@ -12,5 +12,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<MechanicHandoverDto> CreateMechanicHandoverAsync(MechanicHandoverForCreateDto handoverForCreateDto);
         Task<MechanicHandoverDto> UpdateMechanicHandoverAsync(MechanicHandoverForUpdateDto handoverForUpdateDto);
         Task DeleteMechanicHandoverAsync(int id);
+        Task<byte[]> MonthlyExcelData(int year, int month);
     }
 }
