@@ -14,6 +14,7 @@ namespace CheckDrive.ApiContracts.MechanicAcceptance
         [Required(ErrorMessage = "Yakuniy masofani kiritish majburiy")]
         [Range(0, double.MaxValue, ErrorMessage = "Yakuniy masofa manfiy bo'lishi mumkin emas")]
         public double Distance { get; set; }
+        public int RemainingFuel { get; set; }
 
         public int MechanicId { get; set; }
         public int CarId { get; set; }
