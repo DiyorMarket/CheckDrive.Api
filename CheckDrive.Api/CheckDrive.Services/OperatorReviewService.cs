@@ -3,6 +3,7 @@ using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicHandover;
+using CheckDrive.ApiContracts.OilMark;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces.Hubs;
@@ -290,15 +291,24 @@ namespace CheckDrive.Services
             var cars = await _context.Cars
                 .ToListAsync();
 
+            var oilMarks = await _context.OilMarks
+                .ToListAsync();
+
             var operators = new List<OperatorReviewDto>();
 
             foreach (var mechanicHandover in mechanicHandoverResponse)
             {
                 var car = cars.FirstOrDefault(c => c.Id == mechanicHandover.CarId);
                 var review = reviewsResponse.FirstOrDefault(r => r.DriverId == mechanicHandover.DriverId);
+                var oilMark = new OilMarks();
+                if (review != null)
+                {
+                    oilMark = oilMarks.FirstOrDefault(o => o.Id == review.OilMarkId);
+                }
                 var carDto = _mapper.Map<CarDto>(car);
                 var reviewDto = _mapper.Map<OperatorReviewDto>(review);
                 var mechanicHandoverDto = _mapper.Map<MechanicHandoverDto>(mechanicHandover);
+                var oilMarkDto = _mapper.Map<OilMarkDto>(oilMark);
                 if (review != null)
                 {
                     operators.Add(new OperatorReviewDto
@@ -312,7 +322,7 @@ namespace CheckDrive.Services
                         CarOilCapacity = car?.FuelTankCapacity.ToString() ?? reviewDto.CarOilCapacity,
                         CarOilRemainig = car?.RemainingFuel.ToString() ?? reviewDto.CarOilRemainig,
                         OilAmount = reviewDto.OilAmount,
-                        OilMarks = reviewDto.OilMarks,
+                        OilMarks = oilMarkDto.OilMark,
                         IsGiven = reviewDto.IsGiven,
                         Comments = reviewDto.Comments,
                         Date = reviewDto.Date,
