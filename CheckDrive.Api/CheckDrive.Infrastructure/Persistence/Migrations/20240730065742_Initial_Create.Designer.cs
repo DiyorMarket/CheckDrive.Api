@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20240725132643_newFeatures")]
-    partial class newFeatures
+    [Migration("20240730065742_Initial_Create")]
+    partial class Initial_Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -731,7 +731,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasOne("CheckDrive.Domain.Entities.OilMarks", "OilMark")
                         .WithMany("OperatorReviews")
                         .HasForeignKey("OilMarkId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("CheckDrive.Domain.Entities.Operator", "Operator")

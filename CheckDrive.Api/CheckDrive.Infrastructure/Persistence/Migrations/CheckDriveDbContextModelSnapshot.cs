@@ -728,7 +728,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasOne("CheckDrive.Domain.Entities.OilMarks", "OilMark")
                         .WithMany("OperatorReviews")
                         .HasForeignKey("OilMarkId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("CheckDrive.Domain.Entities.Operator", "Operator")
