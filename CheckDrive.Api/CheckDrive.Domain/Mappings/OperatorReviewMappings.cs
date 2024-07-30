@@ -16,7 +16,8 @@ namespace CheckDrive.Domain.Mappings
                 .ForMember(x => x.CarNumber, f => f.MapFrom(e => e.Car.Number))
                 .ForMember(x => x.CarOilCapacity, f => f.MapFrom(e => e.Car.FuelTankCapacity))
                 .ForMember(x => x.CarOilRemainig, f => f.MapFrom(e => e.Car.RemainingFuel))
-                .ForMember(x => x.AccountDriverId, f => f.MapFrom(e => e.Driver.Account.Id));
+                .ForMember(x => x.AccountDriverId, f => f.MapFrom(e => e.Driver.Account.Id))
+                .ForMember(x => x.OilMarks, f => f.MapFrom(e => e.OilMark.OilMark));
             CreateMap<OperatorReviewForCreateDto, OperatorReview>();
             CreateMap<OperatorReviewForUpdateDto, OperatorReview>();
         }
