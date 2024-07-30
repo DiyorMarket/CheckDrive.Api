@@ -17,7 +17,8 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.HasMany(r => r.OperatorReviews)
-                .WithOne(a => a.OilMark);
+                .WithOne(a => a.OilMark)
+                .HasForeignKey(a => a.OilMarkId);
         }
     }
 }
