@@ -61,6 +61,7 @@ namespace CheckDrive.Services
                 .Include(o => o.Operator)
                 .ThenInclude(o => o.Account)
                 .Include(o => o.Car)
+                .Include(o => o.OilMark)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             return _mapper.Map<OperatorReviewDto>(operatorReview);
@@ -276,6 +277,7 @@ namespace CheckDrive.Services
                 .Include(x => x.Driver)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)
+                .Include(o => o.OilMark)
                 .ToListAsync();
 
             var mechanicHandoverResponse = await _context.MechanicsHandovers

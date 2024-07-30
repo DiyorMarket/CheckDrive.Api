@@ -225,6 +225,7 @@ public class DispatcherReviewService : IDispatcherReviewService
             .Include(x => x.Driver)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
+            .Include(o => o.OilMark)
             .ToListAsync();
 
         var carResponse = await _context.Cars
