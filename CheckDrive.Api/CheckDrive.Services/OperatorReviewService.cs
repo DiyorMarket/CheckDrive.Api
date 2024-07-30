@@ -62,6 +62,7 @@ namespace CheckDrive.Services
                 .Include(o => o.Operator)
                 .ThenInclude(o => o.Account)
                 .Include(o => o.Car)
+                .Include(o => o.OilMark)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             return _mapper.Map<OperatorReviewDto>(operatorReview);
@@ -210,6 +211,7 @@ namespace CheckDrive.Services
                 .Include(o => o.Driver)
                 .ThenInclude(o => o.Account)
                 .Include(o => o.Car)
+                .Include(o => o.OilMark)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(operatorReviewResource.SearchString))
@@ -232,7 +234,10 @@ namespace CheckDrive.Services
                 query = query.Where(x => x.Status == operatorReviewResource.Status);
 
             if (operatorReviewResource.Date is not null)
+            {
+                operatorReviewResource.Date = DateTime.Today.ToTashkentTime();
                 query = query.Where(x => x.Date.Date == operatorReviewResource.Date.Value.Date);
+            }
 
             if (operatorReviewResource.OilAmount is not null)
                 query = query.Where(x => x.OilAmount == operatorReviewResource.OilAmount);
@@ -276,6 +281,7 @@ namespace CheckDrive.Services
                 .Include(x => x.Driver)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)
+                .Include(x => x.OilMark)
                 .ToListAsync();
 
             var mechanicHandoverResponse = await _context.MechanicsHandovers
@@ -426,6 +432,7 @@ namespace CheckDrive.Services
                 .Include(d => d.Driver)
                 .ThenInclude(a => a.Account)
                 .Include(c => c.Car)
+                .Include(o => o.OilMark)
                 .Where(x => x.OperatorId == _operator.Id)
                 .OrderByDescending(x => x.Date)
                 .AsQueryable();

@@ -300,6 +300,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             .Include(x => x.Driver)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
+            .Include(x => x.OilMark)
             .ToListAsync();
 
         var carResponse = await _context.Cars
