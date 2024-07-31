@@ -2,6 +2,7 @@
 {
     public class DispatcherReviewResourceParameters : ResourceParametersBase
     {
+        public int? AccountId { get; set; }
         public int? DispatcherId { get; set; }
         public int? OperatorId { get; set; }
         public int? MechanicId { get; set; }

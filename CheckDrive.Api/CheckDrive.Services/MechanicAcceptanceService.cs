@@ -311,9 +311,10 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         foreach (var operatorr in operatorReviewsResponse)
         {
             var review = response.FirstOrDefault(r => r.DriverId == operatorr.DriverId);
+            var carReview = carResponse.FirstOrDefault(c => c.Id == operatorr.CarId);
             var reviewDto = _mapper.Map<MechanicAcceptanceDto>(review);
             var operatorReviewDto = _mapper.Map<OperatorReviewDto>(operatorr);
-            var carDto = _mapper.Map<CarDto>(carResponse);
+            var carDto = _mapper.Map<CarDto>(carReview);
             if (review != null)
             {
                 mechanicAcceptance.Add(new MechanicAcceptanceDto

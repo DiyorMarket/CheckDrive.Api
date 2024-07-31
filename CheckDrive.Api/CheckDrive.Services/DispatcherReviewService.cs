@@ -59,6 +59,9 @@ public class DispatcherReviewService : IDispatcherReviewService
             .ThenInclude(d => d.Account)
             .Include(d => d.Dispatcher)
             .ThenInclude(d => d.Account)
+            .Include(d => d.OperatorReview)
+            .Include(d => d.MechanicAcceptance)
+            .Include(d => d.MechanicHandover)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherReview);
@@ -92,7 +95,8 @@ public class DispatcherReviewService : IDispatcherReviewService
 
     public async Task DeleteDispatcherReviewAsync(int id)
     {
-        var dispatcherReview = await _context.DispatchersReviews.FirstOrDefaultAsync(x => x.Id == id);
+        var dispatcherReview = await _context.DispatchersReviews
+            .FirstOrDefaultAsync(x => x.Id == id);
 
         if (dispatcherReview is not null)
         {
@@ -133,9 +137,18 @@ public class DispatcherReviewService : IDispatcherReviewService
                 x.Dispatcher.Account.LastName.Contains(dispatcherReviewParameters.SearchString));
 
         if (dispatcherReviewParameters.Date is not null)
+        {
+            dispatcherReviewParameters.Date = DateTime.Today.ToTashkentTime();
             query = query.Where(x => x.Date.Date == dispatcherReviewParameters.Date.Value.Date);
+        }
 
         //FuelSpended
+        var dispatcher = _context.Dispatchers
+            .FirstOrDefault(x => x.AccountId == dispatcherReviewParameters.AccountId);
+        if (dispatcherReviewParameters.AccountId is not null)
+        {
+            query = query.Where(x => x.DispatcherId == dispatcher.Id);
+        }
         if (dispatcherReviewParameters.DriverId is not null)
         {
             query = query.Where(x => x.DriverId == dispatcherReviewParameters.DriverId);
