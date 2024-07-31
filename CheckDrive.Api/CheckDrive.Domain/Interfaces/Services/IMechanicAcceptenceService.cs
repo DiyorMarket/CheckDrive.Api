@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.MechanicAcceptance;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 
@@ -12,6 +13,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<MechanicAcceptanceDto> CreateMechanicAcceptenceAsync(MechanicAcceptanceForCreateDto acceptanceForCreateDto);
         Task<MechanicAcceptanceDto> UpdateMechanicAcceptenceAsync(MechanicAcceptanceForUpdateDto acceptanceForUpdateDto);
         Task DeleteMechanicAcceptenceAsync(int id);
-        Task<byte[]> MonthlyExcelData(int year, int month);
+        Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile);
     }
 }

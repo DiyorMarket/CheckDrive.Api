@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.MechanicHandover;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.MechanicHandover;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 
@@ -12,6 +13,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<MechanicHandoverDto> CreateMechanicHandoverAsync(MechanicHandoverForCreateDto handoverForCreateDto);
         Task<MechanicHandoverDto> UpdateMechanicHandoverAsync(MechanicHandoverForUpdateDto handoverForUpdateDto);
         Task DeleteMechanicHandoverAsync(int id);
-        Task<byte[]> MonthlyExcelData(int year, int month);
+        Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile);
     }
 }

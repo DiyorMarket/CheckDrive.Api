@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.Account;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Account;
 using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.Mechanic;
 using CheckDrive.ApiContracts.MechanicAcceptance;
@@ -159,9 +160,11 @@ public class MechanicsController : Controller
 
     [Authorize(Policy = "AdminOrMechanic")]
     [HttpGet("acceptance/export")]
-    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] int year, [FromQuery] int month)
+    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
     {
-        byte[] file = await _mechanicAcceptanceService.MonthlyExcelData(year, month);
+        byte[] file = await _mechanicAcceptanceService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
 
         return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mexanik(Qabul qiluvchi).xls");
     }
@@ -232,9 +235,11 @@ public class MechanicsController : Controller
 
     [Authorize(Policy = "AdminOrMechanic")]
     [HttpGet("handover/export")]
-    public async Task<ActionResult> ExportMechanicHandoverToExcel([FromQuery] int year, [FromQuery] int month)
+    public async Task<ActionResult> ExportMechanicHandoverToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
     {
-        byte[] file = await _mechanicHandoverService.MonthlyExcelData(year, month);
+        byte[] file = await _mechanicHandoverService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
 
         return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mexanik(Topshirish).xls");
     }
