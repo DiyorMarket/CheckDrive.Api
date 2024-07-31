@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.DoctorReview;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
@@ -14,6 +15,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<OperatorReviewDto> UpdateOperatorReviewAsync(OperatorReviewForUpdateDto reviewForUpdateDto);
         Task DeleteOperatorReviewAsync(int id);
         Task<IEnumerable<OperatorReviewDto>> GetOpearatorHistories(int? Id);
-        Task<byte[]> MonthlyExcelData(int year, int month);
+        Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile);
     }
 }
