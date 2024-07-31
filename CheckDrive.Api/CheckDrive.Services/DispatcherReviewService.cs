@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CheckDrive.Api.Extensions;
+using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.DispatcherReview;
 using CheckDrive.ApiContracts.MechanicAcceptance;
@@ -12,6 +13,7 @@ using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.XlsIO;
 
 namespace CheckDrive.Services;
 
@@ -104,6 +106,91 @@ public class DispatcherReviewService : IDispatcherReviewService
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
+    {
+        var handovers = _context.DispatchersReviews
+            .Where(mh => mh.Date.Month == propertyForExportFile.Month && mh.Date.Year == propertyForExportFile.Year)
+            .Include(ma => ma.MechanicAcceptance)
+            .ThenInclude(ma => ma.Mechanic)
+            .ThenInclude(ma => ma.Account)
+            .Include(mh => mh.MechanicHandover)
+            .ThenInclude(mh => mh.Mechanic)
+            .ThenInclude(mh => mh.Account)
+            .Include(o => o.OperatorReview)
+            .Include(d => d.Driver)
+            .ThenInclude(d => d.Account)
+            .Include(d => d.Mechanic)
+            .ThenInclude(d => d.Account)
+            .Include(d => d.Operator)
+            .ThenInclude(d => d.Account)
+            .Include(d => d.Dispatcher)
+            .ThenInclude(d => d.Account)
+            .Include(d => d.Car)
+            .AsNoTracking()
+            .ToList();
+
+        if (handovers.Count == 0) return null;
+
+        using (ExcelEngine excel = new ExcelEngine())
+        {
+            IApplication application = excel.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2016;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            // Adding title
+            worksheet.Range["A1:K1"].Merge();
+            worksheet.Range["A1"].Text = $"Информация об Диспетчерские услуги на эту дату {propertyForExportFile.Month}.{propertyForExportFile.Year}";
+            worksheet.Range["A1"].CellStyle.Font.Bold = true;
+            worksheet.Range["A1"].CellStyle.Font.Size = 16;
+            worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            // Adding headers
+            worksheet.Range["A2"].Text = "Имя диспетчера";
+            worksheet.Range["B2"].Text = "Название автомобиля";
+            worksheet.Range["C2"].Text = "Имя механика сдачи";
+            worksheet.Range["D2"].Text = "Имя оператора осмотра";
+            worksheet.Range["E2"].Text = "Имя механика приемки";
+            worksheet.Range["F2"].Text = "Дата";
+            worksheet.Range["G2"].Text = "Расход топлива";
+            worksheet.Range["H2"].Text = "Пройденное расстояние";
+
+            // Настройка ширины столбцов
+            worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
+            worksheet.Columns[0].ColumnWidth = 20; // Имя диспетчера
+            worksheet.Columns[1].ColumnWidth = 40; // Название автомобиля
+            worksheet.Columns[2].ColumnWidth = 20; // Имя механика сдачи
+            worksheet.Columns[3].ColumnWidth = 20; // Имя оператора осмотра
+            worksheet.Columns[4].ColumnWidth = 20; // Имя механика приемки
+            worksheet.Columns[5].ColumnWidth = 15; // Дата
+            worksheet.Columns[6].ColumnWidth = 15; // Израсходовано топлива
+            worksheet.Columns[7].ColumnWidth = 15; // Пробег
+
+            // Adding data
+            for (int i = 0; i < handovers.Count; i++)
+            {
+                var handover = handovers[i];
+                var row = i + 3;
+
+                worksheet.Range["A" + row].Text = $"{handover.Dispatcher.Account.FirstName} {handover.Dispatcher.Account.LastName}";
+                worksheet.Range["B" + row].Text = $"{handover.Car.Model} davlat raqami {handover.Car.Number}";
+                worksheet.Range["C" + row].Text = $"{handover.MechanicHandover.Mechanic.Account.FirstName} {handover.MechanicHandover.Mechanic.Account.LastName}";
+                worksheet.Range["D" + row].Text = $"{handover.Operator.Account.FirstName} {handover.Operator.Account.LastName}";
+                worksheet.Range["E" + row].Text = $"{handover.MechanicAcceptance.Mechanic.Account.FirstName} {handover.MechanicAcceptance.Mechanic.Account.LastName}";
+                worksheet.Range["F" + row].DateTime = handover.Date;
+                worksheet.Range["G" + row].Number = handover.FuelSpended;
+                worksheet.Range["H" + row].Number = handover.DistanceCovered;
+            }
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                return stream.ToArray();
+            }
+        }
     }
 
     private IQueryable<DispatcherReview> GetQueryDispatcherReviewResParameters(

@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.Account;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Account;
 using CheckDrive.ApiContracts.Operator;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Interfaces.Services;
@@ -155,9 +156,11 @@ public class OperatorsController : Controller
 
     [Authorize(Policy = "AdminOrMechanic")]
     [HttpGet("review/export")]
-    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] int year, [FromQuery] int month)
+    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
     {
-        byte[] file = await _operatorReviewService.MonthlyExcelData(year, month);
+        byte[] file = await _operatorReviewService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
 
         return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Operator Xizmatlari.xls");
     }

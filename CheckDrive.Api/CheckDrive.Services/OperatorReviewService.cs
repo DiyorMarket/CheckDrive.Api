@@ -113,17 +113,20 @@ namespace CheckDrive.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<byte[]> MonthlyExcelData(int year, int month)
+        public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
         {
             var handovers = _context.OperatorReviews
-                .Where(mh => mh.Date.Month == month && mh.Date.Year == year)
+                .Where(mh => mh.Date.Month == propertyForExportFile.Month && mh.Date.Year == propertyForExportFile.Year)
                 .Include(d => d.Car)
                 .Include(o => o.OilMark)
                 .Include(a => a.Driver)
                 .ThenInclude(a => a.Account)
                 .Include(m => m.Operator)
                 .ThenInclude(m => m.Account)
+                .AsNoTracking()
                 .ToList();
+
+            if (handovers.Count == 0) return null;
 
             var statusMappings = new Dictionary<Status, string>
             {
@@ -144,7 +147,7 @@ namespace CheckDrive.Services
 
                 // Adding title
                 worksheet.Range["A1:K1"].Merge();
-                worksheet.Range["A1"].Text = $"Информация об услуг оператора на эту дату {month}.{year}";
+                worksheet.Range["A1"].Text = $"Информация об услуг оператора на эту дату {propertyForExportFile.Month}.{propertyForExportFile.Year}";
                 worksheet.Range["A1"].CellStyle.Font.Bold = true;
                 worksheet.Range["A1"].CellStyle.Font.Size = 16;
                 worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -164,13 +167,13 @@ namespace CheckDrive.Services
                 worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
                 worksheet.Columns[0].ColumnWidth = 20; // Имя оператора
                 worksheet.Columns[1].ColumnWidth = 20; // DriverName
-                worksheet.Columns[2].ColumnWidth = 25; // CarName
-                worksheet.Columns[3].ColumnWidth = 5; // Остаток топлива
-                worksheet.Columns[4].ColumnWidth = 10; // Количество топлива
-                worksheet.Columns[5].ColumnWidth = 10; // Дата
-                worksheet.Columns[6].ColumnWidth = 10; // Дано топлива
-                worksheet.Columns[7].ColumnWidth = 15; // Status
-                worksheet.Columns[8].ColumnWidth = 35; // Comments
+                worksheet.Columns[2].ColumnWidth = 40; // CarName
+                worksheet.Columns[3].ColumnWidth = 15; // Остаток топлива
+                worksheet.Columns[4].ColumnWidth = 20; // Количество топлива
+                worksheet.Columns[5].ColumnWidth = 15; // Дата
+                worksheet.Columns[6].ColumnWidth = 15; // Дано топлива
+                worksheet.Columns[7].ColumnWidth = 25; // Status
+                worksheet.Columns[8].ColumnWidth = 40; // Comments
 
                 // Adding data
                 for (int i = 0; i < handovers.Count; i++)
@@ -189,9 +192,6 @@ namespace CheckDrive.Services
                     worksheet.Range["I" + row].Text = handover.Comments;
                 }
 
-                worksheet.UsedRange.AutofitColumns();
-
-                // Save the workbook to a memory stream
                 using (MemoryStream stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);

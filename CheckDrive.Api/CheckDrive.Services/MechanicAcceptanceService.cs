@@ -133,16 +133,19 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<byte[]> MonthlyExcelData(int year, int month)
+    public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
     {
         var handovers = _context.MechanicsAcceptances
-            .Where(mh => mh.Date.Month == month && mh.Date.Year == year)
+            .Where(mh => mh.Date.Month == propertyForExportFile.Month && mh.Date.Year == propertyForExportFile.Year)
             .Include(d => d.Car)
             .Include(a => a.Driver)
             .ThenInclude(a => a.Account)
             .Include(m => m.Mechanic)
             .ThenInclude(m => m.Account)
+            .AsNoTracking()
             .ToList();
+
+        if (handovers.Count == 0) return null;
 
         var statusMappings = new Dictionary<Status, string>
         {
@@ -163,7 +166,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
             // Adding title
             worksheet.Range["A1:K1"].Merge();
-            worksheet.Range["A1"].Text = $"Информация о механик(приемник) на эту дату {month}.{year}";
+            worksheet.Range["A1"].Text = $"Информация о механик(приемник) на эту дату {propertyForExportFile.Month}.{propertyForExportFile.Year}";
             worksheet.Range["A1"].CellStyle.Font.Bold = true;
             worksheet.Range["A1"].CellStyle.Font.Size = 16;
             worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -182,12 +185,12 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
             worksheet.Columns[0].ColumnWidth = 20; // MechanicName
             worksheet.Columns[1].ColumnWidth = 20; // DriverName
-            worksheet.Columns[2].ColumnWidth = 25; // CarName
+            worksheet.Columns[2].ColumnWidth = 40; // CarName
             worksheet.Columns[3].ColumnWidth = 15; // Distance
-            worksheet.Columns[4].ColumnWidth = 20; // Date
-            worksheet.Columns[5].ColumnWidth = 10; // IsHanded
-            worksheet.Columns[6].ColumnWidth = 15; // Status
-            worksheet.Columns[7].ColumnWidth = 35; // Comments
+            worksheet.Columns[4].ColumnWidth = 15; // Date
+            worksheet.Columns[5].ColumnWidth = 15; // IsHanded
+            worksheet.Columns[6].ColumnWidth = 25; // Status
+            worksheet.Columns[7].ColumnWidth = 40; // Comments
 
             // Adding data
             for (int i = 0; i < handovers.Count; i++)
@@ -205,9 +208,6 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
                 worksheet.Range["H" + row].Text = handover.Comments;
             }
 
-            worksheet.UsedRange.AutofitColumns();
-
-            // Save the workbook to a memory stream
             using (MemoryStream stream = new MemoryStream())
             {
                 workbook.SaveAs(stream);
