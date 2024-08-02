@@ -58,7 +58,7 @@ public class DashboardService : IDashboardService
                          Ai91 = r.Ai91,
                          Ai92 = r.Ai92,
                          Ai95 = r.Ai95,
-                         //Diesel = r.Diesel
+                         Diesel = r.Diesel
                      })
                      .ToList();
 
