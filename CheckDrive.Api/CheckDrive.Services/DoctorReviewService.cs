@@ -119,6 +119,11 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var doctorReviewEntity = _mapper.Map<DoctorReview>(doctorReviewForCreate);
 
+        var driver = _context.Drivers.FirstOrDefault(x => x.Id == doctorReviewEntity.DriverId);
+
+        driver.isBusy = true;
+        _context.Drivers.Update(driver);
+ 
         await _context.DoctorReviews.AddAsync(doctorReviewEntity);
         await _context.SaveChangesAsync();
 

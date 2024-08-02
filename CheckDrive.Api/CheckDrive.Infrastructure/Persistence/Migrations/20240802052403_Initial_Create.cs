@@ -25,7 +25,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     MeduimFuelConsumption = table.Column<double>(type: "float", nullable: false),
                     FuelTankCapacity = table.Column<double>(type: "float", nullable: false),
                     RemainingFuel = table.Column<double>(type: "float", nullable: false),
-                    ManufacturedYear = table.Column<int>(type: "int", nullable: false)
+                    ManufacturedYear = table.Column<int>(type: "int", nullable: false),
+                    isBusy = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -143,7 +144,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false)
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    isBusy = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
