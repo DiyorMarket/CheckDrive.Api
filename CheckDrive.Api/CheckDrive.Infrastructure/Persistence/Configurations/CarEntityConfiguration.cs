@@ -11,6 +11,9 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.ToTable("Car");
             builder.HasKey(c => c.Id);
 
+            builder.Property(x => x.isBusy)
+                .IsRequired();
+
             builder.Property(x => x.Model)
                 .HasMaxLength(255)
                 .IsRequired();

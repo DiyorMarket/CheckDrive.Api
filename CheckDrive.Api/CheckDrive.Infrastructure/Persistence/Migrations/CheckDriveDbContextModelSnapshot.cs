@@ -109,6 +109,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<double>("RemainingFuel")
                         .HasColumnType("float");
 
+                    b.Property<bool>("isBusy")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.ToTable("Car", (string)null);
@@ -255,6 +258,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("isBusy")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

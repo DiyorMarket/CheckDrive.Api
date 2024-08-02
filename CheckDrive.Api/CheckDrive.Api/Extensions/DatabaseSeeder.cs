@@ -73,16 +73,16 @@ namespace CheckDrive.Api.Extensions
                 .First(x => x != null && x.Name.ToLower().Contains("manager"))
                 .Id;
             var account = new Account()
-                    {
-                        Login = "manager",
-                        Password = "12345678",
-                        PhoneNumber = "+998945242132",
-                        FirstName = "Azamat",
-                        LastName = "G`iyosov",
-                        Bithdate = DateTime.Now.ToTashkentTime(),
-                        RoleId = 1,
-                    };
-                
+            {
+                Login = "manager",
+                Password = "12345678",
+                PhoneNumber = "+998945242132",
+                FirstName = "Azamat",
+                LastName = "G`iyosov",
+                Bithdate = DateTime.Now.ToTashkentTime(),
+                RoleId = 1,
+            };
+
 
             context.Accounts.Add(account);
             context.SaveChanges();
@@ -121,7 +121,7 @@ namespace CheckDrive.Api.Extensions
                     Model = "Matiz",
                     Color = "White",
                     Number = "01 146 PBA",
-                    Mileage = 128,
+                    Mileage = 128,                   
                     MeduimFuelConsumption = 6.4,
                     FuelTankCapacity = 35,
                     ManufacturedYear = 2015,

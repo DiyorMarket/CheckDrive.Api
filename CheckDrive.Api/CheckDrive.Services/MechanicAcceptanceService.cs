@@ -73,10 +73,15 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         var mechanicAcceptanceEntity = _mapper.Map<MechanicAcceptance>(acceptanceForCreateDto);
 
         await _context.MechanicsAcceptances.AddAsync(mechanicAcceptanceEntity);
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.CarId);
 
+        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.CarId);
+        var driver = _context.Drivers.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.DriverId);
+
+        driver.isBusy = false;
+        _context.Drivers.Update(driver);
         if (car != null)
         {
+            car.isBusy = false;
             car.Mileage = (int)mechanicAcceptanceEntity.Distance;
             _context.Cars.Update(car);
 

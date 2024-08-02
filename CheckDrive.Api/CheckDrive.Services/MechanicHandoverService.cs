@@ -70,10 +70,12 @@ public class MechanicHandoverService : IMechanicHandoverService
         var mechanicHandoverEntity = _mapper.Map<MechanicHandover>(handoverForCreateDto);
 
         await _context.MechanicsHandovers.AddAsync(mechanicHandoverEntity);
+
         var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicHandoverEntity.CarId);
 
         if (car != null)
         {
+            car.isBusy = true;
             car.Mileage = (int)mechanicHandoverEntity.Distance;
             _context.Cars.Update(car);
 
@@ -305,6 +307,7 @@ public class MechanicHandoverService : IMechanicHandoverService
             var review = response.FirstOrDefault(r => r.DriverId == doctor.DriverId);
             var doctorDto = _mapper.Map<DoctorReviewDto>(doctor);
             var reviewDto = _mapper.Map<MechanicHandoverDto>(review);
+
             if (review != null)
             {
                 mechanicHandovers.Add(new MechanicHandoverDto
