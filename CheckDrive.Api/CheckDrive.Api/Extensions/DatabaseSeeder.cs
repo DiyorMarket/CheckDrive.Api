@@ -13,18 +13,19 @@ namespace CheckDrive.Api.Extensions
             using var context = serviceProvider.GetRequiredService<CheckDriveDbContext>();
 
             CreateRoles(context);
+            CreateOilMarks(context);
             CreateAccounts(context);
-            //CreateCars(context);
-            //CreateDrivers(context);
-            //CreateDoctors(context);
-            //CreateOperators(context);
-            //CreateDispatchers(context);
-            //CreateMechanics(context);
-            //CreateDoctorReviews(context);
-            //CreateMechanicHandovers(context);
-            //CreateOperatorReviews(context);
-            //CreateMechanicAcceptance(context);
-            //CreateDispatcherReviews(context);
+            CreateCars(context);
+            CreateDrivers(context);
+            CreateDoctors(context);
+            CreateOperators(context);
+            CreateDispatchers(context);
+            CreateMechanics(context);
+            CreateDoctorReviews(context);
+            CreateMechanicHandovers(context);
+            CreateOperatorReviews(context);
+            CreateMechanicAcceptance(context);
+            CreateDispatcherReviews(context);
         }
 
         private static void CreateRoles(CheckDriveDbContext context)
@@ -63,28 +64,65 @@ namespace CheckDrive.Api.Extensions
             context.SaveChanges();
         }
 
+        private static void CreateOilMarks(CheckDriveDbContext context)
+        {
+            if (context.OilMarks.Any()) return;
+
+            List<OilMarks> oilMarks = new()
+            {
+                new OilMarks()
+                {
+                    OilMark = "A80"
+                },
+                new OilMarks()
+                {
+                    OilMark = "A91"
+                },
+                new OilMarks()
+                {
+                    OilMark = "A92"
+                },
+                new OilMarks()
+                {
+                    OilMark = "A95"
+                },
+                new OilMarks()
+                {
+                    OilMark = "Diesel"
+                },
+            };
+
+            context.OilMarks.AddRange(oilMarks);
+            context.SaveChanges();
+        }
+
         private static void CreateAccounts(CheckDriveDbContext context)
         {
             if (context.Accounts.Any()) return;
 
-            // Create only manager
-            var managerId = context
-                .Roles
-                .First(x => x != null && x.Name.ToLower().Contains("manager"))
-                .Id;
-            var account = new Account()
+            var roles = context.Roles.ToList();
+            List<Account> accounts = new();
+
+            foreach (var role in roles)
             {
-                Login = "manager",
-                Password = "12345678",
-                PhoneNumber = "+998945242132",
-                FirstName = "Azamat",
-                LastName = "G`iyosov",
-                Bithdate = DateTime.Now.ToTashkentTime(),
-                RoleId = 1,
-            };
+                var accountsCount = new Random().Next(5, 10);
 
+                for (int i = 0; i < accountsCount; i++)
+                {
+                    accounts.Add(new Account()
+                    {
+                        Login = _faker.Name.FirstName() + "@gmail.com",
+                        Password = _faker.Random.Word().PadRight(8).Substring(0, 8),
+                        PhoneNumber = _faker.Phone.PhoneNumber("+998#########"),
+                        FirstName = _faker.Name.FirstName(),
+                        LastName = _faker.Name.LastName(),
+                        Bithdate = _faker.Date.Between(DateTime.Now.AddYears(-50), DateTime.Now.AddYears(-20)).Date,
+                        RoleId = role.Id,
+                    });
+                }
+            }
 
-            context.Accounts.Add(account);
+            context.Accounts.AddRange(accounts);
             context.SaveChanges();
         }
 
@@ -375,6 +413,7 @@ namespace CheckDrive.Api.Extensions
             var operators = context.Operators.ToList();
             var drivers = context.Drivers.ToList();
             var cars = context.Cars.ToList();
+            var oilMark = context.OilMarks.ToList();
             List<OperatorReview> operatorReviews = new();
 
             foreach (var operatorr in operators)
@@ -384,6 +423,7 @@ namespace CheckDrive.Api.Extensions
                 {
                     var randomDriver = _faker.PickRandom(drivers);
                     var randomCar = _faker.PickRandom(cars);
+                    var randomOilMark = _faker.PickRandom(oilMark);
                     var status = _faker.Random.Enum<Status>();
                     var isGiven = _faker.Random.Bool();
                     var comments = isGiven ? "" : _faker.Lorem.Sentence();
@@ -397,7 +437,8 @@ namespace CheckDrive.Api.Extensions
                         Comments = comments,
                         OperatorId = operatorr.Id,
                         DriverId = randomDriver.Id,
-                        CarId = randomCar.Id
+                        CarId = randomCar.Id,
+                        OilMarkId = randomOilMark.Id,
                     });
                 }
             }
@@ -405,7 +446,6 @@ namespace CheckDrive.Api.Extensions
             context.OperatorReviews.AddRange(operatorReviews);
             context.SaveChanges();
         }
-
         private static void CreateMechanicAcceptance(CheckDriveDbContext context)
         {
             if (context.MechanicsAcceptances.Any()) return;

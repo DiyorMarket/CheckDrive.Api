@@ -66,21 +66,7 @@ public class DoctorReviewService : IDoctorReviewService
             var review = reviewsResponse.FirstOrDefault(r => r.DriverId == driver.Id);
             var driverDto = _mapper.Map<DriverDto>(driver);
             var reviewDto = _mapper.Map<DoctorReviewDto>(review);
-            if (review != null)
-            {
-                doctorReviews.Add(new DoctorReviewDto
-                {
-                    Id = review.Id,
-                    DriverId = driverDto.Id,
-                    DriverName = $"{driverDto.FirstName} {driverDto.LastName}",
-                    DoctorId = reviewDto.DoctorId,
-                    DoctorName = reviewDto.DoctorName,
-                    IsHealthy = reviewDto.IsHealthy,
-                    Comments = reviewDto.Comments,
-                    Date = reviewDto.Date
-                });
-            }
-            else
+            if (driver.isBusy is false)
             {
                 doctorReviews.Add(new DoctorReviewDto
                 {

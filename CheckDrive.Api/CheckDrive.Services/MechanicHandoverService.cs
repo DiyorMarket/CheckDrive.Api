@@ -284,6 +284,7 @@ public class MechanicHandoverService : IMechanicHandoverService
         var response = await _context.MechanicsHandovers
             .AsNoTracking()
             .Where(x => x.Date.Date == date)
+            .OrderBy(x => x.DriverId)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -294,6 +295,7 @@ public class MechanicHandoverService : IMechanicHandoverService
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
             .Where(x => x.IsHealthy == true && x.Date.Date == date)
+            .OrderBy(x => x.DriverId)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -306,28 +308,12 @@ public class MechanicHandoverService : IMechanicHandoverService
         {
             var review = response.FirstOrDefault(r => r.DriverId == doctor.DriverId);
             var doctorDto = _mapper.Map<DoctorReviewDto>(doctor);
-            var reviewDto = _mapper.Map<MechanicHandoverDto>(review);
+            var reviewDto = review != null ? _mapper.Map<MechanicHandoverDto>(review) : null;
 
-            if (review != null)
-            {
-                mechanicHandovers.Add(new MechanicHandoverDto
-                {
-                    Id = reviewDto.Id,
-                    DriverId = reviewDto.DriverId,
-                    DriverName = doctorDto.DriverName,
-                    MechanicName = reviewDto.MechanicName,
-                    IsHanded = reviewDto.IsHanded,
-                    Distance = reviewDto.Distance,
-                    Comments = reviewDto.Comments,
-                    RemainingFuel = reviewDto.RemainingFuel,
-                    Date = reviewDto.Date,
-                    CarId = reviewDto.CarId,
-                    CarName = reviewDto.CarName,
-                    MechanicId = reviewDto.MechanicId,
-                    Status = reviewDto.Status,
-                });
-            }
-            else
+            int driverCountInDoctorResponse = doctorReviewsResponse.Count(r => r.DriverId == doctor.DriverId);
+            int driverCountInHandoverResponse = review != null ? response.Count(r => r.DriverId == review.DriverId) : 0;
+
+            if (driverCountInDoctorResponse > driverCountInHandoverResponse)
             {
                 mechanicHandovers.Add(new MechanicHandoverDto
                 {
@@ -350,6 +336,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         return paginatedResult.ToResponse();
     }
+
 
     private List<MechanicHandoverDto> ApplyFilters(MechanicHandoverResourceParameters parameters, List<MechanicHandoverDto> reviews)
     {

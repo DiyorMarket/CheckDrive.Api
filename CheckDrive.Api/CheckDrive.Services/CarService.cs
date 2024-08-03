@@ -97,6 +97,11 @@ public class CarService : ICarService
             query = query.Where(x => x.Model.Contains(resourceParameters.SearchString)
             || x.Color.Contains(resourceParameters.SearchString));
         }
+
+        if (resourceParameters.IsBusy is not null)
+        {
+            query = query.Where(x => x.isBusy == resourceParameters.IsBusy);
+        }
         //MeduimFuelConsumption
         if (resourceParameters.MeduimFuelConsumption is not null)
         {
