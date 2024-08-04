@@ -75,13 +75,21 @@ public class CarService : ICarService
 
     public async Task DeleteCarAsync(int id)
     {
-        var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == id);
+        var car = await _context.Cars
+            .Include(x => x.Reviewers)
+            .Include(mh => mh.MechanicHandovers)
+            .Include(ma => ma.MechanicAcceptance)
+            .Include(o => o.OperatorReviews)
+            .SingleOrDefaultAsync(x => x.Id == id);
 
         if (car is not null)
         {
+            _context.MechanicsHandovers.RemoveRange(car.MechanicHandovers);
+            _context.MechanicsAcceptances.RemoveRange(car.MechanicAcceptance);
+            _context.OperatorReviews.RemoveRange(car.OperatorReviews);
+            _context.DispatchersReviews.RemoveRange(car.Reviewers);
             _context.Cars.Remove(car);
         }
-
         await _context.SaveChangesAsync();
     }
 
