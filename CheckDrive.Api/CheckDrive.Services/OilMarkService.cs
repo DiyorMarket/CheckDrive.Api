@@ -65,10 +65,13 @@ namespace CheckDrive.Services
 
         public async Task DeleteMarkAsync(int id)
         {
-            var oilMark = await _context.OilMarks.FirstOrDefaultAsync(x => x.Id == id);
+            var oilMark = await _context.OilMarks
+                .Include(o => o.OperatorReviews)
+                .SingleOrDefaultAsync(x => x.Id == id);
 
             if (oilMark is not null)
             {
+                _context.OperatorReviews.RemoveRange(oilMark.OperatorReviews);
                 _context.OilMarks.Remove(oilMark);
             }
 
