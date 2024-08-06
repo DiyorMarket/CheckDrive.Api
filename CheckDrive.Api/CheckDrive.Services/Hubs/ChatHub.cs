@@ -169,16 +169,17 @@ namespace CheckDrive.Services.Hubs
             var mechanicHandover = await _dbContext.MechanicsHandovers
                 .FirstOrDefaultAsync(x => x.Id == reviewId);
 
+            mechanicHandover.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+
             #region
-            var car = _dbContext.Cars.FirstOrDefault(x => x.Id == mechanicHandover.CarId);
-            if (car is not null)
+            if (response == true)
             {
+                var car = _dbContext.Cars.FirstOrDefault(x => x.Id == mechanicHandover.CarId);
+
                 car.isBusy = false;
                 _dbContext.Cars.Update(car);
             }
             #endregion
-
-            mechanicHandover.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
             _dbContext.MechanicsHandovers.Update(mechanicHandover);
             await _dbContext.SaveChangesAsync();
