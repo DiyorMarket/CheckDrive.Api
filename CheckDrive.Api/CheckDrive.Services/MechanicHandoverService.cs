@@ -10,7 +10,6 @@ using CheckDrive.Domain.Pagniation;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
 
@@ -278,57 +277,39 @@ public class MechanicHandoverService : IMechanicHandoverService
         return query;
     }
 
-    public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(MechanicHandoverResourceParameters resourceParameters)
+    public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(
+        MechanicHandoverResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime().Date;
-        var response = await _context.MechanicsHandovers
-            .AsNoTracking()
-            .Where(x => x.Date.Date == date)
-            .OrderBy(x => x.DriverId)
-            .Include(x => x.Mechanic)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Car)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .ToListAsync();
-
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.IsHealthy == true && x.Date.Date == date)
-            .OrderBy(x => x.DriverId)
+            .Where(x => x.Driver.CheckLevel == 1)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
             .ThenInclude(x => x.Account)
+            .GroupBy(x => x.DriverId)
+            .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
             .ToListAsync();
 
         var mechanicHandovers = new List<MechanicHandoverDto>();
 
         foreach (var doctor in doctorReviewsResponse)
         {
-            var review = response.FirstOrDefault(r => r.DriverId == doctor.DriverId);
             var doctorDto = _mapper.Map<DoctorReviewDto>(doctor);
-            var reviewDto = review != null ? _mapper.Map<MechanicHandoverDto>(review) : null;
 
-            int driverCountInDoctorResponse = doctorReviewsResponse.Count(r => r.DriverId == doctor.DriverId);
-            int driverCountInHandoverResponse = review != null ? response.Count(r => r.DriverId == review.DriverId) : 0;
-
-            if (driverCountInDoctorResponse > driverCountInHandoverResponse)
+            mechanicHandovers.Add(new MechanicHandoverDto
             {
-                mechanicHandovers.Add(new MechanicHandoverDto
-                {
-                    DriverId = doctorDto.DriverId,
-                    DriverName = doctorDto.DriverName,
-                    CarName = "",
-                    MechanicName = "",
-                    RemainingFuel = 0,
-                    IsHanded = false,
-                    Distance = 0,
-                    Comments = "",
-                    Date = DateTime.Today.ToTashkentTime().Date,
-                    Status = ApiContracts.StatusForDto.Unassigned,
-                });
-            }
+                DriverId = doctorDto.DriverId,
+                DriverName = doctorDto.DriverName,
+                CarName = "",
+                MechanicName = "",
+                RemainingFuel = 0,
+                IsHanded = false,
+                Distance = 0,
+                Comments = "",
+                Date = DateTime.Today.ToTashkentTime().Date,
+                Status = ApiContracts.StatusForDto.Unassigned,
+            });
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, mechanicHandovers);
@@ -336,7 +317,6 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         return paginatedResult.ToResponse();
     }
-
 
     private List<MechanicHandoverDto> ApplyFilters(MechanicHandoverResourceParameters parameters, List<MechanicHandoverDto> reviews)
     {

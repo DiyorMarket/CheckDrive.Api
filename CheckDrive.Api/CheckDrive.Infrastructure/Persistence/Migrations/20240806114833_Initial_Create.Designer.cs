@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20240802052403_Initial_Create")]
+    [Migration("20240806114833_Initial_Create")]
     partial class Initial_Create
     {
         /// <inheritdoc />
@@ -262,8 +262,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isBusy")
-                        .HasColumnType("bit");
+                    b.Property<int>("CheckLevel")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

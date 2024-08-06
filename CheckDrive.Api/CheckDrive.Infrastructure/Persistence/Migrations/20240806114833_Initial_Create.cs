@@ -145,7 +145,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AccountId = table.Column<int>(type: "int", nullable: false),
-                    isBusy = table.Column<bool>(type: "bit", nullable: false)
+                    CheckLevel = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -44,18 +44,9 @@ public class DoctorReviewService : IDoctorReviewService
 
     public async Task<GetBaseResponse<DoctorReviewDto>> GetDoctorReviewsForDoctorAsync(DoctorReviewResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime().Date;
-        var reviewsResponse = await _context.DoctorReviews
-            .AsNoTracking()
-            .Where(x => x.Date.Date == date)
-            .Include(x => x.Doctor)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .ToListAsync();
-
         var driversResponse = await _context.Drivers
             .AsNoTracking()
+            .Where(x => x.CheckLevel == 0)
             .Include(x => x.Account)
             .ToListAsync();
 
@@ -63,21 +54,17 @@ public class DoctorReviewService : IDoctorReviewService
 
         foreach (var driver in driversResponse)
         {
-            var review = reviewsResponse.FirstOrDefault(r => r.DriverId == driver.Id);
             var driverDto = _mapper.Map<DriverDto>(driver);
-            var reviewDto = _mapper.Map<DoctorReviewDto>(review);
-            if (driver.isBusy is false)
+
+            doctorReviews.Add(new DoctorReviewDto
             {
-                doctorReviews.Add(new DoctorReviewDto
-                {
-                    DriverId = driverDto.Id,
-                    DriverName = $"{driverDto.FirstName} {driverDto.LastName}",
-                    DoctorName = "",
-                    IsHealthy = false,
-                    Comments = "",
-                    Date = DateTime.Today.ToTashkentTime().Date
-                });
-            }
+                DriverId = driverDto.Id,
+                DriverName = $"{driverDto.FirstName} {driverDto.LastName}",
+                DoctorName = "",
+                IsHealthy = false,
+                Comments = "",
+                Date = DateTime.Today.ToTashkentTime().Date
+            });
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, doctorReviews);
@@ -105,11 +92,13 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var doctorReviewEntity = _mapper.Map<DoctorReview>(doctorReviewForCreate);
 
-        var driver = _context.Drivers.FirstOrDefault(x => x.Id == doctorReviewEntity.DriverId);
+        if(doctorReviewEntity.IsHealthy is true)
+        {
+            var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == doctorReviewEntity.DriverId);
+            driver.CheckLevel = 1;
+            _context.Drivers.Update(driver);
+        }
 
-        driver.isBusy = true;
-        _context.Drivers.Update(driver);
- 
         await _context.DoctorReviews.AddAsync(doctorReviewEntity);
         await _context.SaveChangesAsync();
 

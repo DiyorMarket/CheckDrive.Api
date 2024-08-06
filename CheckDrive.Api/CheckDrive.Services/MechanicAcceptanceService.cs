@@ -77,7 +77,6 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.CarId);
         var driver = _context.Drivers.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.DriverId);
 
-        driver.isBusy = false;
         _context.Drivers.Update(driver);
         if (car != null)
         {

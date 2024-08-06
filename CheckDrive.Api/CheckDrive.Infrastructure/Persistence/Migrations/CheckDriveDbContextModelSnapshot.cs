@@ -259,8 +259,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isBusy")
-                        .HasColumnType("bit");
+                    b.Property<int>("CheckLevel")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
