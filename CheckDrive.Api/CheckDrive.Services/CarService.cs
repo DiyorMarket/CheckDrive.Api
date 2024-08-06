@@ -20,6 +20,7 @@ public class CarService : ICarService
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
+
     public async Task<GetBaseResponse<CarDto>> GetCarsAsync(CarResourceParameters resourceParameters)
     {
         var query = GetQueryCarResParameters(resourceParameters);
@@ -153,6 +154,11 @@ public class CarService : ICarService
         }
 
         return query;
+    }
+
+    public Task<IEnumerable<CarHistoryDto>> GetCarHistories(int year, int month)
+    {
+        return null;
     }
 }
 

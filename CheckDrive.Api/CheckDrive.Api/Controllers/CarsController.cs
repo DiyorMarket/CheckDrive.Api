@@ -26,6 +26,13 @@ public class CarsController : Controller
 
         return Ok(cars);
     }
+    [HttpGet("driverHistories")]
+    public async Task<ActionResult<IEnumerable<CarHistoryDto>>> GetCarsHistory(int year, int month)
+    {
+        var carsHistory = await _carService.GetCarHistories(year, month);
+
+        return Ok(carsHistory);
+    }
 
     [HttpGet("{id}", Name = "GetCarById")]
     public async Task<ActionResult<CarDto>> GetCarByIdAsync(int id)

@@ -103,11 +103,6 @@ public class DriverService : IDriverService
             || x.Account.LastName.Contains(resourceParameters.SearchString));
         }
 
-        if(resourceParameters.IsBusy is not null)
-        {
-            query = query.Where(x => x.isBusy == resourceParameters.IsBusy);
-        }
-
         if (resourceParameters.AccountId != 0 && resourceParameters.AccountId is not null)
         {
             query = query.Where(x => x.AccountId == resourceParameters.AccountId);
