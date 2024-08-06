@@ -166,23 +166,32 @@ namespace CheckDrive.Services.Hubs
 
         private async Task UpdateStatusForMechanicHandover(int reviewId, bool response)
         {
-            var operatorReview = await _dbContext.MechanicsHandovers
+            var mechanicHandover = await _dbContext.MechanicsHandovers
                 .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-            operatorReview.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+            #region
+            var car = _dbContext.Cars.FirstOrDefault(x => x.Id == mechanicHandover.CarId);
+            if (car is not null)
+            {
+                car.isBusy = false;
+                _dbContext.Cars.Update(car);
+            }
+            #endregion
 
-            _dbContext.MechanicsHandovers.Update(operatorReview);
+            mechanicHandover.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+
+            _dbContext.MechanicsHandovers.Update(mechanicHandover);
             await _dbContext.SaveChangesAsync();
         }
 
         private async Task UpdateStatusForMechanicAcceptances(int reviewId, bool response)
         {
-            var operatorReview = await _dbContext.MechanicsAcceptances
+            var mechanicAcceptance = await _dbContext.MechanicsAcceptances
                 .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-            operatorReview.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+            mechanicAcceptance.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
-            _dbContext.MechanicsAcceptances.Update(operatorReview);
+            _dbContext.MechanicsAcceptances.Update(mechanicAcceptance);
             await _dbContext.SaveChangesAsync();
         }
     }

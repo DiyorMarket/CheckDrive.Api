@@ -77,8 +77,8 @@ public class MechanicHandoverService : IMechanicHandoverService
             car.isBusy = true;
             car.Mileage = (int)mechanicHandoverEntity.Distance;
             _context.Cars.Update(car);
-
         }
+
         await _context.SaveChangesAsync();
 
         if (mechanicHandoverEntity.IsHanded == true)
