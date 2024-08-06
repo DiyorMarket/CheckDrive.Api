@@ -172,7 +172,7 @@ namespace CheckDrive.Services.Hubs
             mechanicHandover.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
             #region
-            if (response == true)
+            if (response == false)
             {
                 var car = _dbContext.Cars.FirstOrDefault(x => x.Id == mechanicHandover.CarId);
 
