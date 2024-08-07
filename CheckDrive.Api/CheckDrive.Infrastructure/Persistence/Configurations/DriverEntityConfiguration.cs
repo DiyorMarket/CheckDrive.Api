@@ -11,7 +11,7 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.ToTable(nameof(Driver));
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.CheckLevel)
+            builder.Property(x => x.CheckPoint)
                 .IsRequired();
 
             builder.HasOne(x => x.Account)

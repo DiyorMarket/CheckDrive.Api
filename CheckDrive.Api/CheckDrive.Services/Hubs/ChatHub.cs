@@ -172,12 +172,16 @@ namespace CheckDrive.Services.Hubs
             mechanicHandover.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
             #region
-            if (response == false)
+            if (response == true)
             {
-                var car = _dbContext.Cars.FirstOrDefault(x => x.Id == mechanicHandover.CarId);
-
-                car.isBusy = false;
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandover.CarId);
+                
+                car.isBusy = true;
                 _dbContext.Cars.Update(car);
+
+                var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicHandover.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedMechanicHandover;
+                _dbContext.Drivers.Update(driver);
             }
             #endregion
 

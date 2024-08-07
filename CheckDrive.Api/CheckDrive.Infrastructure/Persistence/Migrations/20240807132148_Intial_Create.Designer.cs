@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20240806114833_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20240807132148_Intial_Create")]
+    partial class Intial_Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -262,7 +262,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CheckLevel")
+                    b.Property<int>("CheckPoint")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

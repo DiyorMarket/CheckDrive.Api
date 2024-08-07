@@ -74,7 +74,6 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         if (car != null)
         {
-            car.isBusy = true;
             car.Mileage = (int)mechanicHandoverEntity.Distance;
             _context.Cars.Update(car);
         }
@@ -105,13 +104,18 @@ public class MechanicHandoverService : IMechanicHandoverService
         var mechanicHandoverEntity = _mapper.Map<MechanicHandover>(handoverForUpdateDto);
 
         _context.MechanicsHandovers.Update(mechanicHandoverEntity);
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicHandoverEntity.CarId);
 
-        if (car != null)
+        if (mechanicHandoverEntity.Status == Status.Completed)
         {
-            car.Mileage = (int)mechanicHandoverEntity.Distance;
-            _context.Cars.Update(car);
+            var _car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandoverEntity.CarId);
 
+            _car.isBusy = true;
+            _car.Mileage = (int)mechanicHandoverEntity.Distance;
+            _context.Cars.Update(_car);
+
+            var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicHandoverEntity.DriverId);
+            driver.CheckPoint = DriverCheckPoint.PassedMechanicHandover;
+            _context.Drivers.Update(driver);
         }
         await _context.SaveChangesAsync();
 
@@ -282,7 +286,7 @@ public class MechanicHandoverService : IMechanicHandoverService
     {
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.Driver.CheckLevel == 1)
+            .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedDoctor)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
