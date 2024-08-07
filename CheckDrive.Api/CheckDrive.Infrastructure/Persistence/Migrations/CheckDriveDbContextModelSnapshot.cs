@@ -259,7 +259,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CheckLevel")
+                    b.Property<int>("CheckPoint")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
