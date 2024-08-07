@@ -46,13 +46,20 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var driversResponse = await _context.Drivers
             .AsNoTracking()
-            .Where(x => x.CheckLevel == 0)
+            .Where(x => x.CheckPoint == DriverCheckPoint.Initial)
             .Include(x => x.Account)
+            .Include(x => x.DoctorReviews)
             .ToListAsync();
+
+        var today = DateTime.Today.ToTashkentTime().Date;
+
+        var filteredDrivers = driversResponse
+            .Where(driver => !driver.DoctorReviews.Any(dr => dr.Date.Date == today && dr.IsHealthy == false))
+            .ToList();
 
         var doctorReviews = new List<DoctorReviewDto>();
 
-        foreach (var driver in driversResponse)
+        foreach (var driver in filteredDrivers)
         {
             var driverDto = _mapper.Map<DriverDto>(driver);
 
@@ -92,10 +99,10 @@ public class DoctorReviewService : IDoctorReviewService
     {
         var doctorReviewEntity = _mapper.Map<DoctorReview>(doctorReviewForCreate);
 
-        if(doctorReviewEntity.IsHealthy is true)
+        if (doctorReviewEntity.IsHealthy is true)
         {
             var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == doctorReviewEntity.DriverId);
-            driver.CheckLevel = 1;
+            driver.CheckPoint = DriverCheckPoint.PassedDoctor;
             _context.Drivers.Update(driver);
         }
 
