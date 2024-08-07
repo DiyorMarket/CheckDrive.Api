@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicHandover;
-using CheckDrive.ApiContracts.OilMark;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces.Hubs;
@@ -15,7 +13,6 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
-using System.Numerics;
 
 namespace CheckDrive.Services
 {
@@ -273,75 +270,41 @@ namespace CheckDrive.Services
 
         public async Task<GetBaseResponse<OperatorReviewDto>> GetOperatorReviewsForOperatorAsync(OperatorReviewResourceParameters resourceParameters)
         {
-            var date = DateTime.Today.ToTashkentTime().Date;
-            var reviewsResponse = await _context.OperatorReviews
-                .AsNoTracking()
-                .Where(x => x.Date.Date == date)
-                .OrderBy(x => x.DriverId)
-                .Include(x => x.Operator)
-                .ThenInclude(x => x.Account)
-                .Include(x => x.Driver)
-                .ThenInclude(x => x.Account)
-                .Include(x => x.Car)
-                .Include(x => x.OilMark)
-                .ToListAsync();
-
             var mechanicHandoverResponse = await _context.MechanicsHandovers
-                .AsNoTracking()
-                .Where(x => x.Date.Date == date && x.Status == Status.Completed)
-                .OrderBy(x => x.DriverId)
-                .Include(x => x.Mechanic)
-                .ThenInclude(x => x.Account)
-                .Include(x => x.Car)
-                .Include(x => x.Driver)
-                .ThenInclude(x => x.Account)
-                .ToListAsync();
-
-            var cars = await _context.Cars
-                .ToListAsync();
-
-            var oilMarks = await _context.OilMarks
-                .ToListAsync();
+                 .AsNoTracking()
+                 .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedMechanicHandover)
+                 .Include(x => x.Mechanic)
+                 .ThenInclude(x => x.Account)
+                 .Include(x => x.Car)
+                 .Include(x => x.Driver)
+                 .ThenInclude(x => x.Account)
+                 .GroupBy(x => x.DriverId)
+                 .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
+                 .ToListAsync();
 
             var operators = new List<OperatorReviewDto>();
 
             foreach (var mechanicHandover in mechanicHandoverResponse)
             {
-                var car = cars.FirstOrDefault(c => c.Id == mechanicHandover.CarId);
-                var review = reviewsResponse.FirstOrDefault(r => r.DriverId == mechanicHandover.DriverId);
-                var oilMark = new OilMarks();
-                if (review != null)
-                {
-                    oilMark = oilMarks.FirstOrDefault(o => o.Id == review.OilMarkId);
-                }
-                var carDto = _mapper.Map<CarDto>(car);
-                var reviewDto = _mapper.Map<OperatorReviewDto>(review);
                 var mechanicHandoverDto = _mapper.Map<MechanicHandoverDto>(mechanicHandover);
-                var oilMarkDto = _mapper.Map<OilMarkDto>(oilMark);
 
-                int driverCountInmechanicHandoverResponse = mechanicHandoverResponse.Count(r => r.DriverId == mechanicHandover.DriverId);
-                int driverCountInOperatorResponse = review != null ? reviewsResponse.Count(r => r.DriverId == review.DriverId) : 0;
-
-                if (driverCountInmechanicHandoverResponse > driverCountInOperatorResponse)
+                operators.Add(new OperatorReviewDto
                 {
-                    operators.Add(new OperatorReviewDto
-                    {
-                        DriverId = mechanicHandoverDto.DriverId,
-                        DriverName = mechanicHandoverDto.DriverName,
-                        OperatorName = null,
-                        CarId = carDto?.Id ?? 0,
-                        CarModel = carDto?.Model ?? string.Empty,
-                        CarNumber = carDto?.Number ?? string.Empty,
-                        CarOilCapacity = carDto?.FuelTankCapacity.ToString() ?? string.Empty,
-                        CarOilRemainig = carDto?.RemainingFuel.ToString() ?? string.Empty,
-                        OilAmount = null,
-                        OilMarks = null,
-                        IsGiven = null,
-                        Comments = null,
-                        Date = null,
-                        Status = StatusForDto.Unassigned
-                    });
-                }
+                    DriverId = mechanicHandoverDto.DriverId,
+                    DriverName = mechanicHandoverDto.DriverName,
+                    OperatorName = null,
+                    CarId = mechanicHandover.Car.Id,
+                    CarModel = mechanicHandover.Car.Model,
+                    CarNumber = mechanicHandover.Car.Number,
+                    CarOilCapacity = mechanicHandover.Car.FuelTankCapacity.ToString(),
+                    CarOilRemainig = mechanicHandover.Car.RemainingFuel.ToString(),
+                    OilAmount = null,
+                    OilMarks = null,
+                    IsGiven = null,
+                    Comments = null,
+                    Date = null,
+                    Status = StatusForDto.Unassigned
+                });
             }
 
             var filteredReviews = ApplyFilters(resourceParameters, operators);
