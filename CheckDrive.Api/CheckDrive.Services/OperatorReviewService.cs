@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
@@ -13,6 +14,7 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation.Security;
 
 namespace CheckDrive.Services
 {
@@ -93,6 +95,13 @@ namespace CheckDrive.Services
         {
             var operatorReviewEntity = _mapper.Map<OperatorReview>(reviewForUpdateDto);
 
+            if (reviewForUpdateDto.IsGiven == true)
+            {
+                var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == reviewForUpdateDto.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedOperator;
+                _context.Update(driver);
+            }
+     
             _context.OperatorReviews.Update(operatorReviewEntity);
 
             await _context.SaveChangesAsync();

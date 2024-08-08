@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
-using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Entities;
@@ -13,6 +13,7 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation.Security;
 
 namespace CheckDrive.Services;
 
@@ -74,17 +75,6 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         await _context.MechanicsAcceptances.AddAsync(mechanicAcceptanceEntity);
 
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.CarId);
-        var driver = _context.Drivers.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.DriverId);
-
-        _context.Drivers.Update(driver);
-        if (car != null)
-        {
-            car.isBusy = false;
-            car.Mileage = (int)mechanicAcceptanceEntity.Distance;
-            _context.Cars.Update(car);
-
-        }
         await _context.SaveChangesAsync();
 
         if (mechanicAcceptanceEntity.IsAccepted == true)
@@ -110,14 +100,18 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         var mechanicAcceptanceEntity = _mapper.Map<MechanicAcceptance>(acceptanceForUpdateDto);
 
         _context.MechanicsAcceptances.Update(mechanicAcceptanceEntity);
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicAcceptanceEntity.CarId);
 
-        if (car != null)
+        if (acceptanceForUpdateDto.IsAccepted == true)
         {
-            car.Mileage = (int)mechanicAcceptanceEntity.Distance;
+            var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.CarId);
+            car.isBusy = false;
             _context.Cars.Update(car);
 
+            var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.DriverId);
+            driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
+            _context.Drivers.Update(driver);
         }
+
         await _context.SaveChangesAsync();
 
         var mechanicAcceptanceDto = _mapper.Map<MechanicAcceptanceDto>(mechanicAcceptanceEntity);
@@ -285,74 +279,41 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
     public async Task<GetBaseResponse<MechanicAcceptanceDto>> GetMechanicAcceptencesForMechanicAsync(MechanicAcceptanceResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime().Date;
-        var response = await _context.MechanicsAcceptances
-            .AsNoTracking()
-            .Where(x => x.Date.Date == date)
-            .Include(x => x.Mechanic)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Car)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .ToListAsync();
-
         var operatorReviewsResponse = await _context.OperatorReviews
             .AsNoTracking()
-            .Where(dr => dr.Date.Date == date && dr.Status == Status.Completed)
+            .Where(dr => dr.Driver.CheckPoint == DriverCheckPoint.PassedOperator)
             .Include(x => x.Operator)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
             .Include(x => x.OilMark)
-            .ToListAsync();
-
-        var carResponse = await _context.Cars
+            .GroupBy(x => x.DriverId)
+            .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
             .ToListAsync();
 
         var mechanicAcceptance = new List<MechanicAcceptanceDto>();
 
         foreach (var operatorr in operatorReviewsResponse)
         {
-            var review = response.FirstOrDefault(r => r.DriverId == operatorr.DriverId);
-            var carReview = carResponse.FirstOrDefault(c => c.Id == operatorr.CarId);
-            var reviewDto = _mapper.Map<MechanicAcceptanceDto>(review);
             var operatorReviewDto = _mapper.Map<OperatorReviewDto>(operatorr);
-            var carDto = _mapper.Map<CarDto>(carReview);
-            if (review != null)
+
+            var carReview = await _context.Cars.FirstOrDefaultAsync(c => c.Id == operatorr.CarId);
+
+            mechanicAcceptance.Add(new MechanicAcceptanceDto
             {
-                mechanicAcceptance.Add(new MechanicAcceptanceDto
-                {
-                    CarId = reviewDto.CarId,
-                    CarName = reviewDto.CarName,
-                    DriverId = reviewDto.DriverId,
-                    DriverName = operatorReviewDto.DriverName,
-                    MechanicName = reviewDto.MechanicName,
-                    RemainingFuel = reviewDto.RemainingFuel,
-                    IsAccepted = reviewDto.IsAccepted,
-                    Distance = reviewDto.Distance,
-                    Comments = reviewDto.Comments,
-                    Date = reviewDto.Date,
-                    Status = reviewDto.Status
-                });
-            }
-            else
-            {
-                mechanicAcceptance.Add(new MechanicAcceptanceDto
-                {
-                    DriverId = operatorReviewDto.DriverId,
-                    DriverName = operatorReviewDto.DriverName,
-                    CarId = operatorReviewDto.CarId,
-                    CarName = $"{operatorReviewDto.CarModel} ({operatorReviewDto.CarNumber})",
-                    MechanicName = "",
-                    RemainingFuel = carDto.RemainingFuel,
-                    IsAccepted = false,
-                    Distance = 0,
-                    Comments = "",
-                    Date = null,
-                    Status = ApiContracts.StatusForDto.Unassigned,
-                });
-            }
+                DriverId = operatorReviewDto.DriverId,
+                DriverName = operatorReviewDto.DriverName,
+                CarId = operatorReviewDto.CarId,
+                CarName = $"{operatorReviewDto.CarModel} ({operatorReviewDto.CarNumber})",
+                MechanicName = "",
+                RemainingFuel = carReview.RemainingFuel,
+                IsAccepted = false,
+                Distance = 0,
+                Comments = "",
+                Date = null,
+                Status = ApiContracts.StatusForDto.Unassigned,
+            });
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, mechanicAcceptance);

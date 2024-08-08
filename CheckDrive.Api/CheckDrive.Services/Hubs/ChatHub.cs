@@ -160,6 +160,13 @@ namespace CheckDrive.Services.Hubs
 
             operatorReview.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
+            if (response == true)
+            {
+                var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == operatorReview.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedOperator;
+                _dbContext.Update(driver);
+            }
+
             _dbContext.OperatorReviews.Update(operatorReview);
             await _dbContext.SaveChangesAsync();
         }
@@ -195,6 +202,20 @@ namespace CheckDrive.Services.Hubs
                 .FirstOrDefaultAsync(x => x.Id == reviewId);
 
             mechanicAcceptance.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+
+            #region
+            if (response == true)
+            {
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.CarId);
+
+                car.isBusy = false;
+                _dbContext.Cars.Update(car);
+
+                var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
+                _dbContext.Drivers.Update(driver);
+            }
+            #endregion
 
             _dbContext.MechanicsAcceptances.Update(mechanicAcceptance);
             await _dbContext.SaveChangesAsync();
