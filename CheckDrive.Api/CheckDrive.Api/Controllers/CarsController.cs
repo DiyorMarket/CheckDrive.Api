@@ -1,6 +1,8 @@
-﻿using CheckDrive.ApiContracts.Car;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Car;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
+using CheckDrive.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -71,6 +73,16 @@ public class CarsController : Controller
         await _carService.DeleteCarAsync(id);
 
         return NoContent();
+    }
+
+    [HttpGet("car/export")]
+    public async Task<ActionResult> ExportOperatorToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
+    {
+        byte[] file = await _carService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Cars.xls");
     }
 }
 

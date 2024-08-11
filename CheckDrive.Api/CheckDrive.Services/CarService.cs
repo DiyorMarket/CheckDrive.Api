@@ -10,6 +10,7 @@ using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.XlsIO;
 
 namespace CheckDrive.Services;
 
@@ -175,7 +176,7 @@ public class CarService : ICarService
 
         List<CarHistoryDto> carHistory = new List<CarHistoryDto>();
 
-        foreach(var car in cars)
+        foreach (var car in cars)
         {
             var totalDistanceCovered = dispatcherResponse
             .Where(x => x.CarId == car.Id)
@@ -186,7 +187,7 @@ public class CarService : ICarService
                 .OrderByDescending(x => x.Date)
                 .First();
 
-            var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherReview); 
+            var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherReview);
 
             carHistory.Add(new CarHistoryDto
             {
@@ -202,6 +203,71 @@ public class CarService : ICarService
         }
 
         return carHistory;
+    }
+
+    public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
+    {
+        var cars = await GetCarHistories(propertyForExportFile.Year, propertyForExportFile.Month);
+
+        if (cars == null) return null;
+
+        using (ExcelEngine excel = new ExcelEngine())
+        {
+            IApplication application = excel.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2016;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            // Adding title
+            worksheet.Range["A1:K1"].Merge();
+            worksheet.Range["A1"].Text = $"Информация автомобилях на эту дату {propertyForExportFile.Month}.{propertyForExportFile.Year}";
+            worksheet.Range["A1"].CellStyle.Font.Bold = true;
+            worksheet.Range["A1"].CellStyle.Font.Size = 16;
+            worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            // Adding headers
+            worksheet.Range["A2"].Text = "Имя автомобиля";
+            worksheet.Range["B2"].Text = "Номер автомобиля";
+            worksheet.Range["C2"].Text = "Ежемесячно средняя дистанция";
+            worksheet.Range["D2"].Text = "Ежемесячный пробег";
+            worksheet.Range["E2"].Text = "Ежемесячные нормальные расходы топлива";
+            worksheet.Range["F2"].Text = "Ежемесячный расходы топлива";
+            worksheet.Range["G2"].Text = "Ежемесячно заправляемое топлива";
+            worksheet.Range["H2"].Text = "Оставшееся топливо";
+
+            // Настройка ширины столбцов
+            worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
+            worksheet.Columns[0].ColumnWidth = 20; // MechanicName
+            worksheet.Columns[1].ColumnWidth = 20; // DriverName
+            worksheet.Columns[2].ColumnWidth = 20; // CarName
+            worksheet.Columns[3].ColumnWidth = 20; // Distance
+            worksheet.Columns[4].ColumnWidth = 20; // Date
+            worksheet.Columns[5].ColumnWidth = 20; // IsHanded
+            worksheet.Columns[6].ColumnWidth = 20; // Status
+            worksheet.Columns[7].ColumnWidth = 20; // Comments
+
+            int row = 3;
+            foreach (var car in cars)
+            {
+                worksheet.Range["A" + row].Text = car.Model;
+                worksheet.Range["B" + row].Text = car.Number;
+                worksheet.Range["C" + row].Number = car.MonthlyMediumDistance;
+                worksheet.Range["D" + row].Number = car.MonthlyMileage;
+                worksheet.Range["E" + row].Number = car.MonthlyNormalOilSpend;
+                worksheet.Range["F" + row].Number = car.MonthlySpentOil;
+                worksheet.Range["G" + row].Number = car.MonthlyRefueledOil;
+                worksheet.Range["H" + row].Number = car.RemainingFuel;
+                row++;
+            }
+
+            // Save the workbook to a memory stream
+            using (MemoryStream stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                return stream.ToArray();
+            }
+        }
     }
 }
 

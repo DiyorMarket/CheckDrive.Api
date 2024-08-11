@@ -156,7 +156,7 @@ public class OperatorsController : Controller
 
     [Authorize(Policy = "AdminOrMechanic")]
     [HttpGet("review/export")]
-    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
+    public async Task<ActionResult> ExportOperatorToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
     {
         byte[] file = await _operatorReviewService.MonthlyExcelData(propertyForExportFile);
 

@@ -211,8 +211,6 @@ public class MechanicHandoverService : IMechanicHandoverService
                 worksheet.Range["H" + row].Text = handover.Comments;
             }
 
-            worksheet.UsedRange.AutofitColumns();
-
             // Save the workbook to a memory stream
             using (MemoryStream stream = new MemoryStream())
             {
