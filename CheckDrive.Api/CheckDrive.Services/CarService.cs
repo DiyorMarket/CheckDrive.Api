@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
+using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
+using CheckDrive.ApiContracts.DispatcherReview;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;
@@ -156,9 +159,49 @@ public class CarService : ICarService
         return query;
     }
 
-    public Task<IEnumerable<CarHistoryDto>> GetCarHistories(int year, int month)
+    public async Task<IEnumerable<CarHistoryDto>> GetCarHistories(int year, int month)
     {
-        return null;
+        var date = DateTime.Today.ToTashkentTime().Date;
+
+        var dispatcherResponse = await _context.DispatchersReviews
+            .AsNoTracking()
+            .Where(x => x.Date.Month == month && x.Date.Year == year)
+            .Include(ma => ma.MechanicAcceptance)
+            .Include(mh => mh.MechanicHandover)
+            .Include(d => d.Car)
+            .ToListAsync();
+
+        var cars = await _context.Cars.ToListAsync();
+
+        List<CarHistoryDto> carHistory = new List<CarHistoryDto>();
+
+        foreach(var car in cars)
+        {
+            var totalDistanceCovered = dispatcherResponse
+            .Where(x => x.CarId == car.Id)
+            .Sum(x => x.DistanceCovered);
+
+            var dispatcherReview = dispatcherResponse
+                .Where(x => x.CarId == car.Id)
+                .OrderByDescending(x => x.Date)
+                .First();
+
+            var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherReview); 
+
+            carHistory.Add(new CarHistoryDto
+            {
+                Model = car.Model,
+                Number = car.Number,
+                MonthlyMediumDistance = car.OneYearMediumDistance / 12,
+                MonthlyMileage = (int)totalDistanceCovered,
+                MonthlyNormalOilSpend = (car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100,
+                MonthlySpentOil = totalDistanceCovered * car.MeduimFuelConsumption / 100,
+                MonthlyRefueledOil = ((car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100) - (totalDistanceCovered * car.MeduimFuelConsumption / 100),
+                RemainingFuel = dispatcherReviewDto.RemainigFuelAfter,
+            });
+        }
+
+        return carHistory;
     }
 }
 
