@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
@@ -14,6 +15,7 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation.Security;
 
 namespace CheckDrive.Services;
 
@@ -75,6 +77,10 @@ public class DispatcherReviewService : IDispatcherReviewService
     {
         var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForCreate);
 
+         var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
+         driver.CheckPoint = DriverCheckPoint.Initial;
+         _context.Drivers.Update(driver);
+
         await _context.DispatchersReviews.AddAsync(dispatcherEntity);
         await _context.SaveChangesAsync();
 
@@ -86,7 +92,6 @@ public class DispatcherReviewService : IDispatcherReviewService
     public async Task<DispatcherReviewDto> UpdateDispatcherReviewAsync(DispatcherReviewForUpdateDto dispatcherReviewForUpdate)
     {
         var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForUpdate);
-
         _context.DispatchersReviews.Update(dispatcherEntity);
         await _context.SaveChangesAsync();
 
@@ -293,42 +298,9 @@ public class DispatcherReviewService : IDispatcherReviewService
             .Select(x => x.OrderByDescending(x => x.Date).FirstOrDefault())
             .ToListAsync();
 
-
-
-        var date = DateTime.Today.ToTashkentTime().Date;
-        var reviewsResponse = await _context.DispatchersReviews
-            .AsNoTracking()
-            .Where(x => x.Date.Date == date)
-            .Include(x => x.Car)
-            .Include(x => x.Mechanic)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Operator)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.MechanicAcceptance)
-            .Include(x => x.MechanicHandover)
-            .Include(x => x.OperatorReview)
-            .ToListAsync();
-
-
-
-        var operatorReviewsResponse = await _context.OperatorReviews
-            .AsNoTracking()
-            .Where(dr => dr.Driver.CheckPoint == DriverCheckPoint.PassedOperator)
-            .Include(x => x.Operator)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Car)
-            .Include(x => x.OilMark)
-            .GroupBy(x => x.DriverId)
-            .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
-            .ToListAsync();
-
         var mechanicHandoverResponse = await _context.MechanicsHandovers
             .AsNoTracking()
-            .Where(x => x.Date.Date == date && x.Status == Status.Completed)
+            .Where(x=>x.Status == Status.Completed)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -338,7 +310,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
         var operatorResponse = await _context.OperatorReviews
             .AsNoTracking()
-            .Where(x => x.Date.Date == date && x.Status == Status.Completed)
+            .Where(x=>x.Status == Status.Completed)
             .Include(x => x.Operator)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
@@ -354,16 +326,15 @@ public class DispatcherReviewService : IDispatcherReviewService
 
         foreach (var mechanicAcceptance in mechanicAcceptanceResponse)
         {
-            var mechanicHandoverReview = mechanicHandoverResponse.FirstOrDefault(m => m.DriverId == mechanicAcceptance.DriverId && m.Date.Date == date);
-            var operatorReview = operatorResponse.FirstOrDefault(m => m.DriverId == mechanicAcceptance.DriverId && m.Date.Date == date);
+            var mechanicHandoverReview = mechanicHandoverResponse.FirstOrDefault(m => m.DriverId == mechanicAcceptance.DriverId);
+            var operatorReview = operatorResponse.FirstOrDefault(m => m.DriverId == mechanicAcceptance.DriverId);
             var carReview = carResponse.FirstOrDefault(c => c.Id == mechanicAcceptance.CarId);
-            var review = reviewsResponse.FirstOrDefault(r => r.DriverId == mechanicAcceptance.DriverId);
 
             var mechanicHandoverReviewDto = _mapper.Map<MechanicHandoverDto>(mechanicHandoverReview);
             var mechanicAcceptanceDto = _mapper.Map<MechanicAcceptanceDto>(mechanicAcceptance);
+
             var operatorReviewDto = _mapper.Map<OperatorReviewDto>(operatorReview);
             var carReviewDto = _mapper.Map<CarDto>(carReview);
-            var reviewDto = _mapper.Map<DispatcherReviewDto>(review);
 
 
             dispatchers.Add(new DispatcherReviewDto
@@ -373,24 +344,27 @@ public class DispatcherReviewService : IDispatcherReviewService
                 CarId = mechanicAcceptanceDto.CarId,
                 CarName = mechanicAcceptanceDto.CarName,
                 CarMeduimFuelConsumption = mechanicAcceptance.Car.MeduimFuelConsumption,
+
                 FuelSpended = (mechanicAcceptanceDto.Distance - mechanicHandoverReviewDto.Distance) * carReviewDto.MeduimFuelConsumption / 100,
                 DistanceCovered = mechanicAcceptanceDto.Distance - mechanicHandoverReviewDto.Distance,
+
                 InitialDistance = mechanicHandoverReviewDto.Distance,
                 FinalDistance = mechanicAcceptanceDto.Distance,
                 PouredFuel = operatorReviewDto.OilAmount ?? 0,
+
                 RemainigFuelBefore = carReviewDto.RemainingFuel - (double)operatorReviewDto.OilAmount,
                 RemainigFuelAfter = carReviewDto.RemainingFuel - ((mechanicAcceptanceDto.Distance - mechanicHandoverReviewDto.Distance) * carReviewDto.MeduimFuelConsumption / 100),
                 OperatorName = operatorReviewDto.OperatorName,
                 OperatorReviewId = operatorReviewDto.Id,
                 DispatcherName = "",
                 MechanicName = mechanicAcceptanceDto.MechanicName,
+
                 Date = DateTime.Today.ToTashkentTime().Date,
                 MechanicAcceptanceId = mechanicAcceptanceDto.Id,
                 MechanicHandoverId = mechanicHandoverReviewDto.Id,
                 OperatorId = operatorReviewDto.OperatorId,
                 MechanicId = mechanicAcceptanceDto.MechanicId
             });
-
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, dispatchers);
