@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Intial_Create : Migration
+    public partial class Initial_Create : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,7 +26,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     FuelTankCapacity = table.Column<double>(type: "float", nullable: false),
                     RemainingFuel = table.Column<double>(type: "float", nullable: false),
                     ManufacturedYear = table.Column<int>(type: "int", nullable: false),
-                    isBusy = table.Column<bool>(type: "bit", nullable: false)
+                    CarStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

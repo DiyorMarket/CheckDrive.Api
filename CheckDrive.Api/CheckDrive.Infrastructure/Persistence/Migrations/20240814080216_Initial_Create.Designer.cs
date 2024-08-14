@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20240807132148_Intial_Create")]
-    partial class Intial_Create
+    [Migration("20240814080216_Initial_Create")]
+    partial class Initial_Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,6 +79,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CarStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -111,9 +114,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     b.Property<double>("RemainingFuel")
                         .HasColumnType("float");
-
-                    b.Property<bool>("isBusy")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

@@ -183,7 +183,7 @@ namespace CheckDrive.Services.Hubs
             {
                 var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandover.CarId);
                 
-                car.isBusy = true;
+                car.CarStatus = CarStatus.Busy;
                 _dbContext.Cars.Update(car);
 
                 var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicHandover.DriverId);
@@ -208,7 +208,7 @@ namespace CheckDrive.Services.Hubs
             {
                 var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.CarId);
 
-                car.isBusy = false;
+                car.CarStatus = CarStatus.Free;
                 _dbContext.Cars.Update(car);
 
                 var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.DriverId);

@@ -76,6 +76,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CarStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -108,9 +111,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     b.Property<double>("RemainingFuel")
                         .HasColumnType("float");
-
-                    b.Property<bool>("isBusy")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

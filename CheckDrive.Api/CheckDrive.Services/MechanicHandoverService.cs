@@ -109,7 +109,7 @@ public class MechanicHandoverService : IMechanicHandoverService
         {
             var _car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandoverEntity.CarId);
 
-            _car.isBusy = true;
+            _car.CarStatus = CarStatus.Busy;
             _car.Mileage = (int)mechanicHandoverEntity.Distance;
             _context.Cars.Update(_car);
 
