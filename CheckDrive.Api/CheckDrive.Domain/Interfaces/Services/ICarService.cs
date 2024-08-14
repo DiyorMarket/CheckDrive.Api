@@ -12,7 +12,7 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<CarDto> CreateCarAsync(CarForCreateDto carForCreate);
         Task<CarDto> UpdateCarAsync(CarForUpdateDto carForUpdate);
         Task DeleteCarAsync(int id);
-        Task<IEnumerable<CarHistoryDto>> GetCarHistories(int year, int month);
         Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile);
+        Task<GetBaseResponse<CarHistoryDto>> GetCarHistories(CarResourceParameters carResource);
     }
 }

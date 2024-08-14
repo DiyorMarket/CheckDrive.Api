@@ -160,13 +160,14 @@ public class CarService : ICarService
         return query;
     }
 
-    public async Task<IEnumerable<CarHistoryDto>> GetCarHistories(int year, int month)
+    public async Task<GetBaseResponse<CarHistoryDto>> GetCarHistories(CarResourceParameters carResource)
     {
-        var date = DateTime.Today.ToTashkentTime().Date;
+        var currentMonth = carResource.Month ?? DateTime.Today.Month;
+        var currentYear = carResource.Year ?? DateTime.Today.Year;
 
         var dispatcherResponse = await _context.DispatchersReviews
             .AsNoTracking()
-            .Where(x => x.Date.Month == month && x.Date.Year == year)
+            .Where(x => x.Date.Month == currentMonth && x.Date.Year == currentYear)
             .Include(ma => ma.MechanicAcceptance)
             .Include(mh => mh.MechanicHandover)
             .Include(d => d.Car)
@@ -179,35 +180,64 @@ public class CarService : ICarService
         foreach (var car in cars)
         {
             var totalDistanceCovered = dispatcherResponse
-            .Where(x => x.CarId == car.Id)
-            .Sum(x => x.DistanceCovered);
+                .Where(x => x.CarId == car.Id)
+                .Sum(x => x.DistanceCovered);
 
             var dispatcherReview = dispatcherResponse
                 .Where(x => x.CarId == car.Id)
                 .OrderByDescending(x => x.Date)
-                .First();
+                .FirstOrDefault();
 
             var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherReview);
 
-            carHistory.Add(new CarHistoryDto
-            {
-                Model = car.Model,
-                Number = car.Number,
-                MonthlyMediumDistance = car.OneYearMediumDistance / 12,
-                MonthlyMileage = (int)totalDistanceCovered,
-                MonthlyNormalOilSpend = (car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100,
-                MonthlySpentOil = totalDistanceCovered * car.MeduimFuelConsumption / 100,
-                MonthlyRefueledOil = ((car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100) - (totalDistanceCovered * car.MeduimFuelConsumption / 100),
-                RemainingFuel = dispatcherReviewDto.RemainigFuelAfter,
-            });
+                carHistory.Add(new CarHistoryDto
+                {
+                    Model = car.Model,
+                    Number = car.Number,
+                    MonthlyMediumDistance = car.OneYearMediumDistance / 12,
+                    MonthlyMileage = (int)totalDistanceCovered,
+                    MonthlyNormalOilSpend = (car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100,
+                    MonthlySpentOil = totalDistanceCovered * car.MeduimFuelConsumption / 100,
+                    MonthlyRefueledOil = ((car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100) - (totalDistanceCovered * car.MeduimFuelConsumption / 100),
+                    RemainingFuel = dispatcherReviewDto.RemainigFuelAfter,
+                });
         }
 
-        return carHistory;
+        var filteredReviews = ApplyFilters(carResource, carHistory);
+        var paginatedResult = PaginateReviews(filteredReviews, carResource.PageSize, carResource.PageNumber);
+        return paginatedResult.ToResponse();
+    }
+
+    private List<CarHistoryDto> ApplyFilters(CarResourceParameters resourceParameters, List<CarHistoryDto> carHistory)
+    {
+        var query = carHistory.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(resourceParameters.SearchString))
+        {
+            query = query.Where(x => x.Model.Contains(resourceParameters.SearchString)
+            || x.Number.Contains(resourceParameters.SearchString));
+        }
+
+        return query.ToList();
+    }
+
+    private PaginatedList<CarHistoryDto> PaginateReviews(List<CarHistoryDto> reviews, int pageSize, int pageNumber)
+    {
+        var totalCount = reviews.Count;
+        var items = reviews.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        return new PaginatedList<CarHistoryDto>(items, totalCount, pageNumber, pageSize);
     }
 
     public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
     {
-        var cars = await GetCarHistories(propertyForExportFile.Year, propertyForExportFile.Month);
+        var carCount = await _context.Cars.CountAsync();
+        var carRespose = new CarResourceParameters();
+        carRespose.Year = propertyForExportFile.Year;
+        carRespose.Month = propertyForExportFile.Month;
+        carRespose.PageSize = carCount;
+        carRespose.MaxPageSize = carCount;
+
+        var cars = await GetCarHistories(carRespose);
 
         if (cars == null) return null;
 
@@ -270,4 +300,3 @@ public class CarService : ICarService
         }
     }
 }
-

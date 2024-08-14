@@ -24,14 +24,14 @@ public class CarsController : Controller
     public async Task<ActionResult<IEnumerable<CarDto>>> GetCarsAsync(
         [FromQuery] CarResourceParameters carResource)
     {
-        var cars = await _carService.GetCarsAsync(carResource);
+        var carReviews = await _carService.GetCarsAsync(carResource); ;
 
-        return Ok(cars);
+        return Ok(carReviews);
     }
     [HttpGet("driverHistories")]
-    public async Task<ActionResult<IEnumerable<CarHistoryDto>>> GetCarsHistory(int year, int month)
+    public async Task<ActionResult<IEnumerable<CarHistoryDto>>> GetCarsHistory([FromQuery] CarResourceParameters carResource)
     {
-        var carsHistory = await _carService.GetCarHistories(year, month);
+        var carsHistory = await _carService.GetCarHistories(carResource);
 
         return Ok(carsHistory);
     }
