@@ -188,19 +188,21 @@ public class CarService : ICarService
                 .OrderByDescending(x => x.Date)
                 .FirstOrDefault();
 
-            var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherReview);
+            var dispatcherReviewDto = dispatcherReview != null
+                ? _mapper.Map<DispatcherReviewDto>(dispatcherReview)
+                : null;
 
-                carHistory.Add(new CarHistoryDto
-                {
-                    Model = car.Model,
-                    Number = car.Number,
-                    MonthlyMediumDistance = car.OneYearMediumDistance / 12,
-                    MonthlyMileage = (int)totalDistanceCovered,
-                    MonthlyNormalOilSpend = (car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100,
-                    MonthlySpentOil = totalDistanceCovered * car.MeduimFuelConsumption / 100,
-                    MonthlyRefueledOil = ((car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100) - (totalDistanceCovered * car.MeduimFuelConsumption / 100),
-                    RemainingFuel = dispatcherReviewDto.RemainigFuelAfter,
-                });
+            carHistory.Add(new CarHistoryDto
+            {
+                Model = car.Model,
+                Number = car.Number,
+                MonthlyMediumDistance = car.OneYearMediumDistance / 12,
+                MonthlyMileage = (int)totalDistanceCovered,
+                MonthlyNormalOilSpend = (car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100,
+                MonthlySpentOil = totalDistanceCovered * car.MeduimFuelConsumption / 100,
+                MonthlyRefueledOil = ((car.OneYearMediumDistance / 12) * car.MeduimFuelConsumption / 100) - (totalDistanceCovered * car.MeduimFuelConsumption / 100),
+                RemainingFuel = dispatcherReviewDto?.RemainigFuelAfter ?? 0, // Использование значения по умолчанию
+            });
         }
 
         var filteredReviews = ApplyFilters(carResource, carHistory);
@@ -237,7 +239,7 @@ public class CarService : ICarService
         carRespose.PageSize = carCount;
         carRespose.MaxPageSize = carCount;
 
-        var cars = await GetCarHistories(carRespose);
+        var cars = GetCarHistories(carRespose).Result.Data;
 
         if (cars == null) return null;
 
