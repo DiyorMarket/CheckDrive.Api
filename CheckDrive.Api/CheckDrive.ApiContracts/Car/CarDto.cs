@@ -15,5 +15,7 @@
         public double FuelTankCapacity { get; set; }
         public double RemainingFuel {  get; set; }
         public int ManufacturedYear { get; set; }
+
+        public CarStatusDto Status { get; set; }
     }
 }
