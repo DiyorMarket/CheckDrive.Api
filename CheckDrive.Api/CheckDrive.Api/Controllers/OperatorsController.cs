@@ -154,7 +154,7 @@ public class OperatorsController : Controller
         return NoContent();
     }
 
-    [Authorize(Policy = "AdminOrMechanic")]
+    [Authorize(Policy = "AdminOrOperator")]
     [HttpGet("review/export")]
     public async Task<ActionResult> ExportOperatorToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
     {
