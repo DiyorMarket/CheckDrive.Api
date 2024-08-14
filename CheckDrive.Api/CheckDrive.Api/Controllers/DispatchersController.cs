@@ -162,7 +162,7 @@ public class DispatchersController : Controller
 
         if (file == null) return NotFound();
 
-        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Dispetche Xizmatlari.xls");
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Dispetcher Xizmatlari.xls");
     }
 }
 
