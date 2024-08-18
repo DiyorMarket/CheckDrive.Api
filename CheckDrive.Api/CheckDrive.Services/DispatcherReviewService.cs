@@ -91,13 +91,15 @@ public class DispatcherReviewService : IDispatcherReviewService
         if(firstDispatcherReview != null)
         {
             var monthlyDistance = car.OneYearMediumDistance / 12;
-
-            var total = car.Mileage - dispatcherEntity.MechanicAcceptance.Distance;
-
-            if (monthlyDistance < total)
+            if (monthlyDistance > 0) 
             {
-                car.CarStatus = CarStatus.Limited;
-                _context.Cars.Update(car);
+                var total = car.Mileage - dispatcherEntity.MechanicAcceptance.Distance;
+
+                if (monthlyDistance < total)
+                {
+                    car.CarStatus = CarStatus.Limited;
+                    _context.Cars.Update(car);
+                }
             }
         }
         else
