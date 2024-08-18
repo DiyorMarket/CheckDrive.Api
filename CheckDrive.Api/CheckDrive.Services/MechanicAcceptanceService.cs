@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.MechanicAcceptance;
@@ -13,7 +12,7 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
-using Syncfusion.XlsIO.Implementation.Security;
+using System.Numerics;
 
 namespace CheckDrive.Services;
 
@@ -273,8 +272,10 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         return query;
     }
 
-    public async Task<GetBaseResponse<MechanicAcceptanceDto>> GetMechanicAcceptencesForMechanicAsync(MechanicAcceptanceResourceParameters resourceParameters)
+    public async Task<GetBaseResponse<MechanicAcceptanceDto>> GetMechanicAcceptencesForMechanicAsync(
+    MechanicAcceptanceResourceParameters resourceParameters)
     {
+        // Fetch the latest operator review for each driver
         var operatorReviewsResponse = await _context.OperatorReviews
             .AsNoTracking()
             .Where(dr => dr.Driver.CheckPoint == DriverCheckPoint.PassedOperator)
@@ -288,35 +289,58 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
             .ToListAsync();
 
+        // Fetch all mechanic handovers
+        var mechanicAcceptanseContext = await _context.MechanicsAcceptances
+            .AsNoTracking()
+            .Where(x => x.Status == Status.Pending)
+            .ToListAsync();
+
+        // Prepare the list of mechanic acceptances to be returned
         var mechanicAcceptance = new List<MechanicAcceptanceDto>();
 
-        foreach (var operatorr in operatorReviewsResponse)
+        foreach (var operatorReview in operatorReviewsResponse)
         {
-            var operatorReviewDto = _mapper.Map<OperatorReviewDto>(operatorr);
+            var operatorReviewDto = _mapper.Map<OperatorReviewDto>(operatorReview);
+            var mechanicAcceptanceResult = mechanicAcceptanseContext
+                .FirstOrDefault(mh => mh.DriverId == operatorReview.DriverId);
 
-            var carReview = await _context.Cars.FirstOrDefaultAsync(c => c.Id == operatorr.CarId);
+            // Safeguard for null operatorReviewDto
+            string carName = $"{operatorReviewDto?.CarModel ?? ""} ({operatorReviewDto?.CarNumber ?? ""})";
+            string driverName = operatorReviewDto?.DriverName ?? "";
+            double remainingFuel = operatorReview?.Car?.RemainingFuel ?? 0;
+            DateTime date = mechanicAcceptanceResult?.Date ?? DateTime.Today.ToTashkentTime().Date;
+            var status = mechanicAcceptanceResult != null ? ApiContracts.StatusForDto.Pending : ApiContracts.StatusForDto.Unassigned;
+
+            // Safeguard for null mechanicAcceptanceResult and its nested properties
+            var mechanicName = mechanicAcceptanceResult?.Mechanic?.Account?.FirstName ?? "";
+            var isAccepted = mechanicAcceptanceResult?.IsAccepted ?? false;
+            var distance = mechanicAcceptanceResult?.Distance ?? 0;
+            var comments = mechanicAcceptanceResult?.Comments ?? "";
 
             mechanicAcceptance.Add(new MechanicAcceptanceDto
             {
-                DriverId = operatorReviewDto.DriverId,
-                DriverName = operatorReviewDto.DriverName,
-                CarId = operatorReviewDto.CarId,
-                CarName = $"{operatorReviewDto.CarModel} ({operatorReviewDto.CarNumber})",
-                MechanicName = "",
-                RemainingFuel = carReview.RemainingFuel,
-                IsAccepted = false,
-                Distance = 0,
-                Comments = "",
-                Date = null,
-                Status = ApiContracts.StatusForDto.Unassigned,
+                DriverId = operatorReviewDto?.DriverId ?? 0,
+                DriverName = driverName,
+                CarId = operatorReviewDto?.CarId ?? 0,
+                CarName = carName,
+                MechanicName = mechanicName,
+                RemainingFuel = remainingFuel,
+                IsAccepted = isAccepted,
+                Distance = distance,
+                Comments = comments,
+                Date = date,
+                Status = status,
             });
         }
 
-        var filteredReviews = ApplyFilters(resourceParameters, mechanicAcceptance);
+    // Apply filters and pagination
+    var filteredReviews = ApplyFilters(resourceParameters, mechanicAcceptance);
         var paginatedResult = PaginateReviews(filteredReviews, resourceParameters.PageSize, resourceParameters.PageNumber);
 
         return paginatedResult.ToResponse();
     }
+
+
 
     private List<MechanicAcceptanceDto> ApplyFilters(MechanicAcceptanceResourceParameters parameters, List<MechanicAcceptanceDto> reviews)
     {

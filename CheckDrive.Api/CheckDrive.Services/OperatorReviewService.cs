@@ -15,6 +15,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
 using Syncfusion.XlsIO.Implementation.Security;
+using System.Numerics;
 
 namespace CheckDrive.Services
 {
@@ -283,40 +284,63 @@ namespace CheckDrive.Services
 
         public async Task<GetBaseResponse<OperatorReviewDto>> GetOperatorReviewsForOperatorAsync(OperatorReviewResourceParameters resourceParameters)
         {
+            // Get the latest mechanic handover for each driver
             var mechanicHandoverResponse = await _context.MechanicsHandovers
-                 .AsNoTracking()
-                 .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedMechanicHandover)
-                 .Include(x => x.Mechanic)
-                 .ThenInclude(x => x.Account)
-                 .Include(x => x.Car)
-                 .Include(x => x.Driver)
-                 .ThenInclude(x => x.Account)
-                 .GroupBy(x => x.DriverId)
-                 .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
-                 .ToListAsync();
+                .AsNoTracking()
+                .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedMechanicHandover)
+                .Include(x => x.Mechanic)
+                .ThenInclude(x => x.Account)
+                .Include(x => x.Car)
+                .Include(x => x.Driver)
+                .ThenInclude(x => x.Account)
+                .GroupBy(x => x.DriverId)
+                .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
+                .ToListAsync();
 
+            // Get the pending operator reviews
+            var _operatorReviews = await _context.OperatorReviews
+                .AsNoTracking()
+                .Where(x => x.Status == Status.Pending)
+                .ToListAsync();
+
+            // Prepare the list of operator reviews to be returned
             var operators = new List<OperatorReviewDto>();
 
             foreach (var mechanicHandover in mechanicHandoverResponse)
             {
+                // Find the corresponding operator review if it exists
+                var operatorReview = _operatorReviews
+                    .FirstOrDefault(or => or.DriverId == mechanicHandover.DriverId);
+
+                // Map mechanic handover to DTO
                 var mechanicHandoverDto = _mapper.Map<MechanicHandoverDto>(mechanicHandover);
 
+                // Safely access nested properties with null checks
+                string operatorName = null;
+                if (operatorReview?.Operator?.Account != null)
+                {
+                    operatorName = $"{operatorReview.Operator.Account.FirstName} {operatorReview.Operator.Account.LastName}";
+                }
+
+                string oilMark = operatorReview?.OilMark?.OilMark;
+
+                // Create the operator review DTO
                 operators.Add(new OperatorReviewDto
                 {
                     DriverId = mechanicHandoverDto.DriverId,
                     DriverName = mechanicHandoverDto.DriverName,
-                    OperatorName = null,
-                    CarId = mechanicHandover.Car.Id,
-                    CarModel = mechanicHandover.Car.Model,
-                    CarNumber = mechanicHandover.Car.Number,
-                    CarOilCapacity = mechanicHandover.Car.FuelTankCapacity.ToString(),
-                    CarOilRemainig = mechanicHandover.Car.RemainingFuel.ToString(),
-                    OilAmount = null,
-                    OilMarks = null,
-                    IsGiven = null,
-                    Comments = null,
-                    Date = null,
-                    Status = StatusForDto.Unassigned
+                    OperatorName = operatorName,
+                    CarId = mechanicHandover?.Car?.Id ?? 0,
+                    CarModel = mechanicHandover?.Car?.Model ?? "",
+                    CarNumber = mechanicHandover?.Car?.Number ?? "",
+                    CarOilCapacity = mechanicHandover?.Car?.FuelTankCapacity.ToString() ?? "0",
+                    CarOilRemainig = mechanicHandover?.Car?.RemainingFuel.ToString() ?? "0",
+                    OilAmount = operatorReview?.OilAmount,
+                    OilMarks = oilMark,
+                    IsGiven = operatorReview?.IsGiven,
+                    Comments = operatorReview?.Comments,
+                    Date = operatorReview?.Date ?? DateTime.Today.ToTashkentTime().Date,
+                    Status = operatorReview != null ? ApiContracts.StatusForDto.Pending : StatusForDto.Unassigned
                 });
             }
 
@@ -325,6 +349,7 @@ namespace CheckDrive.Services
 
             return paginatedResult.ToResponse();
         }
+
 
         private List<OperatorReviewDto> ApplyFilters(OperatorReviewResourceParameters parameters, List<OperatorReviewDto> reviews)
         {

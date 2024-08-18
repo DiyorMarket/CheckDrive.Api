@@ -12,6 +12,7 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
+using System.Numerics;
 
 namespace CheckDrive.Services;
 
@@ -272,8 +273,9 @@ public class MechanicHandoverService : IMechanicHandoverService
     }
 
     public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(
-        MechanicHandoverResourceParameters resourceParameters)
+    MechanicHandoverResourceParameters resourceParameters)
     {
+        // Get the latest doctor review for each driver
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
             .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedDoctor)
@@ -284,28 +286,45 @@ public class MechanicHandoverService : IMechanicHandoverService
             .GroupBy(x => x.DriverId)
             .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
             .ToListAsync();
+        // Get the mechanic handovers that are still pending
+        var _mechanicHandovers = await _context.MechanicsHandovers
+            .AsNoTracking()
+            .Where(x => x.Status == Status.Pending)
+            .ToListAsync();
 
-
+        // Prepare the list of mechanic handovers to be returned
         var mechanicHandovers = new List<MechanicHandoverDto>();
 
         foreach (var doctor in doctorReviewsResponse)
         {
+            var mechanicHandover = _mechanicHandovers
+                .FirstOrDefault(mh => mh.DriverId == doctor.DriverId);
+
             var doctorDto = _mapper.Map<DoctorReviewDto>(doctor);
 
-            
+            string carName = mechanicHandover?.Car?.Model ?? "";
+            string mechanicName = (mechanicHandover?.Mechanic?.Account?.FirstName ?? "") +
+                                  (mechanicHandover?.Mechanic?.Account?.LastName ?? "");
+
+            double remainingFuel = mechanicHandover?.Car?.RemainingFuel ?? 0;
+            double distance = mechanicHandover?.Distance ?? 0;
+            string comments = mechanicHandover?.Comments ?? "";
+            DateTime date = mechanicHandover?.Date ?? DateTime.Today.ToTashkentTime().Date;
+            var status = mechanicHandover != null ? ApiContracts.StatusForDto.Pending : ApiContracts.StatusForDto.Unassigned;
+
 
             mechanicHandovers.Add(new MechanicHandoverDto
             {
                 DriverId = doctorDto.DriverId,
                 DriverName = doctorDto.DriverName,
-                CarName = "",
-                MechanicName = "",
-                RemainingFuel = 0,
-                IsHanded = false,
-                Distance = 0,
-                Comments = "",
-                Date = DateTime.Today.ToTashkentTime().Date,
-                Status = ApiContracts.StatusForDto.Unassigned,
+                CarName = carName,
+                MechanicName = mechanicName,
+                RemainingFuel = remainingFuel,
+                IsHanded = mechanicHandover != null,
+                Distance = distance,
+                Comments = comments,
+                Date = date,
+                Status = status,
             });
 
         }
@@ -315,6 +334,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         return paginatedResult.ToResponse();
     }
+
 
     private List<MechanicHandoverDto> ApplyFilters(MechanicHandoverResourceParameters parameters, List<MechanicHandoverDto> reviews)
     {

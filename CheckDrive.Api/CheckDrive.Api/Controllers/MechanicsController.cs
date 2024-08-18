@@ -1,13 +1,11 @@
 ﻿using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Account;
-using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.Mechanic;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.MechanicHandover;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
-using CheckDrive.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
