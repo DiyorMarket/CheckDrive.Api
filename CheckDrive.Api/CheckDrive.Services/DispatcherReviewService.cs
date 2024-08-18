@@ -344,6 +344,7 @@ public class DispatcherReviewService : IDispatcherReviewService
         var mechanicHandoverResponse = await _context.MechanicsHandovers
             .AsNoTracking()
             .Where(x => x.Status == Status.Completed)
+            .OrderByDescending(x => x.Date)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -354,6 +355,7 @@ public class DispatcherReviewService : IDispatcherReviewService
         var operatorResponse = await _context.OperatorReviews
             .AsNoTracking()
             .Where(x => x.Status == Status.Completed)
+            .OrderByDescending(x => x.Date)
             .Include(x => x.Operator)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
