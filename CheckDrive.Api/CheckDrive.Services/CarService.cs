@@ -111,10 +111,11 @@ public class CarService : ICarService
             || x.Color.Contains(resourceParameters.SearchString));
         }
 
-        //if (resourceParameters.IsBusy is not null)
-        //{
-        //    query = query.Where(x => x. == resourceParameters.IsBusy);
-        //}
+        if (resourceParameters.RoleId == 2)
+        {
+            query = query.Where(x => x.CarStatus == CarStatus.Free);
+        }
+
         //MeduimFuelConsumption
         if (resourceParameters.MeduimFuelConsumption is not null)
         {

@@ -97,6 +97,10 @@ namespace CheckDrive.Services
 
             if (reviewForUpdateDto.IsGiven == true)
             {
+                var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == operatorReviewEntity.CarId);
+                car.RemainingFuel += operatorReviewEntity.OilAmount;
+               _context.Update(car);
+
                 var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == reviewForUpdateDto.DriverId);
                 driver.CheckPoint = DriverCheckPoint.PassedOperator;
                 _context.Update(driver);

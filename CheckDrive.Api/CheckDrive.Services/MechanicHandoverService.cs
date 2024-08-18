@@ -70,14 +70,6 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         await _context.MechanicsHandovers.AddAsync(mechanicHandoverEntity);
 
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicHandoverEntity.CarId);
-
-        if (car != null)
-        {
-            car.Mileage = (int)mechanicHandoverEntity.Distance;
-            _context.Cars.Update(car);
-        }
-
         await _context.SaveChangesAsync();
 
         if (mechanicHandoverEntity.IsHanded == true)
@@ -293,11 +285,14 @@ public class MechanicHandoverService : IMechanicHandoverService
             .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
             .ToListAsync();
 
+
         var mechanicHandovers = new List<MechanicHandoverDto>();
 
         foreach (var doctor in doctorReviewsResponse)
         {
             var doctorDto = _mapper.Map<DoctorReviewDto>(doctor);
+
+            
 
             mechanicHandovers.Add(new MechanicHandoverDto
             {
@@ -312,6 +307,7 @@ public class MechanicHandoverService : IMechanicHandoverService
                 Date = DateTime.Today.ToTashkentTime().Date,
                 Status = ApiContracts.StatusForDto.Unassigned,
             });
+
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, mechanicHandovers);

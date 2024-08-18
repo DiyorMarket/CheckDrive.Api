@@ -103,10 +103,6 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         if (acceptanceForUpdateDto.IsAccepted == true)
         {
-            var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.CarId);
-            car.CarStatus = CarStatus.Free;
-            _context.Cars.Update(car);
-
             var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.DriverId);
             driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
             _context.Drivers.Update(driver);
