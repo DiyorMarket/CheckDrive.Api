@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
@@ -77,9 +76,43 @@ public class DispatcherReviewService : IDispatcherReviewService
     {
         var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForCreate);
 
-         var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
-         driver.CheckPoint = DriverCheckPoint.Initial;
-         _context.Drivers.Update(driver);
+        var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.CarId);
+
+        DateTime now = DateTime.Now;
+        DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
+
+        var firstDispatcherReview = await _context.DispatchersReviews
+            .AsNoTracking()
+            .Where(review => review.Date >= firstDayOfMonth
+                 && review.CarId == car.Id)
+            .OrderBy(review => review.Date)
+            .FirstOrDefaultAsync();
+
+        if(firstDispatcherReview != null)
+        {
+            var monthlyDistance = car.OneYearMediumDistance / 12;
+            if (monthlyDistance > 0) 
+            {
+                var total = car.Mileage - dispatcherEntity.MechanicAcceptance.Distance;
+
+                if (monthlyDistance < total)
+                {
+                    car.CarStatus = CarStatus.Limited;
+                    _context.Cars.Update(car);
+                }
+            }
+        }
+        else
+        {
+            car.CarStatus = CarStatus.Free;
+            _context.Cars.Update(car);
+        }
+
+        car.RemainingFuel -= dispatcherEntity.FuelSpended;
+
+        var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
+        driver.CheckPoint = DriverCheckPoint.Initial;
+        _context.Drivers.Update(driver);
 
         await _context.DispatchersReviews.AddAsync(dispatcherEntity);
         await _context.SaveChangesAsync();
@@ -92,8 +125,18 @@ public class DispatcherReviewService : IDispatcherReviewService
     public async Task<DispatcherReviewDto> UpdateDispatcherReviewAsync(DispatcherReviewForUpdateDto dispatcherReviewForUpdate)
     {
         var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForUpdate);
+
         _context.DispatchersReviews.Update(dispatcherEntity);
         await _context.SaveChangesAsync();
+
+        var existingReview = await _context.DispatchersReviews
+            .FirstOrDefaultAsync(x => x.Id == dispatcherEntity.Id);
+
+        var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == dispatcherEntity.CarId);
+
+        car.RemainingFuel = car.RemainingFuel + (double)existingReview.FuelSpended - dispatcherReviewForUpdate.FuelSpended;
+        _context.Cars.Update(car);
+
 
         var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherEntity);
 
@@ -300,7 +343,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
         var mechanicHandoverResponse = await _context.MechanicsHandovers
             .AsNoTracking()
-            .Where(x=>x.Status == Status.Completed)
+            .Where(x => x.Status == Status.Completed)
             .Include(x => x.Mechanic)
             .ThenInclude(x => x.Account)
             .Include(x => x.Car)
@@ -310,7 +353,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
         var operatorResponse = await _context.OperatorReviews
             .AsNoTracking()
-            .Where(x=>x.Status == Status.Completed)
+            .Where(x => x.Status == Status.Completed)
             .Include(x => x.Operator)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)

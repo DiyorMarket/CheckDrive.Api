@@ -162,6 +162,10 @@ namespace CheckDrive.Services.Hubs
 
             if (response == true)
             {
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == operatorReview.CarId);
+                car.RemainingFuel += operatorReview.OilAmount;
+                _dbContext.Update(car);
+
                 var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == operatorReview.DriverId);
                 driver.CheckPoint = DriverCheckPoint.PassedOperator;
                 _dbContext.Update(driver);
@@ -182,7 +186,8 @@ namespace CheckDrive.Services.Hubs
             if (response == true)
             {
                 var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandover.CarId);
-                
+
+                car.Mileage = (int)mechanicHandover.Distance;
                 car.CarStatus = CarStatus.Busy;
                 _dbContext.Cars.Update(car);
 
@@ -206,11 +211,6 @@ namespace CheckDrive.Services.Hubs
             #region
             if (response == true)
             {
-                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.CarId);
-
-                car.CarStatus = CarStatus.Free;
-                _dbContext.Cars.Update(car);
-
                 var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.DriverId);
                 driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
                 _dbContext.Drivers.Update(driver);
