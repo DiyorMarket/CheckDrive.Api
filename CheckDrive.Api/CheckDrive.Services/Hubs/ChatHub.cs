@@ -211,6 +211,10 @@ namespace CheckDrive.Services.Hubs
             #region
             if (response == true)
             {
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.CarId);
+                car.Mileage = (int)mechanicAcceptance.Distance;
+                _dbContext.Cars.Update(car);
+
                 var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.DriverId);
                 driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
                 _dbContext.Drivers.Update(driver);
