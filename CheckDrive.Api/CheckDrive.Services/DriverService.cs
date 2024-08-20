@@ -97,6 +97,11 @@ public class DriverService : IDriverService
             .Include(x => x.Account)
             .AsQueryable();
 
+        if(resourceParameters.RoleId == 2)
+        {
+            query = query.Where(x => x.CheckPoint == DriverCheckPoint.Initial);
+        }
+
         if (!string.IsNullOrWhiteSpace(resourceParameters.SearchString))
         {
             query = query.Where(x => x.Account.FirstName.Contains(resourceParameters.SearchString)

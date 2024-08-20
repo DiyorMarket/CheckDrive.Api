@@ -77,7 +77,8 @@ public class DispatcherReviewService : IDispatcherReviewService
         var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForCreate);
 
         var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.CarId);
-
+        var mechanicHandover = await _context.MechanicsHandovers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.MechanicHandoverId);
+        var mechanicAcceptence = await _context.MechanicsAcceptances.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.MechanicAcceptanceId);
         DateTime now = DateTime.Now;
         DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
 
@@ -93,7 +94,9 @@ public class DispatcherReviewService : IDispatcherReviewService
             var monthlyDistance = car.OneYearMediumDistance / 12;
             if (monthlyDistance > 0) 
             {
-                var total = car.Mileage - dispatcherEntity.MechanicAcceptance.Distance;
+                var distancee = (int)mechanicHandover.Distance;
+
+                var total = car.Mileage - distancee;
 
                 if (monthlyDistance < total)
                 {
@@ -108,7 +111,25 @@ public class DispatcherReviewService : IDispatcherReviewService
             _context.Cars.Update(car);
         }
 
+        var initialDistance = mechanicHandover.Distance;
+        var finishDistance = mechanicAcceptence.Distance;
+
+        var distence = finishDistance - initialDistance;
+        
+        if(distence < dispatcherEntity.DistanceCovered)
+        {
+           var totalDistence = dispatcherEntity.DistanceCovered-distence;
+           car.Mileage +=(int)totalDistence;
+           
+        }
+        else if(distence > dispatcherEntity.DistanceCovered)
+        {
+            var totalDistence = distence - dispatcherEntity.DistanceCovered;
+            car.Mileage -= (int)totalDistence;
+        }
+
         car.RemainingFuel -= dispatcherEntity.FuelSpended;
+        _context.Cars.Update(car);
 
         var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
         driver.CheckPoint = DriverCheckPoint.Initial;
