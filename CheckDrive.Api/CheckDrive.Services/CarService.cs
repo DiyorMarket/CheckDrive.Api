@@ -105,6 +105,22 @@ public class CarService : ICarService
             AsNoTracking().
             AsQueryable();
 
+        var today = DateTime.Today;
+
+        if (today.Day == 1)
+        {
+            var limitedCars = _context.Cars
+                .Where(x => x.CarStatus == CarStatus.Limited)
+                .ToList();
+
+            foreach (var car in limitedCars)
+            {
+                car.CarStatus = CarStatus.Free;
+            }
+
+            _context.SaveChanges();
+        }
+
         if (!string.IsNullOrWhiteSpace(resourceParameters.SearchString))
         {
             query = query.Where(x => x.Model.Contains(resourceParameters.SearchString)
