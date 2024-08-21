@@ -15,17 +15,17 @@ namespace CheckDrive.Api.Extensions
             CreateRoles(context);
             CreateOilMarks(context);
             CreateAccounts(context);
-            CreateCars(context);
-            CreateDrivers(context);
-            CreateDoctors(context);
-            CreateOperators(context);
-            CreateDispatchers(context);
-            CreateMechanics(context);
-            CreateDoctorReviews(context);
-            CreateMechanicHandovers(context);
-            CreateOperatorReviews(context);
-            CreateMechanicAcceptance(context);
-            CreateDispatcherReviews(context);
+            //CreateCars(context);
+            //CreateDrivers(context);
+            //CreateDoctors(context);
+            //CreateOperators(context);
+            //CreateDispatchers(context);
+            //CreateMechanics(context);
+            //CreateDoctorReviews(context);
+            //CreateMechanicHandovers(context);
+            //CreateOperatorReviews(context);
+            //CreateMechanicAcceptance(context);
+            //CreateDispatcherReviews(context);
         }
 
         private static void CreateRoles(CheckDriveDbContext context)
@@ -99,31 +99,19 @@ namespace CheckDrive.Api.Extensions
         private static void CreateAccounts(CheckDriveDbContext context)
         {
             if (context.Accounts.Any()) return;
-
-            var roles = context.Roles.ToList();
             List<Account> accounts = new();
 
-            foreach (var role in roles)
+            accounts.Add(new Account()
             {
-                var accountsCount = new Random().Next(5, 10);
+                Bithdate = DateTime.Now,
+                FirstName = "Botir",
+                LastName = "Qodirov",
+                Login = "manager",
+                Password = "1234",
+                PhoneNumber = "+998946152254",
+                RoleId = 1,
+            });
 
-                for (int i = 0; i < accountsCount; i++)
-                {
-                    accounts.Add(new Account()
-                    {
-                        Login = _faker.Name.FirstName() + "@gmail.com",
-                        Password = _faker.Random.Word().PadRight(8).Substring(0, 8),
-                        PhoneNumber = _faker.Phone.PhoneNumber("+998#########"),
-                        FirstName = _faker.Name.FirstName(),
-                        LastName = _faker.Name.LastName(),
-                        Bithdate = _faker.Date.Between(DateTime.Now.AddYears(-50), DateTime.Now.AddYears(-20)).Date,
-                        RoleId = role.Id,
-                    });
-                }
-            }
-
-            context.Accounts.AddRange(accounts);
-            context.SaveChanges();
         }
 
         private static void CreateCars(CheckDriveDbContext context)
