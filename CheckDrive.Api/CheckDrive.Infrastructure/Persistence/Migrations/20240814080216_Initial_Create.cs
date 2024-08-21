@@ -21,14 +21,29 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     Color = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Number = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Mileage = table.Column<int>(type: "int", nullable: false),
+                    OneYearMediumDistance = table.Column<int>(type: "int", nullable: false),
                     MeduimFuelConsumption = table.Column<double>(type: "float", nullable: false),
                     FuelTankCapacity = table.Column<double>(type: "float", nullable: false),
                     RemainingFuel = table.Column<double>(type: "float", nullable: false),
-                    ManufacturedYear = table.Column<int>(type: "int", nullable: false)
+                    ManufacturedYear = table.Column<int>(type: "int", nullable: false),
+                    CarStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Car", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OilMarks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OilMark = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OilMarks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -129,7 +144,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false)
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    CheckPoint = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -286,9 +302,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     IsGiven = table.Column<bool>(type: "bit", nullable: false),
                     OilAmount = table.Column<double>(type: "float", nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    OilMarks = table.Column<int>(type: "int", maxLength: 255, nullable: false),
                     Status = table.Column<int>(type: "int", maxLength: 255, nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OilMarkId = table.Column<int>(type: "int", nullable: false),
                     OperatorId = table.Column<int>(type: "int", nullable: false),
                     CarId = table.Column<int>(type: "int", nullable: false),
                     DriverId = table.Column<int>(type: "int", nullable: false)
@@ -305,6 +321,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         name: "FK_OperatorReview_Driver_DriverId",
                         column: x => x.DriverId,
                         principalTable: "Driver",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OperatorReview_OilMarks_OilMarkId",
+                        column: x => x.OilMarkId,
+                        principalTable: "OilMarks",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OperatorReview_Operator_OperatorId",
@@ -497,6 +518,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                 column: "DriverId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OperatorReview_OilMarkId",
+                table: "OperatorReview",
+                column: "OilMarkId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OperatorReview_OperatorId",
                 table: "OperatorReview",
                 column: "OperatorId");
@@ -537,6 +563,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Driver");
+
+            migrationBuilder.DropTable(
+                name: "OilMarks");
 
             migrationBuilder.DropTable(
                 name: "Operator");

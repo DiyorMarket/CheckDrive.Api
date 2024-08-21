@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
@@ -11,8 +12,10 @@ using CheckDrive.Domain.Pagniation;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
-using CheckDrive.Services.Hubs;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation.Security;
+using System.Numerics;
 
 namespace CheckDrive.Services
 {
@@ -60,6 +63,7 @@ namespace CheckDrive.Services
                 .Include(o => o.Operator)
                 .ThenInclude(o => o.Account)
                 .Include(o => o.Car)
+                .Include(o => o.OilMark)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             return _mapper.Map<OperatorReviewDto>(operatorReview);
@@ -92,6 +96,17 @@ namespace CheckDrive.Services
         {
             var operatorReviewEntity = _mapper.Map<OperatorReview>(reviewForUpdateDto);
 
+            if (reviewForUpdateDto.IsGiven == true)
+            {
+                var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == operatorReviewEntity.CarId);
+                car.RemainingFuel += operatorReviewEntity.OilAmount;
+               _context.Update(car);
+
+                var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == reviewForUpdateDto.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedOperator;
+                _context.Update(driver);
+            }
+     
             _context.OperatorReviews.Update(operatorReviewEntity);
 
             await _context.SaveChangesAsync();
@@ -111,6 +126,93 @@ namespace CheckDrive.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
+        {
+            var handovers = _context.OperatorReviews
+                .Where(mh => mh.Date.Month == propertyForExportFile.Month && mh.Date.Year == propertyForExportFile.Year)
+                .Include(d => d.Car)
+                .Include(o => o.OilMark)
+                .Include(a => a.Driver)
+                .ThenInclude(a => a.Account)
+                .Include(m => m.Operator)
+                .ThenInclude(m => m.Account)
+                .AsNoTracking()
+                .ToList();
+
+            if (handovers.Count == 0) return null;
+
+            var statusMappings = new Dictionary<Status, string>
+            {
+                { Status.Pending, "Kutilmoqda" },
+                { Status.Completed, "Yakunlangan" },
+                { Status.Rejected, "Rad etilgan" },
+                { Status.Unassigned, "Tayinlanmagan" },
+                { Status.RejectedByDriver, "Haydovchi tomonidan rad etilgan" }
+            };
+
+            using (ExcelEngine excel = new ExcelEngine())
+            {
+                IApplication application = excel.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2016;
+
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+
+                // Adding title
+                worksheet.Range["A1:K1"].Merge();
+                worksheet.Range["A1"].Text = $"Информация об услуг оператора на эту дату {propertyForExportFile.Month}.{propertyForExportFile.Year}";
+                worksheet.Range["A1"].CellStyle.Font.Bold = true;
+                worksheet.Range["A1"].CellStyle.Font.Size = 16;
+                worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+                // Adding headers
+                worksheet.Range["A2"].Text = "Имя оператора";
+                worksheet.Range["B2"].Text = "Имя водителя";
+                worksheet.Range["C2"].Text = "Название автомобиля";
+                worksheet.Range["D2"].Text = "Остаток топлива";
+                worksheet.Range["E2"].Text = "Количество и марка топлива";
+                worksheet.Range["F2"].Text = "Дата";
+                worksheet.Range["G2"].Text = "Дано топлива";
+                worksheet.Range["H2"].Text = "Status";
+                worksheet.Range["I2"].Text = "Комментарии";
+
+                // Настройка ширины столбцов
+                worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
+                worksheet.Columns[0].ColumnWidth = 20; // Имя оператора
+                worksheet.Columns[1].ColumnWidth = 20; // DriverName
+                worksheet.Columns[2].ColumnWidth = 40; // CarName
+                worksheet.Columns[3].ColumnWidth = 15; // Остаток топлива
+                worksheet.Columns[4].ColumnWidth = 20; // Количество топлива
+                worksheet.Columns[5].ColumnWidth = 15; // Дата
+                worksheet.Columns[6].ColumnWidth = 15; // Дано топлива
+                worksheet.Columns[7].ColumnWidth = 25; // Status
+                worksheet.Columns[8].ColumnWidth = 40; // Comments
+
+                // Adding data
+                for (int i = 0; i < handovers.Count; i++)
+                {
+                    var handover = handovers[i];
+                    var row = i + 3;
+
+                    worksheet.Range["A" + row].Text = $"{handover.Operator.Account.FirstName} {handover.Operator.Account.LastName}";
+                    worksheet.Range["B" + row].Text = $"{handover.Driver.Account.FirstName} {handover.Driver.Account.LastName}";
+                    worksheet.Range["C" + row].Text = $"{handover.Car.Model} davlat raqami {handover.Car.Number}";
+                    worksheet.Range["D" + row].Number = handover.Car.RemainingFuel;
+                    worksheet.Range["E" + row].Text = $"{handover.OilAmount} литр ({handover.OilMark.OilMark})";
+                    worksheet.Range["F" + row].DateTime = handover.Date;
+                    worksheet.Range["G" + row].Text = handover.IsGiven ? "topshirildi" : "topshirilmadi";
+                    worksheet.Range["H" + row].Text = statusMappings[handover.Status];
+                    worksheet.Range["I" + row].Text = handover.Comments;
+                }
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
+            }
+        }
+
         private IQueryable<OperatorReview> GetQueryOperatorReviewResParameters(
        OperatorReviewResourceParameters operatorReviewResource)
         {
@@ -121,6 +223,7 @@ namespace CheckDrive.Services
                 .Include(o => o.Driver)
                 .ThenInclude(o => o.Account)
                 .Include(o => o.Car)
+                .Include(o => o.OilMark)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(operatorReviewResource.SearchString))
@@ -131,11 +234,22 @@ namespace CheckDrive.Services
                     x.Operator.Account.LastName.Contains(operatorReviewResource.SearchString) ||
                     x.Comments.Contains(operatorReviewResource.SearchString));
 
+
+            var _operator = _context.Operators
+            .Where(x => x.AccountId == operatorReviewResource.AccountId)
+            .FirstOrDefault();
+
+            if (operatorReviewResource.AccountId is not null)
+                query = query.Where(x => x.OperatorId == _operator.Id);
+
             if (operatorReviewResource.Status is not null)
                 query = query.Where(x => x.Status == operatorReviewResource.Status);
 
             if (operatorReviewResource.Date is not null)
+            {
+                operatorReviewResource.Date = DateTime.Today.ToTashkentTime();
                 query = query.Where(x => x.Date.Date == operatorReviewResource.Date.Value.Date);
+            }
 
             if (operatorReviewResource.OilAmount is not null)
                 query = query.Where(x => x.OilAmount == operatorReviewResource.OilAmount);
@@ -170,79 +284,64 @@ namespace CheckDrive.Services
 
         public async Task<GetBaseResponse<OperatorReviewDto>> GetOperatorReviewsForOperatorAsync(OperatorReviewResourceParameters resourceParameters)
         {
-            var date = DateTime.Today.ToTashkentTime().Date;
-            var reviewsResponse = await _context.OperatorReviews
-                .AsNoTracking()
-                .Where(x => x.Date.Date == date)
-                .Include(x => x.Operator)
-                .ThenInclude(x => x.Account)
-                .Include(x => x.Driver)
-                .ThenInclude(x => x.Account)
-                .Include(x => x.Car)
-                .ToListAsync();
-
+            // Get the latest mechanic handover for each driver
             var mechanicHandoverResponse = await _context.MechanicsHandovers
                 .AsNoTracking()
-                .Where(x => x.Date.Date == date && x.Status == Status.Completed)
+                .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedMechanicHandover)
                 .Include(x => x.Mechanic)
                 .ThenInclude(x => x.Account)
                 .Include(x => x.Car)
                 .Include(x => x.Driver)
                 .ThenInclude(x => x.Account)
+                .GroupBy(x => x.DriverId)
+                .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
                 .ToListAsync();
 
-            var cars = await _context.Cars
+            // Get the pending operator reviews
+            var _operatorReviews = await _context.OperatorReviews
+                .AsNoTracking()
+                .Where(x => x.Status == Status.Pending)
                 .ToListAsync();
 
+            // Prepare the list of operator reviews to be returned
             var operators = new List<OperatorReviewDto>();
 
             foreach (var mechanicHandover in mechanicHandoverResponse)
             {
-                var car = cars.FirstOrDefault(c => c.Id == mechanicHandover.CarId);
-                var review = reviewsResponse.FirstOrDefault(r => r.DriverId == mechanicHandover.DriverId);
-                var carDto = _mapper.Map<CarDto>(car);
-                var reviewDto = _mapper.Map<OperatorReviewDto>(review);
+                // Find the corresponding operator review if it exists
+                var operatorReview = _operatorReviews
+                    .FirstOrDefault(or => or.DriverId == mechanicHandover.DriverId);
+
+                // Map mechanic handover to DTO
                 var mechanicHandoverDto = _mapper.Map<MechanicHandoverDto>(mechanicHandover);
-                if (review != null)
+
+                // Safely access nested properties with null checks
+                string operatorName = null;
+                if (operatorReview?.Operator?.Account != null)
                 {
-                    operators.Add(new OperatorReviewDto
-                    {
-                        DriverId = reviewDto.DriverId,
-                        DriverName = mechanicHandoverDto.DriverName,
-                        OperatorName = reviewDto.OperatorName,
-                        CarId = carDto?.Id ?? reviewDto.CarId,
-                        CarModel = carDto?.Model ?? reviewDto.CarModel,
-                        CarNumber = carDto?.Number ?? reviewDto.CarNumber,
-                        CarOilCapacity = car?.FuelTankCapacity.ToString() ?? reviewDto.CarOilCapacity,
-                        CarOilRemainig = car?.RemainingFuel.ToString() ?? reviewDto.CarOilRemainig,
-                        OilAmount = reviewDto.OilAmount,
-                        OilMarks = reviewDto.OilMarks,
-                        IsGiven = reviewDto.IsGiven,
-                        Comments = reviewDto.Comments,
-                        Date = reviewDto.Date,
-                        Status = reviewDto.Status
-                    });
+                    operatorName = $"{operatorReview.Operator.Account.FirstName} {operatorReview.Operator.Account.LastName}";
                 }
-                else
+
+                string oilMark = operatorReview?.OilMark?.OilMark;
+
+                // Create the operator review DTO
+                operators.Add(new OperatorReviewDto
                 {
-                    operators.Add(new OperatorReviewDto
-                    {
-                        DriverId = mechanicHandoverDto.DriverId,
-                        DriverName = mechanicHandoverDto.DriverName,
-                        OperatorName = null,
-                        CarId = carDto?.Id ?? 0,
-                        CarModel = carDto?.Model ?? string.Empty,
-                        CarNumber = carDto?.Number ?? string.Empty,
-                        CarOilCapacity = carDto?.FuelTankCapacity.ToString() ?? string.Empty,
-                        CarOilRemainig = carDto?.RemainingFuel.ToString() ?? string.Empty,
-                        OilAmount = null,
-                        OilMarks = null,
-                        IsGiven = null,
-                        Comments = null,
-                        Date = null,
-                        Status = StatusForDto.Unassigned
-                    });
-                }
+                    DriverId = mechanicHandoverDto.DriverId,
+                    DriverName = mechanicHandoverDto.DriverName,
+                    OperatorName = operatorName,
+                    CarId = mechanicHandover?.Car?.Id ?? 0,
+                    CarModel = mechanicHandover?.Car?.Model ?? "",
+                    CarNumber = mechanicHandover?.Car?.Number ?? "",
+                    CarOilCapacity = mechanicHandover?.Car?.FuelTankCapacity.ToString() ?? "0",
+                    CarOilRemainig = mechanicHandover?.Car?.RemainingFuel.ToString() ?? "0",
+                    OilAmount = operatorReview?.OilAmount,
+                    OilMarks = oilMark,
+                    IsGiven = operatorReview?.IsGiven,
+                    Comments = operatorReview?.Comments,
+                    Date = operatorReview?.Date ?? DateTime.Today.ToTashkentTime().Date,
+                    Status = operatorReview != null ? ApiContracts.StatusForDto.Pending : StatusForDto.Unassigned
+                });
             }
 
             var filteredReviews = ApplyFilters(resourceParameters, operators);
@@ -250,6 +349,7 @@ namespace CheckDrive.Services
 
             return paginatedResult.ToResponse();
         }
+
 
         private List<OperatorReviewDto> ApplyFilters(OperatorReviewResourceParameters parameters, List<OperatorReviewDto> reviews)
         {
@@ -320,6 +420,7 @@ namespace CheckDrive.Services
                 .Include(d => d.Driver)
                 .ThenInclude(a => a.Account)
                 .Include(c => c.Car)
+                .Include(o => o.OilMark)
                 .Where(x => x.OperatorId == _operator.Id)
                 .OrderByDescending(x => x.Date)
                 .AsQueryable();

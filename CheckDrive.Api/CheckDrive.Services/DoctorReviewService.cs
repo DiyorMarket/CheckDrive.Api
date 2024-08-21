@@ -1,19 +1,14 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.Driver;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using CheckDrive.ApiContracts.DoctorReview;
-using CheckDrive.Domain.Interfaces.Hubs;
-using CheckDrive.ApiContracts.Driver;
-using Microsoft.Identity.Client;
-using CheckDrive.Api.Extensions;
 
 namespace CheckDrive.Services;
 
@@ -21,7 +16,6 @@ public class DoctorReviewService : IDoctorReviewService
 {
     private readonly IMapper _mapper;
     private readonly CheckDriveDbContext _context;
-    private readonly IChatHub _chatHub;
 
     public DoctorReviewService(IMapper mapper, CheckDriveDbContext context)
     {
@@ -50,54 +44,34 @@ public class DoctorReviewService : IDoctorReviewService
 
     public async Task<GetBaseResponse<DoctorReviewDto>> GetDoctorReviewsForDoctorAsync(DoctorReviewResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime().Date;
-        var reviewsResponse = await _context.DoctorReviews
-            .AsNoTracking()
-            .Where(x => x.Date.Date == date)
-            .Include(x => x.Doctor)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .ToListAsync();
-
         var driversResponse = await _context.Drivers
             .AsNoTracking()
+            .Where(x => x.CheckPoint == DriverCheckPoint.Initial)
             .Include(x => x.Account)
+            .Include(x => x.DoctorReviews)
             .ToListAsync();
+
+        var today = DateTime.Today.ToTashkentTime().Date;
+
+        var filteredDrivers = driversResponse
+            .Where(driver => !driver.DoctorReviews.Any(dr => dr.Date.Date == today && dr.IsHealthy == false))
+            .ToList();
 
         var doctorReviews = new List<DoctorReviewDto>();
 
-        foreach (var driver in driversResponse)
+        foreach (var driver in filteredDrivers)
         {
-            var review = reviewsResponse.FirstOrDefault(r => r.DriverId == driver.Id);
             var driverDto = _mapper.Map<DriverDto>(driver);
-            var reviewDto = _mapper.Map<DoctorReviewDto>(review);
-            if (review != null)
+
+            doctorReviews.Add(new DoctorReviewDto
             {
-                doctorReviews.Add(new DoctorReviewDto
-                {
-                    Id = review.Id,
-                    DriverId = driverDto.Id,
-                    DriverName = $"{driverDto.FirstName} {driverDto.LastName}",
-                    DoctorId = reviewDto.DoctorId,
-                    DoctorName = reviewDto.DoctorName,
-                    IsHealthy = reviewDto.IsHealthy,
-                    Comments = reviewDto.Comments,
-                    Date = reviewDto.Date
-                });
-            }
-            else
-            {
-                doctorReviews.Add(new DoctorReviewDto
-                {
-                    DriverId = driverDto.Id,
-                    DriverName = $"{driverDto.FirstName} {driverDto.LastName}",
-                    DoctorName = "",
-                    IsHealthy = false,
-                    Comments = "",
-                    Date = DateTime.Today.ToTashkentTime().Date
-                });
-            }
+                DriverId = driverDto.Id,
+                DriverName = $"{driverDto.FirstName} {driverDto.LastName}",
+                DoctorName = "",
+                IsHealthy = false,
+                Comments = "",
+                Date = DateTime.Today.ToTashkentTime().Date
+            });
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, doctorReviews);
@@ -124,6 +98,13 @@ public class DoctorReviewService : IDoctorReviewService
     public async Task<DoctorReviewDto> CreateDoctorReviewAsync(DoctorReviewForCreateDto doctorReviewForCreate)
     {
         var doctorReviewEntity = _mapper.Map<DoctorReview>(doctorReviewForCreate);
+
+        if (doctorReviewEntity.IsHealthy is true)
+        {
+            var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == doctorReviewEntity.DriverId);
+            driver.CheckPoint = DriverCheckPoint.PassedDoctor;
+            _context.Drivers.Update(driver);
+        }
 
         await _context.DoctorReviews.AddAsync(doctorReviewEntity);
         await _context.SaveChangesAsync();
@@ -181,6 +162,14 @@ public class DoctorReviewService : IDoctorReviewService
 
         if (doctorReviewResource.DriverId is not null)
             query = query.Where(x => x.DriverId == doctorReviewResource.DriverId);
+
+
+        var doctor = _context.Doctors
+            .Where(x => x.AccountId == doctorReviewResource.AccountId)
+            .FirstOrDefault();
+
+        if (doctorReviewResource.AccountId is not null)
+            query = query.Where(x => x.DoctorId == doctor.Id);
 
         if (!string.IsNullOrEmpty(doctorReviewResource.OrderBy))
             query = doctorReviewResource.OrderBy.ToLowerInvariant() switch

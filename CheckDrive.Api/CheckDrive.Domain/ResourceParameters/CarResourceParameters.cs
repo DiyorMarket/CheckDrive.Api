@@ -2,6 +2,9 @@
 {
     public class CarResourceParameters : ResourceParametersBase
     {
+        public int? Month { get; set; }
+        public int? Year { get; set; }
+        public bool? IsBusy { get; set; }
         public int? RoleId { get; set; }
         public double? MeduimFuelConsumption { get; set; }
         public double? MeduimFuelConsumptionLessThan { get; set; }

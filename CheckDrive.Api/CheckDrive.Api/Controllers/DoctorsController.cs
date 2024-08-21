@@ -123,7 +123,7 @@ public class DoctorsController : Controller
     }
 
     [HttpGet("review/doctorHistories")]
-    public async Task<ActionResult<IEnumerable<DoctorReviewDto>>> GetOperatorHistory(int accountId)
+    public async Task<ActionResult<IEnumerable<DoctorReviewDto>>> GetDoctorHistory(int accountId)
     {
         var historyDrivers = await _reviewService.GetDoctorHistories(accountId);
 

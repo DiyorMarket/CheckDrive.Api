@@ -160,29 +160,68 @@ namespace CheckDrive.Services.Hubs
 
             operatorReview.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
+            if (response == true)
+            {
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == operatorReview.CarId);
+                car.RemainingFuel += operatorReview.OilAmount;
+                _dbContext.Update(car);
+
+                var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == operatorReview.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedOperator;
+                _dbContext.Update(driver);
+            }
+
             _dbContext.OperatorReviews.Update(operatorReview);
             await _dbContext.SaveChangesAsync();
         }
 
         private async Task UpdateStatusForMechanicHandover(int reviewId, bool response)
         {
-            var operatorReview = await _dbContext.MechanicsHandovers
+            var mechanicHandover = await _dbContext.MechanicsHandovers
                 .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-            operatorReview.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+            mechanicHandover.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
-            _dbContext.MechanicsHandovers.Update(operatorReview);
+            #region
+            if (response == true)
+            {
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandover.CarId);
+
+                car.Mileage = (int)mechanicHandover.Distance;
+                car.CarStatus = CarStatus.Busy;
+                _dbContext.Cars.Update(car);
+
+                var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicHandover.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedMechanicHandover;
+                _dbContext.Drivers.Update(driver);
+            }
+            #endregion
+
+            _dbContext.MechanicsHandovers.Update(mechanicHandover);
             await _dbContext.SaveChangesAsync();
         }
 
         private async Task UpdateStatusForMechanicAcceptances(int reviewId, bool response)
         {
-            var operatorReview = await _dbContext.MechanicsAcceptances
+            var mechanicAcceptance = await _dbContext.MechanicsAcceptances
                 .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-            operatorReview.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
+            mechanicAcceptance.Status = (Status)(response ? StatusForDto.Completed : StatusForDto.RejectedByDriver);
 
-            _dbContext.MechanicsAcceptances.Update(operatorReview);
+            #region
+            if (response == true)
+            {
+                var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.CarId);
+                car.Mileage = (int)mechanicAcceptance.Distance;
+                _dbContext.Cars.Update(car);
+
+                var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.DriverId);
+                driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
+                _dbContext.Drivers.Update(driver);
+            }
+            #endregion
+
+            _dbContext.MechanicsAcceptances.Update(mechanicAcceptance);
             await _dbContext.SaveChangesAsync();
         }
     }

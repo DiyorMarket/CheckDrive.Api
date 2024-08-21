@@ -1,9 +1,11 @@
-﻿using CheckDrive.ApiContracts.Account;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Account;
 using CheckDrive.ApiContracts.Operator;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
+using CheckDrive.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -150,6 +152,17 @@ public class OperatorsController : Controller
         await _operatorReviewService.DeleteOperatorReviewAsync(id);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = "AdminOrOperator")]
+    [HttpGet("review/export")]
+    public async Task<ActionResult> ExportOperatorToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
+    {
+        byte[] file = await _operatorReviewService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Operator Xizmatlari.xls");
     }
 }
 

@@ -8,10 +8,13 @@ namespace CheckDrive.Domain.Entities
         public string Color { get; set; }
         public string Number { get; set; }
         public int Mileage { get; set; }
+        public int OneYearMediumDistance { get; set; }
         public double MeduimFuelConsumption { get; set; }
         public double FuelTankCapacity { get; set; }
         public double RemainingFuel { get; set; }
         public int ManufacturedYear { get; set; }
+
+        public CarStatus CarStatus { get; set; }
 
         public virtual ICollection<DispatcherReview> Reviewers { get; set; }
         public virtual ICollection<MechanicHandover> MechanicHandovers { get; set; }

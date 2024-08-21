@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.Account;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Account;
 using CheckDrive.ApiContracts.Dispatcher;
 using CheckDrive.ApiContracts.DispatcherReview;
 using CheckDrive.ApiContracts.DoctorReview;
@@ -151,6 +152,17 @@ public class DispatchersController : Controller
         await _reviewService.DeleteDispatcherReviewAsync(id);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = "AdminOrDispatcher")]
+    [HttpGet("review/export")]
+    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
+    {
+        byte[] file = await _reviewService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Dispetcher Xizmatlari.xls");
     }
 }
 

@@ -11,6 +11,8 @@ using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.XlsIO;
+using System.Numerics;
 
 namespace CheckDrive.Services;
 
@@ -68,14 +70,7 @@ public class MechanicHandoverService : IMechanicHandoverService
         var mechanicHandoverEntity = _mapper.Map<MechanicHandover>(handoverForCreateDto);
 
         await _context.MechanicsHandovers.AddAsync(mechanicHandoverEntity);
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicHandoverEntity.CarId);
 
-        if (car != null)
-        {
-            car.Mileage = (int)mechanicHandoverEntity.Distance;
-            _context.Cars.Update(car);
-
-        }
         await _context.SaveChangesAsync();
 
         if (mechanicHandoverEntity.IsHanded == true)
@@ -102,13 +97,18 @@ public class MechanicHandoverService : IMechanicHandoverService
         var mechanicHandoverEntity = _mapper.Map<MechanicHandover>(handoverForUpdateDto);
 
         _context.MechanicsHandovers.Update(mechanicHandoverEntity);
-        var car = _context.Cars.FirstOrDefault(x => x.Id == mechanicHandoverEntity.CarId);
 
-        if (car != null)
+        if (mechanicHandoverEntity.Status == Status.Completed)
         {
-            car.Mileage = (int)mechanicHandoverEntity.Distance;
-            _context.Cars.Update(car);
+            var _car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == mechanicHandoverEntity.CarId);
 
+            _car.CarStatus = CarStatus.Busy;
+            _car.Mileage = (int)mechanicHandoverEntity.Distance;
+            _context.Cars.Update(_car);
+
+            var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicHandoverEntity.DriverId);
+            driver.CheckPoint = DriverCheckPoint.PassedMechanicHandover;
+            _context.Drivers.Update(driver);
         }
         await _context.SaveChangesAsync();
 
@@ -127,6 +127,90 @@ public class MechanicHandoverService : IMechanicHandoverService
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile)
+    {
+        var handovers = _context.MechanicsHandovers
+            .Where(mh => mh.Date.Month == propertyForExportFile.Month && mh.Date.Year == propertyForExportFile.Year)
+            .Include(d => d.Car)
+            .Include(a => a.Driver)
+            .ThenInclude(a => a.Account)
+            .Include(m => m.Mechanic)
+            .ThenInclude(m => m.Account)
+            .AsNoTracking()
+            .ToList();
+
+        if (handovers.Count == 0) return null;
+
+        var statusMappings = new Dictionary<Status, string>
+        {
+            { Status.Pending, "Kutilmoqda" },
+            { Status.Completed, "Yakunlangan" },
+            { Status.Rejected, "Rad etilgan" },
+            { Status.Unassigned, "Tayinlanmagan" },
+            { Status.RejectedByDriver, "Haydovchi tomonidan rad etilgan" }
+        };
+
+        using (ExcelEngine excel = new ExcelEngine())
+        {
+            IApplication application = excel.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2016;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            // Adding title
+            worksheet.Range["A1:K1"].Merge();
+            worksheet.Range["A1"].Text = $"Информация о механике(отправка) на эту дату {propertyForExportFile.Month}.{propertyForExportFile.Year}";
+            worksheet.Range["A1"].CellStyle.Font.Bold = true;
+            worksheet.Range["A1"].CellStyle.Font.Size = 16;
+            worksheet.Range["A1"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            // Adding headers
+            worksheet.Range["A2"].Text = "Имя механика";
+            worksheet.Range["B2"].Text = "Имя водителя";
+            worksheet.Range["C2"].Text = "Название автомобиля";
+            worksheet.Range["D2"].Text = "Расстояние";
+            worksheet.Range["E2"].Text = "Дата";
+            worksheet.Range["F2"].Text = "Вручается";
+            worksheet.Range["G2"].Text = "Status";
+            worksheet.Range["H2"].Text = "Комментарии";
+
+            // Настройка ширины столбцов
+            worksheet.Range["A2:H2"].CellStyle.Font.Bold = true;
+            worksheet.Columns[0].ColumnWidth = 20; // MechanicName
+            worksheet.Columns[1].ColumnWidth = 20; // DriverName
+            worksheet.Columns[2].ColumnWidth = 40; // CarName
+            worksheet.Columns[3].ColumnWidth = 15; // Distance
+            worksheet.Columns[4].ColumnWidth = 15; // Date
+            worksheet.Columns[5].ColumnWidth = 15; // IsHanded
+            worksheet.Columns[6].ColumnWidth = 25; // Status
+            worksheet.Columns[7].ColumnWidth = 40; // Comments
+
+            // Adding data
+            for (int i = 0; i < handovers.Count; i++)
+            {
+                var handover = handovers[i];
+                var row = i + 3;
+
+                worksheet.Range["A" + row].Text = $"{handover.Mechanic.Account.FirstName} {handover.Mechanic.Account.LastName}";
+                worksheet.Range["B" + row].Text = $"{handover.Driver.Account.FirstName} {handover.Driver.Account.LastName}";
+                worksheet.Range["C" + row].Text = $"{handover.Car.Model} davlat raqami {handover.Car.Number}";
+                worksheet.Range["D" + row].Text = handover.Distance.ToString();
+                worksheet.Range["E" + row].DateTime = handover.Date;
+                worksheet.Range["F" + row].Text = handover.IsHanded ? "topshirildi" : "topshirilmadi";
+                worksheet.Range["G" + row].Text = statusMappings[handover.Status];
+                worksheet.Range["H" + row].Text = handover.Comments;
+            }
+
+            // Save the workbook to a memory stream
+            using (MemoryStream stream = new MemoryStream())
+            {
+                workbook.SaveAs(stream);
+                return stream.ToArray();
+            }
+        }
     }
 
     private IQueryable<MechanicHandover> GetQueryMechanicHandoverResParameters(
@@ -150,7 +234,10 @@ public class MechanicHandoverService : IMechanicHandoverService
                 x.Comments.Contains(resourceParameters.SearchString));
 
         if (resourceParameters.Date is not null)
+        {
+            resourceParameters.Date = DateTime.Today.ToTashkentTime();
             query = query.Where(x => x.Date.Date == resourceParameters.Date.Value.Date);
+        }
 
         if (resourceParameters.Status is not null)
             query = query.Where(x => x.Status == resourceParameters.Status);
@@ -160,6 +247,12 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         if (resourceParameters.DriverId is not null)
             query = query.Where(x => x.DriverId == resourceParameters.DriverId);
+
+        var mechanic = _context.Mechanics
+            .FirstOrDefault(x => x.AccountId == resourceParameters.AccountId);
+
+        if (resourceParameters.AccountId is not null)
+            query = query.Where(x => x.MechanicId == mechanic.Id);
 
         if (!string.IsNullOrEmpty(resourceParameters.OrderBy))
             query = resourceParameters.OrderBy.ToLowerInvariant() switch
@@ -179,68 +272,61 @@ public class MechanicHandoverService : IMechanicHandoverService
         return query;
     }
 
-    public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(MechanicHandoverResourceParameters resourceParameters)
+    public async Task<GetBaseResponse<MechanicHandoverDto>> GetMechanicHandoversForMechanicsAsync(
+    MechanicHandoverResourceParameters resourceParameters)
     {
-        var date = DateTime.Today.ToTashkentTime().Date;
-        var response = await _context.MechanicsHandovers
-            .AsNoTracking()
-            .Where(x => x.Date.Date == date)
-            .Include(x => x.Mechanic)
-            .ThenInclude(x => x.Account)
-            .Include(x => x.Car)
-            .Include(x => x.Driver)
-            .ThenInclude(x => x.Account)
-            .ToListAsync();
-
+        // Get the latest doctor review for each driver
         var doctorReviewsResponse = await _context.DoctorReviews
             .AsNoTracking()
-            .Where(x => x.IsHealthy == true && x.Date.Date == date)
+            .Where(x => x.Driver.CheckPoint == DriverCheckPoint.PassedDoctor)
             .Include(x => x.Doctor)
             .ThenInclude(x => x.Account)
             .Include(x => x.Driver)
             .ThenInclude(x => x.Account)
+            .GroupBy(x => x.DriverId)
+            .Select(g => g.OrderByDescending(x => x.Date).FirstOrDefault())
+            .ToListAsync();
+        // Get the mechanic handovers that are still pending
+        var _mechanicHandovers = await _context.MechanicsHandovers
+            .AsNoTracking()
+            .Where(x => x.Status == Status.Pending)
             .ToListAsync();
 
+        // Prepare the list of mechanic handovers to be returned
         var mechanicHandovers = new List<MechanicHandoverDto>();
 
         foreach (var doctor in doctorReviewsResponse)
         {
-            var review = response.FirstOrDefault(r => r.DriverId == doctor.DriverId);
+            var mechanicHandover = _mechanicHandovers
+                .FirstOrDefault(mh => mh.DriverId == doctor.DriverId);
+
             var doctorDto = _mapper.Map<DoctorReviewDto>(doctor);
-            var reviewDto = _mapper.Map<MechanicHandoverDto>(review);
-            if (review != null)
+
+            string carName = mechanicHandover?.Car?.Model ?? "";
+            string mechanicName = (mechanicHandover?.Mechanic?.Account?.FirstName ?? "") +
+                                  (mechanicHandover?.Mechanic?.Account?.LastName ?? "");
+
+            double remainingFuel = mechanicHandover?.Car?.RemainingFuel ?? 0;
+            double distance = mechanicHandover?.Distance ?? 0;
+            string comments = mechanicHandover?.Comments ?? "";
+            DateTime date = mechanicHandover?.Date ?? DateTime.Today.ToTashkentTime().Date;
+            var status = mechanicHandover != null ? ApiContracts.StatusForDto.Pending : ApiContracts.StatusForDto.Unassigned;
+
+
+            mechanicHandovers.Add(new MechanicHandoverDto
             {
-                mechanicHandovers.Add(new MechanicHandoverDto
-                {
-                    Id = reviewDto.Id,
-                    DriverId = reviewDto.DriverId,
-                    DriverName = doctorDto.DriverName,
-                    MechanicName = reviewDto.MechanicName,
-                    IsHanded = reviewDto.IsHanded,
-                    Distance = reviewDto.Distance,
-                    Comments = reviewDto.Comments,
-                    Date = reviewDto.Date,
-                    CarId = reviewDto.CarId,
-                    CarName = reviewDto.CarName,
-                    MechanicId = reviewDto.MechanicId,
-                    Status = reviewDto.Status,
-                });
-            }
-            else
-            {
-                mechanicHandovers.Add(new MechanicHandoverDto
-                {
-                    DriverId = doctorDto.DriverId,
-                    DriverName = doctorDto.DriverName,
-                    CarName = "",
-                    MechanicName = "",
-                    IsHanded = false,
-                    Distance = 0,
-                    Comments = "",
-                    Date = DateTime.Today.ToTashkentTime().Date,
-                    Status = ApiContracts.StatusForDto.Unassigned,
-                });
-            }
+                DriverId = doctorDto.DriverId,
+                DriverName = doctorDto.DriverName,
+                CarName = carName,
+                MechanicName = mechanicName,
+                RemainingFuel = remainingFuel,
+                IsHanded = mechanicHandover != null,
+                Distance = distance,
+                Comments = comments,
+                Date = date,
+                Status = status,
+            });
+
         }
 
         var filteredReviews = ApplyFilters(resourceParameters, mechanicHandovers);
@@ -248,6 +334,7 @@ public class MechanicHandoverService : IMechanicHandoverService
 
         return paginatedResult.ToResponse();
     }
+
 
     private List<MechanicHandoverDto> ApplyFilters(MechanicHandoverResourceParameters parameters, List<MechanicHandoverDto> reviews)
     {

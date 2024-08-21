@@ -11,6 +11,9 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.ToTable("Car");
             builder.HasKey(c => c.Id);
 
+            builder.Property(x => x.CarStatus)
+                .IsRequired();
+
             builder.Property(x => x.Model)
                 .HasMaxLength(255)
                 .IsRequired();
@@ -24,6 +27,9 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.Mileage)
+                .IsRequired();
+
+            builder.Property(x => x.OneYearMediumDistance)
                 .IsRequired();
 
             builder.Property(x => x.ManufacturedYear)

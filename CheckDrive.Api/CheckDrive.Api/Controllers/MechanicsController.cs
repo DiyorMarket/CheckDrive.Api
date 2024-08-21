@@ -1,12 +1,11 @@
-﻿using CheckDrive.ApiContracts.Account;
-using CheckDrive.ApiContracts.DoctorReview;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Account;
 using CheckDrive.ApiContracts.Mechanic;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.MechanicHandover;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
-using CheckDrive.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +28,6 @@ public class MechanicsController : Controller
         _mechanicAcceptanceService = mechanicAcceptanceService;
         _mechanicHandoverService = mechanicHandoverService;
     }
-
 
     [HttpGet("mechanicHistories")]
     public async Task<ActionResult<IEnumerable<MechanicHistororiesDto>>> GetOperatorHistory(int accountId)
@@ -158,6 +156,17 @@ public class MechanicsController : Controller
         return NoContent();
     }
 
+    [Authorize(Policy = "AdminOrMechanic")]
+    [HttpGet("acceptance/export")]
+    public async Task<ActionResult> ExportMechanicAcceptanceToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
+    {
+        byte[] file = await _mechanicAcceptanceService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mexanik(Qabul qiluvchi).xls");
+    }
+
     [Authorize]
     [HttpGet("handovers")]
     public async Task<ActionResult<IEnumerable<MechanicHandoverDto>>> GetMechanichandoversAsync(
@@ -220,6 +229,17 @@ public class MechanicsController : Controller
         await _mechanicHandoverService.DeleteMechanicHandoverAsync(id);
 
         return NoContent();
+    }
+
+    [Authorize(Policy = "AdminOrMechanic")]
+    [HttpGet("handover/export")]
+    public async Task<ActionResult> ExportMechanicHandoverToExcel([FromQuery] PropertyForExportFile propertyForExportFile)
+    {
+        byte[] file = await _mechanicHandoverService.MonthlyExcelData(propertyForExportFile);
+
+        if (file == null) return NotFound();
+
+        return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Mexanik(Topshirish).xls");
     }
 }
 

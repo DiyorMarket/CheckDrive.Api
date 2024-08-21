@@ -12,9 +12,9 @@ namespace CheckDrive.ApiContracts.OperatorReview
         public bool? IsGiven { get; set; }
         public string Comments { get; set; } = "";
         public StatusForDto Status { get; set; }
-        public OilMarksForDto OilMarks { get; set; }
         public DateTime Date { get; set; }
 
+        public int OilMarkId { get; set; }
         public int OperatorId { get; set; }
         public int DriverId { get; set; }
         public int CarId { get; set; }

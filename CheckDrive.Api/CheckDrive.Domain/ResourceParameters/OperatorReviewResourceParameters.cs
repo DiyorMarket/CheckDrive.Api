@@ -14,5 +14,6 @@ namespace CheckDrive.Domain.ResourceParameters
         public int? DriverId { get; set; }
         public int? CarId { get; set; }
         public int? RoleId { get; set; }
+        public int? AccountId { get; set; }
     }
 }

@@ -42,10 +42,11 @@ public class DashboardService : IDashboardService
                                    {
                                        Year = g.Key.Year,
                                        Month = g.Key.Month,
-                                       Ai80 = g.Where(x => x.OilMarks == OilMarks.A80).Sum(x => (decimal?)x.OilAmount) ?? 0,
-                                       Ai91 = g.Where(x => x.OilMarks == OilMarks.A91).Sum(x => (decimal?)x.OilAmount) ?? 0,
-                                       Ai92 = g.Where(x => x.OilMarks == OilMarks.A92).Sum(x => (decimal?)x.OilAmount) ?? 0,
-                                       Ai95 = g.Where(x => x.OilMarks == OilMarks.A95).Sum(x => (decimal?)x.OilAmount) ?? 0
+                                       Ai80 = g.Where(x => x.OilMark.OilMark == "A80").Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       Ai91 = g.Where(x => x.OilMark.OilMark == "A91").Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       Ai92 = g.Where(x => x.OilMark.OilMark == "A92").Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       Ai95 = g.Where(x => x.OilMark.OilMark == "A95").Sum(x => (decimal?)x.OilAmount) ?? 0,
+                                       Diesel = g.Where(x => x.OilMark.OilMark == "Diesel").Sum(x => (decimal?)x.OilAmount) ?? 0,
                                    })
                                    .ToListAsync();
 
@@ -56,7 +57,8 @@ public class DashboardService : IDashboardService
                          Ai80 = r.Ai80,
                          Ai91 = r.Ai91,
                          Ai92 = r.Ai92,
-                         Ai95 = r.Ai95
+                         Ai95 = r.Ai95,
+                         Diesel = r.Diesel
                      })
                      .ToList();
 

@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.DispatcherReview;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.DispatcherReview;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 
@@ -13,5 +14,6 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<DispatcherReviewDto> UpdateDispatcherReviewAsync(DispatcherReviewForUpdateDto dispatcherReviewForUpdate);
         Task DeleteDispatcherReviewAsync(int id);
         Task<IEnumerable<DispatcherReviewDto>> GetDispatcherHistories(int? Id);
+        Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile);
     }
 }

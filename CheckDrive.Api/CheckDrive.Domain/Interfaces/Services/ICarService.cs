@@ -1,4 +1,5 @@
-﻿using CheckDrive.ApiContracts.Car;
+﻿using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Car;
 using CheckDrive.Domain.ResourceParameters;
 using CheckDrive.Domain.Responses;
 
@@ -11,5 +12,7 @@ namespace CheckDrive.Domain.Interfaces.Services
         Task<CarDto> CreateCarAsync(CarForCreateDto carForCreate);
         Task<CarDto> UpdateCarAsync(CarForUpdateDto carForUpdate);
         Task DeleteCarAsync(int id);
+        Task<byte[]> MonthlyExcelData(PropertyForExportFile propertyForExportFile);
+        Task<GetBaseResponse<CarHistoryDto>> GetCarHistories(CarResourceParameters carResource);
     }
 }
