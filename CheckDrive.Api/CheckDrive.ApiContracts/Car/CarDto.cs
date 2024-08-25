@@ -16,6 +16,6 @@
         public double RemainingFuel {  get; set; }
         public int ManufacturedYear { get; set; }
 
-        public CarStatusDto Status { get; set; }
+        public CarStatusDto CarStatus { get; set; }
     }
 }
