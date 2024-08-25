@@ -1,7 +1,6 @@
 using CheckDrive.Api.Extensions;
 using CheckDrive.Services.Hubs;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.AspNetCore.Diagnostics;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
