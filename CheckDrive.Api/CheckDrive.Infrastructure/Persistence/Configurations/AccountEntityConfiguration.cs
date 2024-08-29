@@ -31,6 +31,18 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .HasMaxLength(255)
                 .IsRequired();
 
+            builder.Property(a => a.Passport)
+                .HasMaxLength(10)
+                .IsRequired();
+
+            builder.Property(a => a.Address)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            builder.Property(a => a.Position)
+                .HasMaxLength(255)
+                .IsRequired();
+
             builder.HasOne(a => a.Role)
                 .WithMany(r => r.Accounts)
                 .HasForeignKey(a => a.RoleId);
