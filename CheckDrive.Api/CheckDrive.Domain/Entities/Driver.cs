@@ -12,5 +12,6 @@ namespace CheckDrive.Domain.Entities
         public virtual ICollection<MechanicHandover> MechanicHandovers { get; set; }
         public virtual ICollection<MechanicAcceptance> MechanicAcceptance { get; set; }
         public virtual ICollection<OperatorReview> OperatorReviews { get; set; }
+        public virtual ICollection<Debts> Debts { get; set; }
     }
 }

@@ -17,6 +17,13 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.Property(x => x.DistanceCovered)
                 .IsRequired();
 
+            builder.Property(x => x.Status)
+                .IsRequired();
+
+            builder.Property(x => x.Comment)
+                .HasMaxLength(255)
+                .IsRequired();
+
             builder.HasOne(d => d.Dispatcher)
                 .WithMany(x => x.DispetcherReviews)
                 .HasForeignKey(d => d.DispatcherId)

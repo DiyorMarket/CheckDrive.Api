@@ -33,6 +33,10 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.HasMany(a => a.OperatorReviews)
                 .WithOne(x => x.Driver)
                 .HasForeignKey(x => x.DriverId);
+
+            builder.HasMany(a => a.Debts)
+                .WithOne(x => x.Driver)
+                .HasForeignKey(x => x.DriverId);
         }
     }
 }

@@ -10,6 +10,9 @@ namespace CheckDrive.Domain.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime Bithdate { get; set; }
+        public string Address { get; set; }
+        public string Position { get; set; }
+        public string Passport {  get; set; } 
 
         public int RoleId { get; set; }
         public Role Role { get; set; }

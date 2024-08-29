@@ -5,6 +5,8 @@ namespace CheckDrive.Domain.Entities
     {
         public double FuelSpended { get; set; }
         public double DistanceCovered { get; set; }
+        public string Comment { get; set; }
+        public Status Status { get; set; }
         public DateTime Date { get; set; }
         public int DispatcherId { get; set; }
         public Dispatcher Dispatcher { get; set; }
