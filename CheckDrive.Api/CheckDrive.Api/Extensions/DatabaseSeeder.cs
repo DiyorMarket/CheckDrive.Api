@@ -99,18 +99,179 @@ namespace CheckDrive.Api.Extensions
         private static void CreateAccounts(CheckDriveDbContext context)
         {
             if (context.Accounts.Any()) return;
-            List<Account> accounts = new();
-
-            accounts.Add(new Account()
+            List<Account> accounts = new()
             {
-                Bithdate = DateTime.Now,
-                FirstName = "Botir",
-                LastName = "Qodirov",
-                Login = "manager",
-                Password = "1234",
-                PhoneNumber = "+998946152254",
-                RoleId = 1,
-            });
+                new Account()
+                {
+                    Bithdate = DateTime.Now,
+                    FirstName = "Botir",
+                    LastName = "Qodirov",
+                    Login = "manager",
+                    Password = "1234",
+                    PhoneNumber = "+998946152254",
+                    Address = "Sergeli",
+                    Position = "Menedjer",
+                    Passport = "AA-0000000",
+                    RoleId = 1,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1980, 7, 23),
+                    FirstName = "Razzakov",
+                    LastName = "Doniyor",
+                    Login = "Razzakov",
+                    Password = "1234",
+                    PhoneNumber = "+998991204020",
+                    Address = "Olmazor tumani, Qorasaroy tor ko`chasi, Qumloq 7 a uy",
+                    Position = "Toshkent shahar hokimi haydovchisi",
+                    Passport = "AA-9861688",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1990, 5, 15),
+                    FirstName = "Fayzullayev",
+                    LastName = "Dilmurod",
+                    Login = "Fayzullayev",
+                    Password = "1234",
+                    PhoneNumber = "+998909903939",
+                    Address = "Shayhantoxur tumani, Tarona 1-tor ko`chasi, 9 uy",
+                    Position = "Toshkent shahar hokimi haydovchisi",
+                    Passport = "AA-9460873",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1967, 12, 12),
+                    FirstName = "Xashimov",
+                    LastName = "Abdukarim",
+                    Login = "Xashimov",
+                    Password = "1234",
+                    PhoneNumber = "+998997966474",
+                    Address = "Sergeli tumani, Quruvchi ko'chasi,13-a uy, 13-xonadon",
+                    Position = "Toshkent shahar hokimining moliya-iqtisodiyot va kambag'allikni qisqartirish masalalari bo'yicha hirinchi o'rinbosari-shahar iqtisodiy taraqqiyotva kambag'allikni qisqartirish bosh boshqarmasi boshlig'ining haydovchisi",
+                    Passport = "AA-0645617",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1986, 7, 5),
+                    FirstName = "Kamilov",
+                    LastName = "Davron",
+                    Login = "Kamilov",
+                    Password = "1234",
+                    PhoneNumber = "+998998118180",
+                    Address = "Shayxontoxur tumani, Kolxoznaya ko'chasi, 85a-uy",
+                    Position = "Toshkent shahar hokimining qurilish masalalari bo'yicha maslahatchisi haydovchisi",
+                    Passport = "AA-4246023",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1971, 4, 8),
+                    FirstName = "Abduraxmanov",
+                    LastName = "Abdusalom",
+                    Login = "Abduraxmanov",
+                    Password = "1234",
+                    PhoneNumber = "+998935901754",
+                    Address = "Qibray tumani, O'nqo'rg'on QFY, A.Latifo'jayev 38 uy",
+                    Position = "Toshkent shahar hokimining qurilish, kommunikatsiyalarni rivojlantirish, ekologiya va ko'kalamzorlashtirish masalalari bo'yicha birinchi o'rinbosari haydovchisi",
+                    Passport = "AV-4067546",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1978, 12, 17),
+                    FirstName = "Magrubdjanov",
+                    LastName = "Abdusamat",
+                    Login = "Magrubdjanov",
+                    Password = "1234",
+                    PhoneNumber = "+998974442214",
+                    Address = "Yunusobod tumani, Xotira 3-tor ko'chasi, 4-uy",
+                    Position = "Toshkent shahar hokimining o'rinbosari, Investitsiyalar va tashqi savdo boshqarmasi haydovchisi",
+                    Passport = "AA-8593883",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1970, 1, 1),
+                    FirstName = "Xoshimov",
+                    LastName = "Shuxrat",
+                    Login = "Xoshimov",
+                    Password = "1234",
+                    PhoneNumber = "+998977857757",
+                    Address = "Toshkent shaxar, Olmazor tumani, Тошмухамеда 1-тор кўчаси 4-уй",
+                    Position = "Toshkent shahar hokimining Jamoat va diniy tashkilotlar bilan aloqalar bo'yicha o'rinbosari haydovchisi",
+                    Passport = "AB-2174559",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1986, 6, 20),
+                    FirstName = "Begmatov",
+                    LastName = "Sulton",
+                    Login = "Begmatov",
+                    Password = "1234",
+                    PhoneNumber = "+998998180949",
+                    Address = "Mirzo Ulug'bek tumani, Feruza mavesi, 63 uy, 42 xonadon",
+                    Position = "Toshkent shahar hokimining o'rinbosari oila va xotin-qizlar boshqarmasi boshlig'ining xaydovchisi",
+                    Passport = "AV-6449253",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1974, 2, 16),
+                    FirstName = "Davrukov",
+                    LastName = "Faxriddin",
+                    Login = "Davrukov",
+                    Password = "1234",
+                    PhoneNumber = "+998900000000",
+                    Address = "Mirzo Ulug'bek tumani, Muxitdinova ko'chasi, 3b-uy 23-xonadon",
+                    Position = "Toshkent shahar hokimining xokimining turizm va sport bo'yicha o'rinbosari",
+                    Passport = "AV-7430746",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1958, 7, 20),
+                    FirstName = "Pirmetov",
+                    LastName = "Shuxrat",
+                    Login = "Pirmetov",
+                    Password = "1234",
+                    PhoneNumber = "+998909506381",
+                    Address = "Mirzo Ulug'bek tumani, TTZ-2 mavzesi 64-uy, 22-xonadon",
+                    Position = "Toshkent shahar hokimligi haydovchisi",
+                    Passport = "AA-4590867",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1970, 5, 10),
+                    FirstName = "Aripov",
+                    LastName = "Maxmudjon",
+                    Login = "Aripov",
+                    Password = "1234",
+                    PhoneNumber = "+998935810606",
+                    Address = "Yakkasaroy tumani, 5- tor A.Qaxxor ko'chasi 1-uy",
+                    Position = "Toshkent shahar hokimligi haydovchisi",
+                    Passport = "AA-4380462",
+                    RoleId = 2,
+                },
+                new Account()
+                {
+                    Bithdate = new DateTime(1971, 9, 21),
+                    FirstName = "Tairov",
+                    LastName = "Sulton",
+                    Login = "Tairov",
+                    Password = "1234",
+                    PhoneNumber = "+998900000000",
+                    Address = "Toshkent shahar, Yunusobod tumani, 9-mavze, 10-uy. 60-xonadon",
+                    Position = "Toshkent shahar hokimligi ishlar boshqarmasi boshlig'i",
+                    Passport = "AA-4732149",
+                    RoleId = 2,
+                },
+            };
+            
 
         }
 
@@ -122,81 +283,199 @@ namespace CheckDrive.Api.Extensions
             {
                 new Car()
                 {
-                    Model = "Gentra",
-                    Color = "Black",
-                    Number = "01 145 PBA",
-                    Mileage = 157,
-                    MeduimFuelConsumption = 8.2,
-                    FuelTankCapacity = 60,
+                    Model = "Mercedes-Benz S450",
+                    Color = "Qora",
+                    Number = "PAA 240",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 18,
+                    FuelTankCapacity = 76,
                     ManufacturedYear = 2019,
-                    RemainingFuel = 12,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 43200
                 },
                 new Car()
                 {
-                    Model = "Cobalt",
-                    Color = "Black",
-                    Number = "01 312 PBA",
-                    Mileage = 157,
-                    MeduimFuelConsumption = 8.2,
-                    FuelTankCapacity = 60,
-                    ManufacturedYear = 2019,
-                    RemainingFuel = 12,
+                    Model = "Mercedes-Benz S500",
+                    Color = "Qora",
+                    Number = "01/010 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 18,
+                    FuelTankCapacity = 76,
+                    ManufacturedYear = 2021,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 43200
                 },
                 new Car()
                 {
-                    Model = "Matiz",
-                    Color = "White",
-                    Number = "01 146 PBA",
-                    Mileage = 128,                   
-                    MeduimFuelConsumption = 6.4,
-                    FuelTankCapacity = 35,
-                    ManufacturedYear = 2015,
-                    RemainingFuel = 14,
+                    Model = "Tayota Prado",
+                    Color = "Qora",
+                    Number = "01/005 DAV",
+                    Mileage = 0,                   
+                    MeduimFuelConsumption = 15.1,
+                    FuelTankCapacity = 93,
+                    ManufacturedYear = 2017,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36036
                 },
                 new Car()
                 {
-                    Model = "Nexia 2",
-                    Color = "Gray",
-                    Number = "01 147 PBA",
-                    Mileage = 198,
-                    MeduimFuelConsumption = 8.2,
-                    FuelTankCapacity = 45,
+                    Model = "Chevrolet Captiva",
+                    Color = "Qora",
+                    Number = "01/012 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 12,
+                    FuelTankCapacity = 65,
                     ManufacturedYear = 2018,
-                    RemainingFuel = 25,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
                 },
                 new Car()
                 {
-                    Model = "Spark",
-                    Color = "Blue",
-                    Number = "01 148 PBA",
-                    Mileage = 228,
-                    MeduimFuelConsumption = 6.6,
-                    FuelTankCapacity = 35,
+                    Model = "Chevrolet Malibu-2",
+                    Color = "Qora",
+                    Number = "01/003 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 11.5,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2021,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
+                },
+                new Car()
+                {
+                    Model = "Chevrolet Malibu-2",
+                    Color = "Qora",
+                    Number = "01/004 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 11.5,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2020,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
+                },
+                new Car()
+                {
+                    Model = "Chevrolet Malibu-2",
+                    Color = "Qora",
+                    Number = "01/009 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 11.5,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2020,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
+                },
+                new Car()
+                {
+                    Model = "Chevrolet Malibu-2",
+                    Color = "Qora",
+                    Number = "01/011 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 11.5,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2018,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
+                },
+                new Car()
+                {
+                    Model = "Chevrolet Malibu-2",
+                    Color = "Qora",
+                    Number = "01/013 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 11.5,
+                    FuelTankCapacity = 60,
                     ManufacturedYear = 2019,
-                    RemainingFuel = 10,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
                 },
                 new Car()
                 {
-                    Model = "Prado",
-                    Color = "Black",
-                    Number = "01 149 PBA",
-                    Mileage = 119,
-                    MeduimFuelConsumption = 11.4,
-                    FuelTankCapacity = 90,
-                    ManufacturedYear = 2019,
-                    RemainingFuel = 6,
+                    Model = "Chevrolet Malibu-2",
+                    Color = "Qora",
+                    Number = "01/014 DAV",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 11.5,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2020,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 36000
                 },
                 new Car()
                 {
-                    Model = "Cadillac",
-                    Color = "Black",
-                    Number = "01 150 PBA",
+                    Model = "Chevrolet Lacetti",
+                    Color = "Qora",
+                    Number = "01/234 THA",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 10,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2020,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 27720
+                },
+                new Car()
+                {
+                    Model = "Chevrolet Lacetti",
+                    Color = "Qora",
+                    Number = "01/213 THA",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 10,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2020,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 27720
+                },
+                new Car()
+                {
+                    Model = "Chevrolet Lacetti",
+                    Color = "Qora",
+                    Number = "01/219 THA",
+                    Mileage = 0,
+                    MeduimFuelConsumption = 10,
+                    FuelTankCapacity = 60,
+                    ManufacturedYear = 2017,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 27720
+                },
+                new Car()
+                {
+                    Model = "Mercedes-Benz Sprinter",
+                    Color = "Qora",
+                    Number = "01/200 THA",
                     Mileage = 28,
-                    MeduimFuelConsumption = 10.7,
-                    FuelTankCapacity = 117,
-                    ManufacturedYear = 2019,
-                    RemainingFuel = 11,
+                    MeduimFuelConsumption = 18.6,
+                    FuelTankCapacity = 75,
+                    ManufacturedYear = 2020,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 16128
                 },
+                new Car()
+                {
+                    Model = "Mercedes-Benz Sprinter",
+                    Color = "Qora",
+                    Number = "01/300 THA",
+                    Mileage = 28,
+                    MeduimFuelConsumption = 18.6,
+                    FuelTankCapacity = 75,
+                    ManufacturedYear = 1996,
+                    RemainingFuel = 0,
+                    CarStatus = CarStatus.Free,
+                    OneYearMediumDistance = 16128
+                }
             };
 
             context.Cars.AddRange(cars);
