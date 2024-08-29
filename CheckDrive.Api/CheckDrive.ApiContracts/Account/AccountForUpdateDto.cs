@@ -26,6 +26,16 @@ namespace CheckDrive.ApiContracts.Account
         [Required(ErrorMessage = "Familiyani kiritish majburiy")]
         public string LastName { get; set; }
 
+        [Required(ErrorMessage = "Manzilni kiritish majburiy")]
+        public string Address { get; set; }
+
+        [Required(ErrorMessage = "Lavozimni kiritish majburiy")]
+        public string Position { get; set; }
+
+        [Required(ErrorMessage = "Pasport seriyani kiritish majburiy")]
+        [RegularExpression(@"^[A-Z]{2}-\d{7}$", ErrorMessage = "Passport seriya XX-XXXXXXX formatida bo'lishi kerak")]
+        public string Passport { get; set; }
+
         [Required(ErrorMessage = "Tug'ilgan kunni kiritish majburiy")]
         [DataType(DataType.Date, ErrorMessage = "Tug'ilgan kun noto'g'ri formatda")]
         public DateTime Bithdate { get; set; }

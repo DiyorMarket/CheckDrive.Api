@@ -37,5 +37,7 @@ namespace CheckDrive.ApiContracts.Car
 
         [Required(ErrorMessage = "Ishlab chiqarilgan yilni kiritish majburiy")]
         public int ManufacturedYear { get; set; }
+
+        public CarStatusDto CarStatus { get; set; }
     }
 }
