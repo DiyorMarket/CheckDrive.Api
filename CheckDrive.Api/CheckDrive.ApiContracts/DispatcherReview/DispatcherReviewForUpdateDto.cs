@@ -14,6 +14,8 @@ namespace CheckDrive.ApiContracts.DispatcherReview
         [Required(ErrorMessage = "Oraliq masofani kiritish majburiy")]
         [Range(0, double.MaxValue, ErrorMessage = "Oraliq masofa manfiy bo'lishi mumkin emas")]
         public double DistanceCovered { get; set; }
+        public StatusForDto Status { get; set; }
+        public string Comment { get; set; }
         public DateTime Date { get; set; }
         public int DispatcherId { get; set; }
         public int OperatorId { get; set; }
