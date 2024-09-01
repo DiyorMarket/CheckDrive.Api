@@ -15,7 +15,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                 table: "DispatcherReview",
                 type: "nvarchar(255)",
                 maxLength: 255,
-                nullable: false,
+                nullable: true,
                 defaultValue: "");
 
             migrationBuilder.AddColumn<int>(

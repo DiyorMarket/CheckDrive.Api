@@ -15,12 +15,12 @@ namespace CheckDrive.Api.Extensions
             CreateRoles(context);
             CreateOilMarks(context);
             CreateAccounts(context);
-            //CreateCars(context);
-            //CreateDrivers(context);
-            //CreateDoctors(context);
-            //CreateOperators(context);
-            //CreateDispatchers(context);
-            //CreateMechanics(context);
+            CreateCars(context);
+            CreateDrivers(context);
+            CreateDoctors(context);
+            CreateOperators(context);
+            CreateDispatchers(context);
+            CreateMechanics(context);
             //CreateDoctorReviews(context);
             //CreateMechanicHandovers(context);
             //CreateOperatorReviews(context);
@@ -271,7 +271,10 @@ namespace CheckDrive.Api.Extensions
                     RoleId = 2,
                 },
             };
-            
+
+            context.Accounts.AddRange(accounts);
+            context.SaveChanges();
+
 
         }
 

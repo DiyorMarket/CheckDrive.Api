@@ -24,7 +24,7 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBMAY9C3t2
 
 var app = builder.Build();
 
-if (app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
