@@ -21,8 +21,7 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(x => x.Comment)
-                .HasMaxLength(255)
-                .IsRequired();
+                .HasMaxLength(255);
 
             builder.HasOne(d => d.Dispatcher)
                 .WithMany(x => x.DispetcherReviews)
