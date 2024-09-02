@@ -6,7 +6,9 @@ namespace CheckDrive.ApiContracts.DispatcherReview
     {
         public int Id { get; set; }
         public double FuelSpended { get; set; }
+        public double? ChangedFuelSpendede { get; set; }
         public double DistanceCovered { get; set; }
+        public double? ChangedDistanceCovered { get; set; }
         public StatusForDto Status { get; set; }
         public string Comment { get; set; }
         public DateTime Date { get; set; }

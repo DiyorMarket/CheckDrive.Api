@@ -8,10 +8,14 @@ namespace CheckDrive.ApiContracts.DispatcherReview
         [Required(ErrorMessage = "Yoqilg'i sarfini kiritish majburiy")]
         [Range(0, double.MaxValue, ErrorMessage = "Yoqilg'i sarfi manfiy bo'lishi mumkin emas")]
         public double FuelSpended { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Yoqilg'i sarfi manfiy bo'lishi mumkin emas")]
+        public double? ChangedFuelSpendede { get; set; }
 
         [Required(ErrorMessage = "Oraliq masofani kiritish majburiy")]
         [Range(0, double.MaxValue, ErrorMessage = "Oraliq masofa manfiy bo'lishi mumkin emas")]
         public double DistanceCovered { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Oraliq masofa manfiy bo'lishi mumkin emas")]
+        public double? ChangedDistanceCovered { get; set; }
         public StatusForDto Status { get; set; }
         public string Comment { get; set; }
         public DateTime Date { get; set; }

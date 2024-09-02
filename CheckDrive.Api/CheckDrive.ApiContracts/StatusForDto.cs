@@ -6,6 +6,7 @@
         Completed,
         Rejected,
         Unassigned,
-        RejectedByDriver
+        RejectedByDriver,
+        Debts
     }
 }
