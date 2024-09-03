@@ -15,6 +15,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
 using Syncfusion.XlsIO.Implementation.Security;
+using System.Data.SqlTypes;
 
 namespace CheckDrive.Services;
 
@@ -74,73 +75,109 @@ public class DispatcherReviewService : IDispatcherReviewService
 
     public async Task<DispatcherReviewDto> CreateDispatcherReviewAsync(DispatcherReviewForCreateDto dispatcherReviewForCreate)
     {
-        var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForCreate);
-
-        var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.CarId);
-        var mechanicHandover = await _context.MechanicsHandovers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.MechanicHandoverId);
-        var mechanicAcceptence = await _context.MechanicsAcceptances.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.MechanicAcceptanceId);
-        DateTime now = DateTime.Now;
-        DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
-
-        var firstDispatcherReview = await _context.DispatchersReviews
-            .AsNoTracking()
-            .Where(review => review.Date >= firstDayOfMonth
-                 && review.CarId == car.Id)
-            .OrderBy(review => review.Date)
-            .FirstOrDefaultAsync();
-
-        if(firstDispatcherReview != null)
+        try
         {
-            var monthlyDistance = car.OneYearMediumDistance / 12;
-            if (monthlyDistance > 0) 
+            var dispatcherEntity = _mapper.Map<DispatcherReview>(dispatcherReviewForCreate);
+
+            bool isDistanceChanged = dispatcherEntity.ChangedDistanceCovered.HasValue &&
+                                     dispatcherEntity.DistanceCovered != dispatcherEntity.ChangedDistanceCovered;
+
+            bool isFuelChanged = dispatcherEntity.ChangedFuelSpendede.HasValue &&
+                                 dispatcherEntity.FuelSpended != dispatcherEntity.ChangedFuelSpendede;
+
+            if (isDistanceChanged || isFuelChanged)
             {
-                var distancee = (int)mechanicHandover.Distance;
+                dispatcherEntity.Status = Status.Rejected;
+            }
+            else
+            {
+                dispatcherEntity.Status = Status.Completed;
+            }
 
-                var total = car.Mileage - distancee;
+            dispatcherEntity.ChangedDistanceCovered ??= 0;
+            dispatcherEntity.ChangedFuelSpendede ??= 0;
 
-                if (monthlyDistance < total)
+            var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.CarId);
+            var mechanicHandover = await _context.MechanicsHandovers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.MechanicHandoverId);
+            var mechanicAcceptence = await _context.MechanicsAcceptances.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.MechanicAcceptanceId);
+            if (car == null || mechanicHandover == null || mechanicAcceptence == null)
+            {
+                throw new InvalidOperationException("Related entities not found. Please check the provided IDs.");
+            }
+            DateTime now = DateTime.Now;
+            DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
+
+            var firstDispatcherReview = await _context.DispatchersReviews
+                .AsNoTracking()
+                .Where(review => review.Date >= firstDayOfMonth
+                     && review.CarId == car.Id)
+                .OrderBy(review => review.Date)
+                .FirstOrDefaultAsync();
+
+            if (firstDispatcherReview != null)
+            {
+                var monthlyDistance = car.OneYearMediumDistance / 12;
+                if (monthlyDistance > 0)
                 {
-                    car.CarStatus = CarStatus.Limited;
-                    _context.Cars.Update(car);
+                    var distancee = (int)mechanicHandover.Distance;
+
+                    var total = car.Mileage - distancee;
+
+                    if (monthlyDistance < total)
+                    {
+                        car.CarStatus = CarStatus.Limited;
+                        _context.Cars.Update(car);
+                    }
                 }
             }
-        }
-        else
-        {
-            car.CarStatus = CarStatus.Free;
+            else
+            {
+                car.CarStatus = CarStatus.Free;
+                _context.Cars.Update(car);
+            }
+
+            var initialDistance = mechanicHandover.Distance;
+            var finishDistance = mechanicAcceptence.Distance;
+
+            var distence = finishDistance - initialDistance;
+
+            if (distence < dispatcherEntity.DistanceCovered)
+            {
+                var totalDistence = dispatcherEntity.DistanceCovered - distence;
+                car.Mileage += (int)totalDistence;
+
+            }
+            else if (distence > dispatcherEntity.DistanceCovered)
+            {
+                var totalDistence = distence - dispatcherEntity.DistanceCovered;
+                car.Mileage -= (int)totalDistence;
+            }
+
+            car.RemainingFuel -= dispatcherEntity.FuelSpended;
             _context.Cars.Update(car);
+
+            var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
+            driver.CheckPoint = DriverCheckPoint.Initial;
+            _context.Drivers.Update(driver);
+
+            await _context.DispatchersReviews.AddAsync(dispatcherEntity);
+            await _context.SaveChangesAsync();
+
+            var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherEntity);
+
+            return dispatcherReviewDto;
         }
-
-        var initialDistance = mechanicHandover.Distance;
-        var finishDistance = mechanicAcceptence.Distance;
-
-        var distence = finishDistance - initialDistance;
-        
-        if(distence < dispatcherEntity.DistanceCovered)
+        catch (SqlNullValueException ex)
         {
-           var totalDistence = dispatcherEntity.DistanceCovered-distence;
-           car.Mileage +=(int)totalDistence;
-           
+            // Логируйте или обрабатывайте ошибку
+            Console.WriteLine($"Ошибка при получении данных: {ex.Message}");
+            throw;
         }
-        else if(distence > dispatcherEntity.DistanceCovered)
+        catch (Exception ex)
         {
-            var totalDistence = distence - dispatcherEntity.DistanceCovered;
-            car.Mileage -= (int)totalDistence;
+
+            throw;
         }
-
-        car.RemainingFuel -= dispatcherEntity.FuelSpended;
-        _context.Cars.Update(car);
-
-        var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
-        driver.CheckPoint = DriverCheckPoint.Initial;
-        _context.Drivers.Update(driver);
-
-        await _context.DispatchersReviews.AddAsync(dispatcherEntity);
-        await _context.SaveChangesAsync();
-
-        var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherEntity);
-
-        return dispatcherReviewDto;
     }
 
     public async Task<DispatcherReviewDto> UpdateDispatcherReviewAsync(DispatcherReviewForUpdateDto dispatcherReviewForUpdate)
