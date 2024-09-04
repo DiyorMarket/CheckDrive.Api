@@ -87,6 +87,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Bithdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Position = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Passport = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -192,6 +195,27 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         name: "FK_Operator_Account_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Debts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OilAmount = table.Column<double>(type: "float", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DriverId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Debts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Debts_Driver_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "Driver",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -341,7 +365,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FuelSpended = table.Column<double>(type: "float", nullable: false),
+                    ChangedFuelSpendede = table.Column<double>(type: "float", nullable: true),
                     DistanceCovered = table.Column<double>(type: "float", nullable: false),
+                    ChangedDistanceCovered = table.Column<double>(type: "float", nullable: true),
+                    Comment = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DispatcherId = table.Column<int>(type: "int", nullable: false),
                     CarId = table.Column<int>(type: "int", nullable: false),
@@ -401,6 +429,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                 name: "IX_Account_RoleId",
                 table: "Account",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Debts_DriverId",
+                table: "Debts",
+                column: "DriverId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Dispatcher_AccountId",
@@ -531,6 +564,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Debts");
+
             migrationBuilder.DropTable(
                 name: "DispatcherReview");
 
