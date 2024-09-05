@@ -192,7 +192,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 

@@ -329,6 +329,9 @@ public class DispatcherReviewService : IDispatcherReviewService
                 x.Dispatcher.Account.FirstName.Contains(dispatcherReviewParameters.SearchString) ||
                 x.Dispatcher.Account.LastName.Contains(dispatcherReviewParameters.SearchString));
 
+        if (dispatcherReviewParameters.Status is not null)
+            query = query.Where(x => x.Status == dispatcherReviewParameters.Status);
+
         if (dispatcherReviewParameters.Date is not null)
         {
             dispatcherReviewParameters.Date = DateTime.Today.ToTashkentTime();
@@ -338,6 +341,7 @@ public class DispatcherReviewService : IDispatcherReviewService
         //FuelSpended
         var dispatcher = _context.Dispatchers
             .FirstOrDefault(x => x.AccountId == dispatcherReviewParameters.AccountId);
+
         if (dispatcherReviewParameters.AccountId is not null)
         {
             query = query.Where(x => x.DispatcherId == dispatcher.Id);
