@@ -1,7 +1,10 @@
-﻿namespace CheckDrive.Domain.ResourceParameters
+﻿using CheckDrive.Domain.Entities;
+
+namespace CheckDrive.Domain.ResourceParameters
 {
     public class DispatcherReviewResourceParameters : ResourceParametersBase
     {
+        public Status? Status { get; set; }
         public int? AccountId { get; set; }
         public int? DispatcherId { get; set; }
         public int? OperatorId { get; set; }

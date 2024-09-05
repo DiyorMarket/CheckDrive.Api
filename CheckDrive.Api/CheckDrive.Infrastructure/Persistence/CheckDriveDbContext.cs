@@ -11,6 +11,7 @@ namespace CheckDrive.Infrastructure.Persistence
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Car> Cars { get; set; }
         public virtual DbSet<Driver> Drivers { get; set; }
+        public virtual DbSet<Debts> Debts { get; set; }
         public virtual DbSet<Mechanic> Mechanics { get; set; }
         public virtual DbSet<Doctor> Doctors { get; set; }
         public virtual DbSet<Operator> Operators { get; set; }
