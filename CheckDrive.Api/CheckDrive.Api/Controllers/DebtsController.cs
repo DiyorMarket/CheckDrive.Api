@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers
 {
+    [ApiController]
+    [Route("api/debts")]
     public class DebtsController(IDebtsService debtsService) : Controller
     {
         private readonly IDebtsService _debtsService = debtsService;
@@ -34,17 +36,17 @@ namespace CheckDrive.Api.Controllers
         {
             var createdDebt = await _debtsService.CreateDebtAsync(forCreateDto);
 
-            return null;//CreatedAtAction("GetDebtById", new { id = createdDebt.Id }, createdDebt);
+            return CreatedAtAction("GetDebtById", new { id = createdDebt.Id }, createdDebt);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> PutAsync(int id, [FromBody] DebtsForUpdateDto forUpdateDto)
         {
-            //if (id != forUpdateDto.Id)
-            //{
-            //    return BadRequest(
-            //        $"Route id: {id} does not match with parameter id: {forUpdateDto.Id}.");
-            //}
+            if (id != forUpdateDto.Id)
+            {
+                return BadRequest(
+                    $"Route 7id: {id} does not match with parameter id: {forUpdateDto.Id}.");
+            }
 
             var updateDebts = await _debtsService.UpdateDebtAsync(forUpdateDto);
 
