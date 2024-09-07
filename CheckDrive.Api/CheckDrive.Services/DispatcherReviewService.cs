@@ -2,6 +2,7 @@
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
+using CheckDrive.ApiContracts.Debts;
 using CheckDrive.ApiContracts.DispatcherReview;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.MechanicHandover;
@@ -14,7 +15,6 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
-using Syncfusion.XlsIO.Implementation.Security;
 using System.Data.SqlTypes;
 
 namespace CheckDrive.Services;
@@ -23,11 +23,13 @@ public class DispatcherReviewService : IDispatcherReviewService
 {
     private readonly IMapper _mapper;
     private readonly CheckDriveDbContext _context;
+    private readonly IDebtsService _debtsService;
 
-    public DispatcherReviewService(IMapper mapper, CheckDriveDbContext context)
+    public DispatcherReviewService(IMapper mapper, CheckDriveDbContext context, IDebtsService debtsService)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        _debtsService = debtsService ?? throw new ArgumentNullException(nameof(debtsService));
     }
 
     public async Task<GetBaseResponse<DispatcherReviewDto>> GetDispatcherReviewsAsync(DispatcherReviewResourceParameters resourceParameters)
@@ -123,6 +125,11 @@ public class DispatcherReviewService : IDispatcherReviewService
                     var distancee = (int)mechanicHandover.Distance;
 
                     var total = car.Mileage - distancee;
+
+                    if (total > 0)
+                    {
+                        await CreateDebts(total, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
+                    }
 
                     if (monthlyDistance < total)
                     {
@@ -561,6 +568,19 @@ public class DispatcherReviewService : IDispatcherReviewService
         var dispatcherReviewDto = _mapper.Map<IEnumerable<DispatcherReviewDto>>(dispatcherHistories);
 
         return dispatcherReviewDto;
+    }
+
+    private async Task CreateDebts(double oilAmount, int DriverId, int CarId)
+    {
+        var debtsDto = new DebtsForCreateDto
+        {
+            CarId = CarId,
+            DriverId = DriverId,
+            OilAmount = oilAmount,
+            Status = StatusForDto.Debts
+        };
+
+        var debts = await _debtsService.CreateDebtAsync(debtsDto);
     }
 }
 
