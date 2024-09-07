@@ -7,6 +7,8 @@
         public StatusForDto Status { get; set; }
 
         public int DriverId { get; set; }
+        public string DriverName { get; set; }
         public int CarId { get; set; }
+        public string CarName { get; set; }
     }
 }
