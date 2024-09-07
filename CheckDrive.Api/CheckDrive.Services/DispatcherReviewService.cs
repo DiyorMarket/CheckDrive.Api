@@ -116,20 +116,24 @@ public class DispatcherReviewService : IDispatcherReviewService
                 .OrderBy(review => review.Date)
                 .FirstOrDefaultAsync();
 
+            var distancee = (int)mechanicHandover.Distance;
+
+            var total = car.Mileage - distancee;
+
+            if (total < 0)
+            {
+                await CreateDebts(total, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
+            }
+
             if (firstDispatcherReview != null)
             {
                 var monthlyDistance = car.OneYearMediumDistance / 12;
 
                 if (monthlyDistance > 0)
                 {
-                    var distancee = (int)mechanicHandover.Distance;
+                    //var distancee = (int)mechanicHandover.Distance;
 
-                    var total = car.Mileage - distancee;
-
-                    if (total > 0)
-                    {
-                        await CreateDebts(total, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
-                    }
+                    //var total = car.Mileage - distancee;
 
                     if (monthlyDistance < total)
                     {
