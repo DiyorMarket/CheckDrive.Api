@@ -36,6 +36,10 @@ namespace CheckDrive.Services
         public async Task<DebtsDto?> GetDebtByIdAsync(int id)
         {
             var debt = await _context.Debts
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .Include(d => d.Driver)
+                .ThenInclude(d => d.Account)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             var debtDto = _mapper.Map<DebtsDto>(debt);
@@ -82,9 +86,12 @@ namespace CheckDrive.Services
         private IQueryable<Debts> GetQueryDebtResParameters(
            DebtsResourceParameters resourceParameters)
         {
-            var query = _context.Debts.
-                AsNoTracking().
-                AsQueryable();
+            var query = _context.Debts
+                .AsNoTracking()
+                .Include(x => x.Car)
+                .Include(d => d.Driver)
+                .ThenInclude(d => d.Account)
+                .AsQueryable();
 
             if (resourceParameters.OilAmount is not null)
                 query = query.Where(x => x.OilAmount == resourceParameters.OilAmount);
