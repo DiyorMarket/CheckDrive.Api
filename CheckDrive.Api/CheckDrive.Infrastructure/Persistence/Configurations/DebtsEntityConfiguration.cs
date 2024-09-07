@@ -21,6 +21,10 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.HasOne(a => a.Driver)
                 .WithMany(x => x.Debts)
                 .HasForeignKey(a => a.DriverId);
+
+            builder.HasOne(a => a.Car)
+                .WithMany(x => x.Debts)
+                .HasForeignKey(a => a.CarId);
         }
     }
 }

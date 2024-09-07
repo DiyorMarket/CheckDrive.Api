@@ -7,5 +7,6 @@
         public StatusForDto Status { get; set; }
 
         public int DriverId { get; set; }
+        public int CarId { get; set; }
     }
 }

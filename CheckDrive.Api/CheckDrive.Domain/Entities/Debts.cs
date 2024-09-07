@@ -1,5 +1,4 @@
 ﻿using CheckDrive.Domain.Common;
-using Microsoft.Identity.Client;
 
 namespace CheckDrive.Domain.Entities
 {
@@ -10,5 +9,7 @@ namespace CheckDrive.Domain.Entities
 
         public Driver Driver { get; set; }
         public int DriverId { get; set; }
+        public Car Car { get; set; }
+        public int CarId { get; set; }
     }
 }
