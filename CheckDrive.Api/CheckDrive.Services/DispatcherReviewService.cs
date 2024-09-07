@@ -104,8 +104,8 @@ public class DispatcherReviewService : IDispatcherReviewService
             {
                 throw new InvalidOperationException("Related entities not found. Please check the provided IDs.");
             }
-            DateTime now = DateTime.Now;
-            DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1);
+            DateTime now = DateTime.Now.ToTashkentTime();
+            DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1).ToTashkentTime();
 
             var firstDispatcherReview = await _context.DispatchersReviews
                 .AsNoTracking()
@@ -117,6 +117,7 @@ public class DispatcherReviewService : IDispatcherReviewService
             if (firstDispatcherReview != null)
             {
                 var monthlyDistance = car.OneYearMediumDistance / 12;
+
                 if (monthlyDistance > 0)
                 {
                     var distancee = (int)mechanicHandover.Distance;
@@ -136,25 +137,25 @@ public class DispatcherReviewService : IDispatcherReviewService
                 _context.Cars.Update(car);
             }
 
-            var initialDistance = mechanicHandover.Distance;
-            var finishDistance = mechanicAcceptence.Distance;
-
-            var distence = finishDistance - initialDistance;
-
-            if (distence < dispatcherEntity.DistanceCovered)
+            if(dispatcherEntity.ChangedDistanceCovered is not null)
             {
-                var totalDistence = dispatcherEntity.DistanceCovered - distence;
-                car.Mileage += (int)totalDistence;
-
+                car.Mileage += (int)dispatcherEntity.ChangedDistanceCovered;
             }
-            else if (distence > dispatcherEntity.DistanceCovered)
+            else
             {
-                var totalDistence = distence - dispatcherEntity.DistanceCovered;
-                car.Mileage -= (int)totalDistence;
+                car.Mileage += (int)dispatcherEntity.DistanceCovered;
             }
 
-            car.RemainingFuel -= dispatcherEntity.FuelSpended;
-            _context.Cars.Update(car);
+            if(dispatcherEntity.ChangedFuelSpendede is not null)
+            {
+                car.RemainingFuel -= (double)dispatcherEntity.ChangedFuelSpendede;
+                _context.Cars.Update(car);
+            }
+            else
+            {
+                car.RemainingFuel -= dispatcherEntity.FuelSpended;
+                _context.Cars.Update(car);
+            }
 
             var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
             driver.CheckPoint = DriverCheckPoint.Initial;
@@ -169,7 +170,6 @@ public class DispatcherReviewService : IDispatcherReviewService
         }
         catch (SqlNullValueException ex)
         {
-            // Логируйте или обрабатывайте ошибку
             Console.WriteLine($"Ошибка при получении данных: {ex.Message}");
             throw;
         }
