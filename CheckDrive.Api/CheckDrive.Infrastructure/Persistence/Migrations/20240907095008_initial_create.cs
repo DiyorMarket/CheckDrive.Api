@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CheckDrive.Infrastructure.Persistence.Migrations
+namespace CheckDrive.Infrastructure.persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Create : Migration
+    public partial class initial_create : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -368,7 +368,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     ChangedFuelSpendede = table.Column<double>(type: "float", nullable: true),
                     DistanceCovered = table.Column<double>(type: "float", nullable: false),
                     ChangedDistanceCovered = table.Column<double>(type: "float", nullable: true),
-                    Comment = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DispatcherId = table.Column<int>(type: "int", nullable: false),

@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CheckDrive.Infrastructure.Persistence.Migrations
+namespace CheckDrive.Infrastructure.persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20240904132328_Initial_Create")]
-    partial class Initial_Create
+    [Migration("20240907095008_initial_create")]
+    partial class initial_create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -195,7 +195,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CheckDrive.Infrastructure.Persistence.Migrations
+namespace CheckDrive.Infrastructure.persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
     partial class CheckDriveDbContextModelSnapshot : ModelSnapshot
