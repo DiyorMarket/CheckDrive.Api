@@ -6,7 +6,7 @@ namespace CheckDrive.Domain.Mappings
 {
     public class DebtsMappings : Profile
     {
-        public DebtsMappings() 
+        public DebtsMappings()  
         {
             CreateMap<DebtsDto, Debts>();
             CreateMap<Debts, DebtsDto>()

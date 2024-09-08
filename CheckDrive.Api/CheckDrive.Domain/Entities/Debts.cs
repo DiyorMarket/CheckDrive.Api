@@ -6,6 +6,7 @@ namespace CheckDrive.Domain.Entities
     {
         public double OilAmount { get; set; }
         public Status Status { get; set; }
+        public DateTime Date { get; set; }
 
         public Driver Driver { get; set; }
         public int DriverId { get; set; }
