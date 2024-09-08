@@ -18,6 +18,9 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Status)
                 .IsRequired();
 
+            builder.Property(x => x.DispatcherReviewId)
+                .IsRequired();
+
             builder.HasOne(a => a.Driver)
                 .WithMany(x => x.Debts)
                 .HasForeignKey(a => a.DriverId);

@@ -9,6 +9,7 @@ namespace CheckDrive.ApiContracts.Debts
         public StatusForDto Status { get; set; }
         public DateTime Date { get; set; }
 
+        public int DispatcherReviewId { get; set; }
         public int DriverId { get; set; }
         public string DriverName { get; set; }
         public int CarId { get; set; }

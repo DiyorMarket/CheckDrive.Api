@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts.Debts;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces.Services;
@@ -92,6 +93,12 @@ namespace CheckDrive.Services
                 .Include(d => d.Driver)
                 .ThenInclude(d => d.Account)
                 .AsQueryable();
+
+            if (resourceParameters.Date is not null)
+            {
+                resourceParameters.Date = DateTime.Today.ToTashkentTime();
+                query = query.Where(x => x.Date.Date == resourceParameters.Date.Value.Date);
+            }
 
             if (resourceParameters.OilAmount is not null)
                 query = query.Where(x => x.OilAmount == resourceParameters.OilAmount);

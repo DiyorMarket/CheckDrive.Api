@@ -158,7 +158,10 @@ public class DoctorReviewService : IDoctorReviewService
                 x.Comments.Contains(doctorReviewResource.SearchString));
 
         if (doctorReviewResource.Date is not null)
+        {
+            doctorReviewResource.Date = DateTime.Today.ToTashkentTime();
             query = query.Where(x => x.Date.Date == doctorReviewResource.Date.Value.Date);
+        }
 
         if (doctorReviewResource.DriverId is not null)
             query = query.Where(x => x.DriverId == doctorReviewResource.DriverId);

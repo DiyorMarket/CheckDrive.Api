@@ -161,7 +161,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
                 if (totalFuel < 0)
                 {
-                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
+                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date);
                 }
             }
             else
@@ -175,7 +175,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
                 if (totalFuel < 0)
                 {
-                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
+                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date);
                 }
             }
 
@@ -585,13 +585,14 @@ public class DispatcherReviewService : IDispatcherReviewService
         return dispatcherReviewDto;
     }
 
-    private async Task CreateDebts(double oilAmount, int DriverId, int CarId)
+    private async Task CreateDebts(double oilAmount, int DriverId, int CarId, DateTime date)
     {
         var debtsDto = new DebtsForCreateDto
         {
             CarId = CarId,
             DriverId = DriverId,
             OilAmount = oilAmount,
+            Date = date,
             Status = StatusForDto.Debts
         };
 
