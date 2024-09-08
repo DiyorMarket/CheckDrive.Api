@@ -116,24 +116,15 @@ public class DispatcherReviewService : IDispatcherReviewService
                 .OrderBy(review => review.Date)
                 .FirstOrDefaultAsync();
 
-            var distancee = (int)mechanicHandover.Distance;
-
-            var total = car.Mileage - distancee;
-
-            if (total < 0)
-            {
-                await CreateDebts(total, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
-            }
-
             if (firstDispatcherReview != null)
             {
                 var monthlyDistance = car.OneYearMediumDistance / 12;
 
                 if (monthlyDistance > 0)
                 {
-                    //var distancee = (int)mechanicHandover.Distance;
+                    var distancee = (int)mechanicHandover.Distance;
 
-                    //var total = car.Mileage - distancee;
+                    var total = car.Mileage - distancee;
 
                     if (monthlyDistance < total)
                     {
@@ -159,13 +150,33 @@ public class DispatcherReviewService : IDispatcherReviewService
 
             if(dispatcherEntity.ChangedFuelSpendede is not null)
             {
-                car.RemainingFuel -= (double)dispatcherEntity.ChangedFuelSpendede;
+                double changedFuel = (double)dispatcherEntity.ChangedFuelSpendede;
+
+                car.RemainingFuel -= changedFuel;
                 _context.Cars.Update(car);
+
+                double distanceeFuel = changedFuel;
+
+                double totalFuel = car.RemainingFuel - distanceeFuel;
+
+                if (totalFuel < 0)
+                {
+                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
+                }
             }
             else
             {
                 car.RemainingFuel -= dispatcherEntity.FuelSpended;
                 _context.Cars.Update(car);
+
+                var distanceeFuel = dispatcherReviewForCreate.FuelSpended;
+
+                var totalFuel = car.RemainingFuel - distanceeFuel;
+
+                if (totalFuel < 0)
+                {
+                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId);
+                }
             }
 
             var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == dispatcherReviewForCreate.DriverId);
@@ -584,7 +595,7 @@ public class DispatcherReviewService : IDispatcherReviewService
             Status = StatusForDto.Debts
         };
 
-        var debts = await _debtsService.CreateDebtAsync(debtsDto);
+        await _debtsService.CreateDebtAsync(debtsDto);
     }
 }
 
