@@ -115,6 +115,9 @@ namespace CheckDrive.Services
             if (resourceParameters.DriverId is not null)
                 query = query.Where(x => x.DriverId == resourceParameters.DriverId);
 
+            if (resourceParameters.DispatcherReviewId is not null)
+                query = query.Where(x => x.DispatcherReviewId == resourceParameters.DispatcherReviewId);
+
             if (!string.IsNullOrEmpty(resourceParameters.OrderBy))
             {
                 query = resourceParameters.OrderBy.ToLowerInvariant() switch

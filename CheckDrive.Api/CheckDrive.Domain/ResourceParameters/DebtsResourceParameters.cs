@@ -10,6 +10,7 @@ namespace CheckDrive.Domain.ResourceParameters
         public Status? Status { get; set; }
         public DateTime? Date { get; set; }
         public int? DriverId { get; set; }
+        public int? DispatcherReviewId { get; set; }
         public override string OrderBy { get; set; } = "oilAmount";
     }
 }

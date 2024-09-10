@@ -109,6 +109,14 @@ public class DispatcherReviewService : IDispatcherReviewService
             DateTime now = DateTime.Now.ToTashkentTime();
             DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1).ToTashkentTime();
 
+            var dispatcherId = await _context.DispatchersReviews
+                .AsNoTracking()
+                .OrderByDescending(review => review.Id)
+                .Select(review => review.Id)
+                .FirstOrDefaultAsync();
+
+            var id = dispatcherId + 1;
+
             var firstDispatcherReview = await _context.DispatchersReviews
                 .AsNoTracking()
                 .Where(review => review.Date >= firstDayOfMonth
@@ -161,7 +169,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
                 if (totalFuel < 0)
                 {
-                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date);
+                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date, id);
                 }
             }
             else
@@ -175,7 +183,7 @@ public class DispatcherReviewService : IDispatcherReviewService
 
                 if (totalFuel < 0)
                 {
-                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date);
+                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date, id);
                 }
             }
 
@@ -585,7 +593,7 @@ public class DispatcherReviewService : IDispatcherReviewService
         return dispatcherReviewDto;
     }
 
-    private async Task CreateDebts(double oilAmount, int DriverId, int CarId, DateTime date)
+    private async Task CreateDebts(double oilAmount, int DriverId, int CarId, DateTime date, int dispatcherReviewId)
     {
         var debtsDto = new DebtsForCreateDto
         {
@@ -593,6 +601,7 @@ public class DispatcherReviewService : IDispatcherReviewService
             DriverId = DriverId,
             OilAmount = oilAmount,
             Date = date,
+            DispatcherReviewId = dispatcherReviewId,
             Status = StatusForDto.Debts
         };
 
