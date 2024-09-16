@@ -21,6 +21,12 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Distance)
                 .IsRequired();
 
+            builder.Property(x => x.OilAmount)
+               .IsRequired(false);
+
+            builder.Property(x => x.RemainingFuel)
+               .IsRequired(false);
+
             builder.HasOne(m => m.Mechanic)
                 .WithMany(x => x.MechanicAcceptance)
                 .HasForeignKey(m => m.MechanicId)

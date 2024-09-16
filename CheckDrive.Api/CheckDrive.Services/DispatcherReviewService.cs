@@ -149,11 +149,17 @@ public class DispatcherReviewService : IDispatcherReviewService
 
             if(dispatcherEntity.ChangedDistanceCovered is not null)
             {
-                car.Mileage += (int)dispatcherEntity.ChangedDistanceCovered;
-            }
-            else
-            {
-                car.Mileage += (int)dispatcherEntity.DistanceCovered;
+                var normalDistance = mechanicAcceptence.Distance - mechanicHandover.Distance;
+
+                if(normalDistance > dispatcherEntity.ChangedDistanceCovered)
+                {
+                    var distance = normalDistance - dispatcherEntity.ChangedDistanceCovered;
+                    car.Mileage = car.Mileage - (int)distance;
+                }else if(normalDistance < dispatcherEntity.ChangedDistanceCovered)
+                {
+                    var distance = dispatcherEntity.ChangedDistanceCovered - normalDistance;
+                    car.Mileage = car.Mileage + (int)distance;
+                }
             }
 
             if(dispatcherEntity.ChangedFuelSpendede is not null)
@@ -166,20 +172,6 @@ public class DispatcherReviewService : IDispatcherReviewService
                 double distanceeFuel = changedFuel;
 
                 double totalFuel = car.RemainingFuel - distanceeFuel;
-
-                if (totalFuel < 0)
-                {
-                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date, id);
-                }
-            }
-            else
-            {
-                car.RemainingFuel -= dispatcherEntity.FuelSpended;
-                _context.Cars.Update(car);
-
-                var distanceeFuel = dispatcherReviewForCreate.FuelSpended;
-
-                var totalFuel = car.RemainingFuel - distanceeFuel;
 
                 if (totalFuel < 0)
                 {
@@ -222,9 +214,17 @@ public class DispatcherReviewService : IDispatcherReviewService
 
         var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == dispatcherEntity.CarId);
 
-        car.RemainingFuel = car.RemainingFuel + (double)existingReview.FuelSpended - dispatcherReviewForUpdate.FuelSpended;
-        _context.Cars.Update(car);
+        if(dispatcherEntity.ChangedDistanceCovered is not null)
+        {
+            car.Mileage = car.Mileage + (int)dispatcherEntity.ChangedDistanceCovered - (int)existingReview.ChangedDistanceCovered;
+        }
+        else
+        {
+            car.Mileage = car.Mileage + (int)dispatcherEntity.DistanceCovered - (int)existingReview.DistanceCovered;
+        }
 
+        car.RemainingFuel = car.RemainingFuel - (double)existingReview.ChangedFuelSpendede + (double)dispatcherEntity.ChangedFuelSpendede;
+        _context.Cars.Update(car);
 
         var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherEntity);
 
