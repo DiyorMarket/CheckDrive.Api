@@ -94,6 +94,13 @@ namespace CheckDrive.Services
                 .ThenInclude(d => d.Account)
                 .AsQueryable();
 
+
+            if (!string.IsNullOrWhiteSpace(resourceParameters.SearchString))
+            {
+                query = query.Where(x => x.Driver.Account.FirstName.Contains(resourceParameters.SearchString));
+            }
+
+
             if (resourceParameters.Date is not null)
             {
                 resourceParameters.Date = DateTime.Today.ToTashkentTime();
