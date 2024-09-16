@@ -15,6 +15,7 @@ namespace CheckDrive.ApiContracts.MechanicAcceptance
         public double Distance { get; set; }
         public double? OilAmount { get; set; }
         public double RemainingFuel { get; set; }
+        public double RemainingFuelInCar { get; set; }
 
         public int MechanicId { get; set; }
         public int DriverId { get; set; }

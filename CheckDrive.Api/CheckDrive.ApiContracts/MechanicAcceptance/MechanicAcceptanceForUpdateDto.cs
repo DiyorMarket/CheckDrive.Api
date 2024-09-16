@@ -18,6 +18,8 @@ namespace CheckDrive.ApiContracts.MechanicAcceptance
         public double? OilAmount { get; set; }
         [Range(0, double.MaxValue, ErrorMessage = "Yoqilg`i qoldig`i manfiy bo'lishi mumkin emas")]
         public double RemainingFuel { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Yoqilg`i qoldig`i manfiy bo'lishi mumkin emas")]
+        public double RemainingFuelInCar { get; set; }
 
         public int MechanicId { get; set; }
         public int CarId { get; set; }

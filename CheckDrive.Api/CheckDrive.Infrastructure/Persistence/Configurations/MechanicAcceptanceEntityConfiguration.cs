@@ -24,7 +24,7 @@ namespace CheckDrive.Infrastructure.Persistence.Configurations
             builder.Property(x => x.OilAmount)
                .IsRequired(false);
 
-            builder.Property(x => x.RemainingFuel)
+            builder.Property(x => x.RemainingFuelInCar)
                .IsRequired(false);
 
             builder.HasOne(m => m.Mechanic)

@@ -10,6 +10,7 @@ namespace CheckDrive.ApiContracts.MechanicAcceptance
         public StatusForDto Status { get; set; }
         public DateTime? Date { get; set; }
         public double RemainingFuel { get; set; }
+        public double RemainingFuelInCar { get; set; }
         public double? OilAmount { get; set; }
         public double Distance { get; set; }
         public int DriverId { get; set; }

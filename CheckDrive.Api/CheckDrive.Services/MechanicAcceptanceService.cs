@@ -320,6 +320,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             var isAccepted = mechanicAcceptanceResult?.IsAccepted ?? false;
             var distance = mechanicAcceptanceResult?.Distance ?? 0;
             var comments = mechanicAcceptanceResult?.Comments ?? "";
+            var oilAmount = mechanicAcceptanceResult?.OilAmount ?? 0;
 
             mechanicAcceptance.Add(new MechanicAcceptanceDto
             {
@@ -329,6 +330,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
                 CarName = carName,
                 MechanicName = mechanicName,
                 RemainingFuel = remainingFuel,
+                OilAmount = oilAmount,
                 IsAccepted = isAccepted,
                 Distance = distance,
                 Comments = comments,
