@@ -480,6 +480,7 @@ public class DispatcherReviewService : IDispatcherReviewService
                 DriverName = mechanicAcceptanceDto.DriverName,
                 CarId = mechanicAcceptanceDto.CarId,
                 CarName = mechanicAcceptanceDto.CarName,
+                CarNumber = mechanicAcceptance?.Car?.Number ?? "",
                 CarMeduimFuelConsumption = mechanicAcceptance.Car.MeduimFuelConsumption,
 
                 FuelSpended = (mechanicAcceptanceDto.Distance - mechanicHandoverReviewDto.Distance) * carReviewDto.MeduimFuelConsumption / 100,

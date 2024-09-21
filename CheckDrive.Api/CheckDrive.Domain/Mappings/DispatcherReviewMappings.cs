@@ -11,6 +11,7 @@ namespace CheckDrive.Domain.Mappings
             CreateMap<DispatcherReviewDto, DispatcherReview>();
             CreateMap<DispatcherReview, DispatcherReviewDto>()
                 .ForMember(d => d.CarName, f => f.MapFrom(e => e.Car.Model))
+                .ForMember(d => d.CarNumber, f => f.MapFrom(e => e.Car.Number))
                 .ForMember(d => d.DriverName, f => f.MapFrom(e => $"{e.Driver.Account.FirstName} {e.Driver.Account.LastName}"))
                 .ForMember(d => d.DispatcherName, f => f.MapFrom(e => $"{e.Dispatcher.Account.FirstName} {e.Dispatcher.Account.LastName}"))
                 .ForMember(d => d.MechanicName, f => f.MapFrom(e => $"{e.Mechanic.Account.FirstName} {e.Mechanic.Account.LastName}"))

@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Azure;
 using CheckDrive.Api.Extensions;
 using CheckDrive.ApiContracts;
-using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.MechanicHandover;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Entities;
@@ -14,8 +12,6 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
-using Syncfusion.XlsIO.Implementation.Security;
-using System.Numerics;
 
 namespace CheckDrive.Services
 {
@@ -100,13 +96,13 @@ namespace CheckDrive.Services
             {
                 var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == operatorReviewEntity.CarId);
                 car.RemainingFuel += operatorReviewEntity.OilAmount;
-               _context.Update(car);
+                _context.Update(car);
 
                 var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == reviewForUpdateDto.DriverId);
                 driver.CheckPoint = DriverCheckPoint.PassedOperator;
                 _context.Update(driver);
             }
-     
+
             _context.OperatorReviews.Update(operatorReviewEntity);
 
             await _context.SaveChangesAsync();
