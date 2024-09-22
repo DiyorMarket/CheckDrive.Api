@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CheckDrive.ApiContracts;
 using CheckDrive.Domain.Entities;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.AspNetCore.SignalR;

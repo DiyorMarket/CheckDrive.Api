@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using CheckDrive.Domain.Entities;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Infrastructure.Persistence;
 
 namespace CheckDrive.Api.Extensions
@@ -68,25 +69,25 @@ namespace CheckDrive.Api.Extensions
         {
             if (context.OilMarks.Any()) return;
 
-            List<OilMarks> oilMarks = new()
+            List<OilMark> oilMarks = new()
             {
-                new OilMarks()
+                new OilMark()
                 {
                     OilMark = "A80"
                 },
-                new OilMarks()
+                new OilMark()
                 {
                     OilMark = "A91"
                 },
-                new OilMarks()
+                new OilMark()
                 {
                     OilMark = "A92"
                 },
-                new OilMarks()
+                new OilMark()
                 {
                     OilMark = "A95"
                 },
-                new OilMarks()
+                new OilMark()
                 {
                     OilMark = "Diesel"
                 },

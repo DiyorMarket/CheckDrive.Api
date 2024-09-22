@@ -50,7 +50,7 @@ namespace CheckDrive.Services
 
         public async Task<DebtsDto> CreateDebtAsync(DebtsForCreateDto debtForCreate)
         {
-            var debtEntity = _mapper.Map<Debts>(debtForCreate);
+            var debtEntity = _mapper.Map<Debt>(debtForCreate);
 
             await _context.Debts.AddAsync(debtEntity);
             await _context.SaveChangesAsync();
@@ -62,7 +62,7 @@ namespace CheckDrive.Services
 
         public async Task<DebtsDto> UpdateDebtAsync(DebtsForUpdateDto debtForUpdate)
         {
-            var debtEntity = _mapper.Map<Debts>(debtForUpdate);
+            var debtEntity = _mapper.Map<Debt>(debtForUpdate);
 
             _context.Debts.Update(debtEntity);
             await _context.SaveChangesAsync();
@@ -84,7 +84,7 @@ namespace CheckDrive.Services
             await _context.SaveChangesAsync();
         }
         
-        private IQueryable<Debts> GetQueryDebtResParameters(
+        private IQueryable<Debt> GetQueryDebtResParameters(
            DebtsResourceParameters resourceParameters)
         {
             var query = _context.Debts

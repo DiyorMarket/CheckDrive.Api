@@ -1,30 +1,18 @@
 using CheckDrive.Domain.Common;
-namespace CheckDrive.Domain.Entities
+using CheckDrive.Domain.Entities.Identity;
+
+namespace CheckDrive.Domain.Entities;
+
+public class DispatcherReview : ReviewBase
 {
-    public class DispatcherReview : EntityBase
-    {
-        public double FuelSpended { get; set; }
-        public double? ChangedFuelSpendede { get; set; }
-        public double DistanceCovered { get; set; }
-        public double? ChangedDistanceCovered { get; set; }
-        public string? Comment { get; set; }
-        public Status Status { get; set; }
-        public DateTime Date { get; set; }
-        public int DispatcherId { get; set; }
-        public Dispatcher Dispatcher { get; set; }
-        public int CarId { get; set; }
-        public Car? Car { get; set; }
-        public int OperatorId { get; set; }
-        public Operator Operator { get; set; }
-        public int MechanicId { get; set; }
-        public Mechanic Mechanic { get; set; }
-        public int DriverId { get; set; }
-        public Driver Driver { get; set; }
-        public int OperatorReviewId { get; set; }
-        public OperatorReview OperatorReview { get; set; }
-        public int MechanicHandoverId { get; set; }
-        public MechanicHandover MechanicHandover { get; set; }
-        public int MechanicAcceptanceId { get; set; }
-        public MechanicAcceptance MechanicAcceptance { get; set; }
-    }
+    public decimal FuelConsumption { get; set; }
+    public decimal? FuelConsumptionAdjustment { get; set; }
+    public decimal DistanceTravelled { get; set; }
+    public decimal? DistanceTravelledAdjustment { get; set; }
+
+    public int CheckPointId { get; set; }
+    public required CheckPoint CheckPoint { get; set; }
+
+    public int DispatcherId { get; set; }
+    public required User Dispatcher { get; set; }
 }

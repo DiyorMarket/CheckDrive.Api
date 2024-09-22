@@ -1,25 +1,25 @@
 ﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Enums;
 
-namespace CheckDrive.Domain.Entities
+namespace CheckDrive.Domain.Entities;
+
+public class Car : EntityBase
 {
-    public class Car : EntityBase
+    public string Model { get; set; }
+    public string Color { get; set; }
+    public string Number { get; set; }
+    public int ManufacturedYear { get; set; }
+    public int Mileage { get; set; }
+    public int YearlyDistanceLimit { get; set; }
+    public decimal AverageFuelConsumption { get; set; }
+    public decimal FuelCapacity { get; set; }
+    public decimal RemainingFuel { get; set; }
+    public CarStatus Status { get; set; }
+
+    public virtual ICollection<CheckPoint> CheckPoints { get; set; }
+
+    public Car()
     {
-        public string Model { get; set; }
-        public string Color { get; set; }
-        public string Number { get; set; }
-        public int Mileage { get; set; }
-        public int OneYearMediumDistance { get; set; }
-        public double MeduimFuelConsumption { get; set; }
-        public double FuelTankCapacity { get; set; }
-        public double RemainingFuel { get; set; }
-        public int ManufacturedYear { get; set; }
-
-        public CarStatus CarStatus { get; set; }
-
-        public virtual ICollection<DispatcherReview> Reviewers { get; set; }
-        public virtual ICollection<MechanicHandover> MechanicHandovers { get; set; }
-        public virtual ICollection<MechanicAcceptance> MechanicAcceptance { get; set; }
-        public virtual ICollection<OperatorReview> OperatorReviews { get; set; }
-        public virtual ICollection<Debts> Debts { get; set; }
+        CheckPoints = new HashSet<CheckPoint>();
     }
 }
