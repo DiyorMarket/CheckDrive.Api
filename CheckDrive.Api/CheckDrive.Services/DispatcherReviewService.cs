@@ -23,13 +23,11 @@ public class DispatcherReviewService : IDispatcherReviewService
 {
     private readonly IMapper _mapper;
     private readonly CheckDriveDbContext _context;
-    private readonly IDebtsService _debtsService;
-
-    public DispatcherReviewService(IMapper mapper, CheckDriveDbContext context, IDebtsService debtsService)
+    
+    public DispatcherReviewService(IMapper mapper, CheckDriveDbContext context)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _debtsService = debtsService ?? throw new ArgumentNullException(nameof(debtsService));
     }
 
     public async Task<GetBaseResponse<DispatcherReviewDto>> GetDispatcherReviewsAsync(DispatcherReviewResourceParameters resourceParameters)
@@ -109,14 +107,6 @@ public class DispatcherReviewService : IDispatcherReviewService
             DateTime now = DateTime.Now.ToTashkentTime();
             DateTime firstDayOfMonth = new DateTime(now.Year, now.Month, 1).ToTashkentTime();
 
-            var dispatcherId = await _context.DispatchersReviews
-                .AsNoTracking()
-                .OrderByDescending(review => review.Id)
-                .Select(review => review.Id)
-                .FirstOrDefaultAsync();
-
-            var id = dispatcherId + 1;
-
             var firstDispatcherReview = await _context.DispatchersReviews
                 .AsNoTracking()
                 .Where(review => review.Date >= firstDayOfMonth
@@ -159,23 +149,6 @@ public class DispatcherReviewService : IDispatcherReviewService
                 {
                     var distance = dispatcherEntity.ChangedDistanceCovered - normalDistance;
                     car.Mileage = car.Mileage + (int)distance;
-                }
-            }
-
-            if(dispatcherEntity.ChangedFuelSpendede is not null)
-            {
-                double changedFuel = (double)dispatcherEntity.ChangedFuelSpendede;
-
-                car.RemainingFuel -= changedFuel;
-                _context.Cars.Update(car);
-
-                double distanceeFuel = changedFuel;
-
-                double totalFuel = car.RemainingFuel - distanceeFuel;
-
-                if (totalFuel < 0)
-                {
-                    await CreateDebts(totalFuel, dispatcherReviewForCreate.DriverId, dispatcherReviewForCreate.CarId, dispatcherReviewForCreate.Date, id);
                 }
             }
 
@@ -223,7 +196,6 @@ public class DispatcherReviewService : IDispatcherReviewService
             car.Mileage = car.Mileage + (int)dispatcherEntity.DistanceCovered - (int)existingReview.DistanceCovered;
         }
 
-        car.RemainingFuel = car.RemainingFuel - (double)existingReview.ChangedFuelSpendede + (double)dispatcherEntity.ChangedFuelSpendede;
         _context.Cars.Update(car);
 
         var dispatcherReviewDto = _mapper.Map<DispatcherReviewDto>(dispatcherEntity);
@@ -591,21 +563,6 @@ public class DispatcherReviewService : IDispatcherReviewService
         var dispatcherReviewDto = _mapper.Map<IEnumerable<DispatcherReviewDto>>(dispatcherHistories);
 
         return dispatcherReviewDto;
-    }
-
-    private async Task CreateDebts(double oilAmount, int DriverId, int CarId, DateTime date, int dispatcherReviewId)
-    {
-        var debtsDto = new DebtsForCreateDto
-        {
-            CarId = CarId,
-            DriverId = DriverId,
-            OilAmount = oilAmount,
-            Date = date,
-            DispatcherReviewId = dispatcherReviewId,
-            Status = StatusForDto.Debts
-        };
-
-        await _debtsService.CreateDebtAsync(debtsDto);
     }
 }
 

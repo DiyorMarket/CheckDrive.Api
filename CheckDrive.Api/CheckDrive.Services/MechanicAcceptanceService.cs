@@ -12,7 +12,10 @@ using CheckDrive.Domain.Responses;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation.Security;
 using System.Numerics;
+using CheckDrive.Services.Hubs;
+using CheckDrive.ApiContracts.Debts;
 
 namespace CheckDrive.Services;
 
@@ -21,12 +24,14 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
     private readonly IMapper _mapper;
     private readonly CheckDriveDbContext _context;
     private readonly IChatHub _chatHub;
+    private readonly IDebtsService _debtsService;
 
-    public MechanicAcceptanceService(IMapper mapper, CheckDriveDbContext context, IChatHub chatHub)
+    public MechanicAcceptanceService(IMapper mapper, CheckDriveDbContext context, IChatHub chatHub, IDebtsService debtsService)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _chatHub = chatHub ?? throw new ArgumentNullException(nameof(chatHub));
+        _debtsService = debtsService ?? throw new ArgumentNullException(nameof(debtsService));
     }
 
     public async Task<GetBaseResponse<MechanicAcceptanceDto>> GetMechanicAcceptencesAsync(MechanicAcceptanceResourceParameters resourceParameters)
@@ -102,13 +107,22 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
 
         if (acceptanceForUpdateDto.IsAccepted == true)
         {
-            var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.CarId);
-            car.Mileage = (int)acceptanceForUpdateDto.Distance;
-            _context.Cars.Update(car);
-
             var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.DriverId);
             driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
             _context.Drivers.Update(driver);
+            var existsInDebts = await _context.Debts.AnyAsync(d => d.DispatcherReviewId == acceptanceForUpdateDto.Id);
+            if (mechanicAcceptanceEntity.Status == Status.Completed && !existsInDebts)
+            {
+                var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == acceptanceForUpdateDto.CarId);
+                car.Mileage = (int)acceptanceForUpdateDto.Distance;
+                car.RemainingFuel = (double)acceptanceForUpdateDto.RemainingFuelInCar;
+                _context.Cars.Update(car);
+
+                if (acceptanceForUpdateDto.OilAmount != 0 || acceptanceForUpdateDto.OilAmount != null)
+                {
+                    await CreateDebts((double)acceptanceForUpdateDto.OilAmount, acceptanceForUpdateDto.DriverId, acceptanceForUpdateDto.CarId, acceptanceForUpdateDto.Date, acceptanceForUpdateDto.Id);
+                }
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -387,6 +401,21 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
         var totalCount = reviews.Count;
         var items = reviews.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
         return new PaginatedList<MechanicAcceptanceDto>(items, totalCount, pageNumber, pageSize);
+    }
+
+    public async Task CreateDebts(double oilAmount, int DriverId, int CarId, DateTime date, int mechanicAcceptanceId)
+    {
+        var debtsDto = new DebtsForCreateDto
+        {
+            CarId = CarId,
+            DriverId = DriverId,
+            OilAmount = oilAmount,
+            Date = date,
+            DispatcherReviewId = mechanicAcceptanceId,
+            Status = StatusForDto.Debts
+        };
+
+        await _debtsService.CreateDebtAsync(debtsDto);
     }
 }
 

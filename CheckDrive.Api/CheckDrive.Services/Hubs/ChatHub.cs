@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using CheckDrive.ApiContracts;
+using CheckDrive.ApiContracts.Debts;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces.Hubs;
+using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Infrastructure.Persistence;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
@@ -18,14 +21,16 @@ namespace CheckDrive.Services.Hubs
         private readonly IMapper _mapper;
         private readonly IHubContext<ChatHub> _context;
         private readonly CheckDriveDbContext _dbContext;
+        private readonly IDebtsService _debtsService;
         private static ConcurrentDictionary<string, string> userConnections = new ConcurrentDictionary<string, string>();
 
-        public ChatHub(ILogger<ChatHub> logger, IMapper mapper, IHubContext<ChatHub> context, CheckDriveDbContext checkDriveDbContext)
+        public ChatHub(ILogger<ChatHub> logger, IMapper mapper, IHubContext<ChatHub> context, CheckDriveDbContext checkDriveDbContext, IDebtsService debtsService)
         {
             _logger = logger;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _context = context;
             _dbContext = checkDriveDbContext ?? throw new ArgumentNullException(nameof(checkDriveDbContext));
+            _debtsService = debtsService ?? throw new ArgumentNullException(nameof(debtsService));
         }
 
         public async Task SendPrivateRequest(UndeliveredMessageForDto undeliveredMessageForDto)
@@ -213,7 +218,13 @@ namespace CheckDrive.Services.Hubs
             {
                 var car = await _dbContext.Cars.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.CarId);
                 car.Mileage = (int)mechanicAcceptance.Distance;
+                car.RemainingFuel = (double)mechanicAcceptance.RemainingFuelInCar;
                 _dbContext.Cars.Update(car);
+
+                if(mechanicAcceptance.OilAmount != 0 || mechanicAcceptance.OilAmount != null)
+                {
+                    _ = CreateDebts((double)mechanicAcceptance.OilAmount, mechanicAcceptance.DriverId, mechanicAcceptance.CarId, mechanicAcceptance.Date, mechanicAcceptance.Id);
+                }
 
                 var driver = await _dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == mechanicAcceptance.DriverId);
                 driver.CheckPoint = DriverCheckPoint.PassedMechanicAcceptance;
@@ -223,6 +234,21 @@ namespace CheckDrive.Services.Hubs
 
             _dbContext.MechanicsAcceptances.Update(mechanicAcceptance);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task CreateDebts(double oilAmount, int DriverId, int CarId, DateTime date, int mechanicAcceptanceId)
+        {
+            var debtsDto = new DebtsForCreateDto
+            {
+                CarId = CarId,
+                DriverId = DriverId,
+                OilAmount = oilAmount,
+                Date = date,
+                DispatcherReviewId = mechanicAcceptanceId,
+                Status = StatusForDto.Debts
+            };
+
+            await _debtsService.CreateDebtAsync(debtsDto);
         }
     }
 }
