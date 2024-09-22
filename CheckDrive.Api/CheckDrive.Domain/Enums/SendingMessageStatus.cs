@@ -1,4 +1,4 @@
-﻿namespace CheckDrive.Domain.Entities
+﻿namespace CheckDrive.Domain.Enums
 {
     public enum SendingMessageStatus
     {
