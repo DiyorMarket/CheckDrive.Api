@@ -18,7 +18,7 @@ namespace CheckDrive.Api.Extensions
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration) 
+        public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
             AddProviders(services);
             AddDatabaseContext(services, configuration);
@@ -57,6 +57,7 @@ namespace CheckDrive.Api.Extensions
         {
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ICarRepository, CarRepository>();
+            services.AddScoped<IDebtsRepository, DebtsRepository>();
             services.AddScoped<IDispatcherRepository, DispatcherRepository>();
             services.AddScoped<IDispatcherReviewRepository, DispatcherReviewRepository>();
             services.AddScoped<IDoctorRepository, DoctorRepository>();
@@ -80,6 +81,7 @@ namespace CheckDrive.Api.Extensions
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAuthorizationService, AuthorizationService>();
             services.AddScoped<ICarService, CarService>();
+            services.AddScoped<IDebtsService, DebtsService>();
             services.AddScoped<IDispatcherService, DispatcherService>();
             services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
             services.AddScoped<IDoctorService, DoctorService>();

@@ -42,7 +42,7 @@ namespace CheckDrive.Services
         }
         public async Task<OilMarkDto> CreateMarkAsync(OilMarkForCreateDto markForCreate)
         {
-            var oilMarkEntity = _mapper.Map<OilMarks>(markForCreate);
+            var oilMarkEntity = _mapper.Map<OilMark>(markForCreate);
 
             await _context.OilMarks.AddAsync(oilMarkEntity);
             await _context.SaveChangesAsync();
@@ -53,7 +53,7 @@ namespace CheckDrive.Services
         }
         public async Task<OilMarkDto> UpdateMarkAsync(OilMarkForUpdateDto markForUpdate)
         {
-            var markEntity = _mapper.Map<OilMarks>(markForUpdate);
+            var markEntity = _mapper.Map<OilMark>(markForUpdate);
 
             _context.OilMarks.Update(markEntity);
             await _context.SaveChangesAsync();
@@ -77,7 +77,7 @@ namespace CheckDrive.Services
 
             await _context.SaveChangesAsync();
         }
-        private IQueryable<OilMarks> GetQueryOilMarkResParameters(
+        private IQueryable<OilMark> GetQueryOilMarkResParameters(
         OilMarkResourceParameters resourceParameters)
         {
             var query = _context.OilMarks.AsQueryable();

@@ -1,16 +1,13 @@
 ﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Entities.Identity;
 
-namespace CheckDrive.Domain.Entities
+namespace CheckDrive.Domain.Entities;
+
+public class DoctorReview : ReviewBase
 {
-    public class DoctorReview : EntityBase
-    {
-        public bool IsHealthy { get; set; }
-        public string? Comments { get; set; }
-        public DateTime Date { get; set; }
+    public int CheckPointId { get; set; }
+    public required CheckPoint CheckPoint { get; set; }
 
-        public int DriverId { get; set; }
-        public Driver Driver { get; set; }
-        public int DoctorId { get; set; }
-        public Doctor Doctor { get; set; }
-    }
+    public Guid DoctorId { get; set; }
+    public required User Doctor { get; set; }
 }

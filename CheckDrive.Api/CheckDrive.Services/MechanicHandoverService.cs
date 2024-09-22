@@ -4,6 +4,7 @@ using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.DoctorReview;
 using CheckDrive.ApiContracts.MechanicHandover;
 using CheckDrive.Domain.Entities;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;

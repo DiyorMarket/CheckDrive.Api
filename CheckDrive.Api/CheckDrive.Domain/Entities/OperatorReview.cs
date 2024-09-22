@@ -1,24 +1,19 @@
 ﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Entities.Identity;
 
-namespace CheckDrive.Domain.Entities
+namespace CheckDrive.Domain.Entities;
+
+public class OperatorReview : ReviewBase
 {
-    public class OperatorReview : EntityBase
-    {
-        public bool IsGiven { get; set; }
-        public double OilAmount { get; set; }
-        public string? Comments { get; set; }
-        public Status Status { get; set; }
-        public DateTime Date { get; set; }
+    public double InitialOilAmount { get; set; }
+    public double OilRefillAmount { get; set; }
 
-        public int OilMarkId { get; set; }
-        public OilMarks OilMark { get; set; }
-        public int OperatorId { get; set; }
-        public Operator Operator { get; set; }
-        public int CarId { get; set; }
-        public Car Car { get; set; }
-        public int DriverId { get; set; }
-        public Driver Driver { get; set; }
+    public int CheckPointId { get; set; }
+    public required CheckPoint CheckPoint { get; set; }
 
-        public virtual ICollection<DispatcherReview> DispatcherReviews { get; set; }
-    }
+    public int OilMarkId { get; set; }
+    public required OilMark OilMark { get; set; }
+
+    public int OperatorId { get; set; }
+    public required User Operator { get; set; }
 }

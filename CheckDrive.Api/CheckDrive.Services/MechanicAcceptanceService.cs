@@ -4,6 +4,7 @@ using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.MechanicAcceptance;
 using CheckDrive.ApiContracts.OperatorReview;
 using CheckDrive.Domain.Entities;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Interfaces.Hubs;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;
@@ -320,6 +321,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
             var isAccepted = mechanicAcceptanceResult?.IsAccepted ?? false;
             var distance = mechanicAcceptanceResult?.Distance ?? 0;
             var comments = mechanicAcceptanceResult?.Comments ?? "";
+            var oilAmount = mechanicAcceptanceResult?.OilAmount ?? 0;
 
             mechanicAcceptance.Add(new MechanicAcceptanceDto
             {
@@ -329,6 +331,7 @@ public class MechanicAcceptanceService : IMechanicAcceptanceService
                 CarName = carName,
                 MechanicName = mechanicName,
                 RemainingFuel = remainingFuel,
+                OilAmount = oilAmount,
                 IsAccepted = isAccepted,
                 Distance = distance,
                 Comments = comments,

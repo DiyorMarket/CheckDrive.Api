@@ -4,6 +4,7 @@ using CheckDrive.ApiContracts;
 using CheckDrive.ApiContracts.Car;
 using CheckDrive.ApiContracts.DispatcherReview;
 using CheckDrive.Domain.Entities;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Interfaces.Services;
 using CheckDrive.Domain.Pagniation;
 using CheckDrive.Domain.ResourceParameters;
