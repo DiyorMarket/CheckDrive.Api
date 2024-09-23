@@ -11,14 +11,14 @@ public class CheckPoint : EntityBase
     public CheckPointStatus Status { get; set; }
     public CheckPointStage Stage { get; set; }
 
-    public int DriverId { get; set; }
-    public required User Driver { get; set; }
+    public Guid DriverId { get; set; }
+    public User Driver { get; set; }
 
     public int? CarId { get; set; }
     public Car? Car { get; set; }
 
     public int DoctorReviewId { get; set; }
-    public required DoctorReview DoctorReview { get; set; }
+    public DoctorReview DoctorReview { get; set; }
 
     public int? MechanicHandoverId { get; set; }
     public MechanicHandover? MechanicHandover { get; set; }

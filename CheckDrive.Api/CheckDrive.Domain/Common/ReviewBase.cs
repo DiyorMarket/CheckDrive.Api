@@ -1,4 +1,4 @@
-﻿using CheckDrive.ApiContracts;
+﻿using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Domain.Common;
 

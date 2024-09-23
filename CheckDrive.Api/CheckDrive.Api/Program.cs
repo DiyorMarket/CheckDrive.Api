@@ -1,5 +1,4 @@
 using CheckDrive.Api.Extensions;
-using CheckDrive.Services.Hubs;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
@@ -49,7 +48,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.MapHub<ChatHub>("api/chat");
+//app.MapHub<ChatHub>("api/chat");
 
 app.MapControllers();
 

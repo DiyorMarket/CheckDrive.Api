@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CheckDrive.Domain\CheckDrive.Domain.csproj" />
+    <ProjectReference Include="..\CheckDrive.Application\CheckDrive.Application.csproj" />
   </ItemGroup>
 
 </Project>

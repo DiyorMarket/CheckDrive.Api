@@ -1,12 +1,5 @@
-﻿using CheckDrive.Domain.Interfaces.Auth;
-using CheckDrive.Domain.Interfaces.Hubs;
-using CheckDrive.Domain.Interfaces.Repositories;
-using CheckDrive.Domain.Interfaces.Services;
-using CheckDrive.Infrastructure.JwtToken;
+﻿using CheckDrive.Infrastructure.JwtToken;
 using CheckDrive.Infrastructure.Persistence;
-using CheckDrive.Infrastructure.Persistence.Repositories;
-using CheckDrive.Services;
-using CheckDrive.Services.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +29,7 @@ namespace CheckDrive.Api.Extensions
 
         private static void AddProviders(this IServiceCollection services)
         {
-            services.AddScoped<IJwtProvider, JwtProvider>();
+            // services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddSingleton<FileExtensionContentTypeProvider>();
         }
 
@@ -55,20 +48,20 @@ namespace CheckDrive.Api.Extensions
 
         private static void AddRepositories(IServiceCollection services)
         {
-            services.AddScoped<IAccountRepository, AccountRepository>();
-            services.AddScoped<ICarRepository, CarRepository>();
-            services.AddScoped<IDebtsRepository, DebtsRepository>();
-            services.AddScoped<IDispatcherRepository, DispatcherRepository>();
-            services.AddScoped<IDispatcherReviewRepository, DispatcherReviewRepository>();
-            services.AddScoped<IDoctorRepository, DoctorRepository>();
-            services.AddScoped<IDoctorReviewRepository, DoctorReviewRepository>();
-            services.AddScoped<IDriverRepository, DriverRepository>();
-            services.AddScoped<IMechanicRepository, MechanicRepository>();
-            services.AddScoped<IMechanicAcceptenceRepository, MechanicAcceptenceRepository>();
-            services.AddScoped<IMechanicHandoverRepository, MechanicHandoverRepository>();
-            services.AddScoped<IOperatorRepository, OperatorRepository>();
-            services.AddScoped<IRoleRepository, RoleRepository>();
-            services.AddScoped<IOperatorReviewRepository, OperatorReviewRepository>();
+            //services.AddScoped<IAccountRepository, AccountRepository>();
+            //services.AddScoped<ICarRepository, CarRepository>();
+            //services.AddScoped<IDebtsRepository, DebtsRepository>();
+            //services.AddScoped<IDispatcherRepository, DispatcherRepository>();
+            //services.AddScoped<IDispatcherReviewRepository, DispatcherReviewRepository>();
+            //services.AddScoped<IDoctorRepository, DoctorRepository>();
+            //services.AddScoped<IDoctorReviewRepository, DoctorReviewRepository>();
+            //services.AddScoped<IDriverRepository, DriverRepository>();
+            //services.AddScoped<IMechanicRepository, MechanicRepository>();
+            //services.AddScoped<IMechanicAcceptenceRepository, MechanicAcceptenceRepository>();
+            //services.AddScoped<IMechanicHandoverRepository, MechanicHandoverRepository>();
+            //services.AddScoped<IOperatorRepository, OperatorRepository>();
+            //services.AddScoped<IRoleRepository, RoleRepository>();
+            //services.AddScoped<IOperatorReviewRepository, OperatorReviewRepository>();
         }
 
         private static void AddAutoMapper(IServiceCollection services)
@@ -78,28 +71,28 @@ namespace CheckDrive.Api.Extensions
 
         private static void AddServices(IServiceCollection services)
         {
-            services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IAuthorizationService, AuthorizationService>();
-            services.AddScoped<ICarService, CarService>();
-            services.AddScoped<IDebtsService, DebtsService>();
-            services.AddScoped<IDispatcherService, DispatcherService>();
-            services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
-            services.AddScoped<IDoctorService, DoctorService>();
-            services.AddScoped<IDoctorReviewService, DoctorReviewService>();
-            services.AddScoped<IDriverService, DriverService>();
-            services.AddScoped<IMechanicService, MechanicService>();
-            services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
-            services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
-            services.AddScoped<IOperatorService, OperatorService>();
-            services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<IOilMarkService, OilMarkService>();
-            services.AddScoped<IOperatorReviewService, OperatorReviewService>();
-            services.AddScoped<IDashboardService, DashboardService>();
+            //services.AddScoped<IAccountService, AccountService>();
+            //services.AddScoped<IAuthorizationService, AuthorizationService>();
+            //services.AddScoped<ICarService, CarService>();
+            //services.AddScoped<IDebtsService, DebtsService>();
+            //services.AddScoped<IDispatcherService, DispatcherService>();
+            //services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
+            //services.AddScoped<IDoctorService, DoctorService>();
+            //services.AddScoped<IDoctorReviewService, DoctorReviewService>();
+            //services.AddScoped<IDriverService, DriverService>();
+            //services.AddScoped<IMechanicService, MechanicService>();
+            //services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
+            //services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
+            //services.AddScoped<IOperatorService, OperatorService>();
+            //services.AddScoped<IRoleService, RoleService>();
+            //services.AddScoped<IOilMarkService, OilMarkService>();
+            //services.AddScoped<IOperatorReviewService, OperatorReviewService>();
+            //services.AddScoped<IDashboardService, DashboardService>();
         }
 
         private static void AddRealTimeHub(IServiceCollection services)
         {
-            services.AddScoped<IChatHub, ChatHub>();
+            //services.AddScoped<IChatHub, ChatHub>();
             services.AddSignalR();
         }
 

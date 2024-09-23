@@ -6,5 +6,6 @@ public enum CheckPointStatus
     Completed,
     AutomaticallyClosed,
     PendingManagerReview,
-    InterruptedWithRejection,
+    InterruptedByReviewerRejection,
+    InterruptedByDriverRejection
 }
