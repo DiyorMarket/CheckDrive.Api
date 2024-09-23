@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CheckDrive.ApiContracts\CheckDrive.ApiContracts.csproj" />
+    <Folder Include="Interfaces\" />
   </ItemGroup>
 
 </Project>

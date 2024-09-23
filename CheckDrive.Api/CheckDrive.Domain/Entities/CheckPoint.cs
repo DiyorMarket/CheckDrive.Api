@@ -11,7 +11,7 @@ public class CheckPoint : EntityBase
     public CheckPointStatus Status { get; set; }
     public CheckPointStage Stage { get; set; }
 
-    public int DriverId { get; set; }
+    public Guid DriverId { get; set; }
     public required User Driver { get; set; }
 
     public int? CarId { get; set; }
