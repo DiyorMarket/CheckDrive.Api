@@ -5,10 +5,10 @@ namespace CheckDrive.Application.DTOs.DoctorReview;
 
 public record CreateDoctorReviewDto(
     Guid DriverId,
+    Guid ReviewerId,
     string Notes,
-    DateTime Date,
     ReviewStatus Status)
-    : ReviewDtoBase(
+    : CreateReviewDtoBase(
+        ReviwerId: ReviewerId,
         Notes: Notes,
-        Date: Date,
         Status: Status);

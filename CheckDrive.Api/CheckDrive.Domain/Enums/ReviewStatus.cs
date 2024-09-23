@@ -3,7 +3,7 @@
 public enum ReviewStatus
 {
     Pending,
-    Accepted,
+    Completed,
     RejectedByReviewer,
     RejectedByDriver,
     NotStarted

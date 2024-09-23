@@ -5,4 +5,5 @@ namespace CheckDrive.Application.Interfaces;
 public interface ICurrentUserService
 {
     User GetCurrentUser();
+    Guid GetCurrentUserId();
 }
