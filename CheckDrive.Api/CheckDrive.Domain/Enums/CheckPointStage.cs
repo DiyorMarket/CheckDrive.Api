@@ -6,5 +6,6 @@ public enum CheckPointStage
     MechanicHandover = 1,
     OperatorReview = 2,
     MechanicAcceptance = 3,
-    DispatcherReview = 4
+    DispatcherReview = 4,
+    ManagerReview = 5
 }

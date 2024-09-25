@@ -13,16 +13,11 @@ namespace CheckDrive.Application.Services.Review;
 internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
 {
     private readonly ICheckDriveDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public MechanicAcceptanceService(
-        ICheckDriveDbContext context,
-        ICurrentUserService currentUserService,
-        IMapper mapper)
+    public MechanicAcceptanceService(ICheckDriveDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
@@ -130,7 +125,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         }
     }
 
-    private static void UpdateCar(CheckPoint checkPoint, CreateMechanicAcceptanceReviewDto review)
+    private void UpdateCar(CheckPoint checkPoint, CreateMechanicAcceptanceReviewDto review)
     {
         if (checkPoint.MechanicHandover is null)
         {
@@ -143,6 +138,13 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         {
             throw new FuelAmountExceedsCarCapacityException($"Remaining amount: {review.RemainingFuelAmount} exceeds Capacity: {car.FuelCapacity}.");
         }
+        var fuelSpent = CalculateFuelConsumption(checkPoint.MechanicHandover.InitialMileage, review.FinalMileage, car.AverageFuelConsumption);
+
+        if (fuelSpent > car.RemainingFuel)
+        {
+            var debt = CreateDebt(checkPoint, fuelSpent, car.RemainingFuel, review.RemainingFuelAmount);
+            _context.Debts.Add(debt);
+        }
         car.RemainingFuel = review.RemainingFuelAmount;
 
         if (review.FinalMileage < car.Mileage)
@@ -151,5 +153,29 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
                 $"Final mileage ({review.FinalMileage}) cannot be less than the current milea of a car ({car.Mileage}).");
         }
         car.Mileage = review.FinalMileage;
+    }
+
+    private static decimal CalculateFuelConsumption(
+        int initialMileage,
+        int finalMileage,
+        decimal averageFuelConsumption)
+    {
+        var mileageAmount = finalMileage - initialMileage;
+        var fuelSpent = averageFuelConsumption * mileageAmount;
+
+        return fuelSpent;
+    }
+
+    private static Debt CreateDebt(CheckPoint checkPoint, decimal fuelSpent, decimal fuelInitialAmount, decimal fuelFinalAmount)
+    {
+        var debt = new Debt
+        {
+            CheckPoint = checkPoint,
+            FuelAmount = fuelSpent - fuelInitialAmount - fuelFinalAmount,
+            PaidAmount = 0,
+            Status = DebtStatus.Unpaid
+        };
+
+        return debt;
     }
 }
