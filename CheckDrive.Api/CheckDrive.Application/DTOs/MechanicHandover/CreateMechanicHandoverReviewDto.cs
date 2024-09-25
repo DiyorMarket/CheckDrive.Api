@@ -2,10 +2,10 @@
 
 namespace CheckDrive.Application.DTOs.MechanicHandover;
 
-public record CreateMechanicHandoverDto(
-    Guid ReviewerId,
-    Guid DriverId,
+public sealed record CreateMechanicHandoverReviewDto(
+    int CheckPointId,
     int CarId,
+    Guid ReviewerId,
     string? Notes,
     int InitialMileage,
     bool IsApprovedByReviewer)

@@ -7,6 +7,6 @@ namespace CheckDrive.Application.Interfaces;
 public interface IReviewService
 {
     Task<DoctorReviewDto> CreateAsync(CreateDoctorReviewDto review);
-    Task<MechanicHandoverReviewDto> CreateAsync(CreateMechanicHandoverDto review);
+    Task<MechanicHandoverReviewDto> CreateAsync(CreateMechanicHandoverReviewDto review);
     Task<OperatorReviewDto> CreateAsync(CreateOperatorReviewDto review);
 }

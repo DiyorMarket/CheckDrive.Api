@@ -2,10 +2,10 @@
 
 public enum CheckPointStatus
 {
-    InProgress,
-    Completed,
-    AutomaticallyClosed,
-    PendingManagerReview,
-    InterruptedByReviewerRejection,
-    InterruptedByDriverRejection
+    InProgress = 0,
+    Completed = 1,
+    InterruptedByReviewerRejection = 2,
+    InterruptedByDriverRejection = 3,
+    AutomaticallyClosed = 4,
+    PendingManagerReview = 5,
 }

@@ -14,9 +14,6 @@ public class CheckPoint : EntityBase
     public Guid DriverId { get; set; }
     public User Driver { get; set; }
 
-    public int? CarId { get; set; }
-    public Car? Car { get; set; }
-
     public int DoctorReviewId { get; set; }
     public DoctorReview DoctorReview { get; set; }
 

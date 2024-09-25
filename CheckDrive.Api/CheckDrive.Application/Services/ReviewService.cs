@@ -50,39 +50,30 @@ internal sealed class ReviewService : IReviewService
         return dto;
     }
 
-    public async Task<MechanicHandoverReviewDto> CreateAsync(CreateMechanicHandoverDto review)
+    public async Task<MechanicHandoverReviewDto> CreateAsync(CreateMechanicHandoverReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(review);
 
         var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
-        var driver = await GetAndValidateDriverAsync(review.DriverId);
-        var checkPoint = await GetInProgressCheckPointAsync(review.DriverId);
+        var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId, CheckPointStage.DoctorReview);
+        var car = await GetAndValidateCarAsync(review.CarId);
 
-        var reviewEntity = new MechanicHandover
-        {
-            CheckPoint = checkPoint,
-            Mechanic = mechanic,
-            Notes = review.Notes,
-            Date = DateTime.UtcNow,
-            InitialMileage = review.InitialMileage,
-            Status = review.IsApprovedByReviewer ? ReviewStatus.Completed : ReviewStatus.RejectedByReviewer,
-        };
+        var reviewEntity = _mapper.Map<MechanicHandover>(review);
+        reviewEntity.Mechanic = mechanic;
+        reviewEntity.CheckPoint = checkPoint;
+        reviewEntity.Car = car;
+
         checkPoint.Stage = CheckPointStage.MechanicHandover;
-        checkPoint.Status = review.IsApprovedByReviewer ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection;
+
+        if (!review.IsApprovedByReviewer)
+        {
+            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
+        }
 
         var createdReview = _context.MechanicHandovers.Add(reviewEntity).Entity;
         await _context.SaveChangesAsync();
 
-        var dto = new MechanicHandoverReviewDto();
-        dto.CheckPointId = checkPoint.Id;
-        dto.ReviewerId = mechanic.Id;
-        dto.ReviewerName = mechanic.FirstName + " " + mechanic.LastName;
-        dto.Date = createdReview.Date;
-        dto.Notes = createdReview.Notes;
-        dto.Status = createdReview.Status;
-        dto.Type = ReviewType.MechanicHandover;
-        dto.DriverId = driver.Id;
-        dto.DriverName = driver.FirstName + " " + driver.LastName;
+        var dto = _mapper.Map<MechanicHandoverReviewDto>(createdReview);
 
         return dto;
     }
@@ -200,13 +191,13 @@ internal sealed class ReviewService : IReviewService
         return driver;
     }
 
-    private async Task<CheckPoint> GetInProgressCheckPointAsync(Guid driverId)
+    private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId, CheckPointStage stage)
     {
         var checkPoint = await _context.CheckPoints
-            .AsTracking()
-            .FirstOrDefaultAsync(x => x.DriverId == driverId
-                && x.Status == CheckPointStatus.InProgress
-                && x.Stage == CheckPointStage.DoctorReview);
+            .Where(x => x.Id == checkPointId)
+            .Where(x => x.Stage == stage)
+            .Where(x => x.Status == CheckPointStatus.InProgress)
+            .FirstOrDefaultAsync();
 
         if (checkPoint == null)
         {
@@ -214,6 +205,24 @@ internal sealed class ReviewService : IReviewService
         }
 
         return checkPoint;
+    }
+
+    private async Task<Car> GetAndValidateCarAsync(int carId)
+    {
+        var car = await _context.Cars
+            .FirstOrDefaultAsync(x => x.Id == carId);
+
+        if (car is null)
+        {
+            throw new EntityNotFoundException($"Car with id: {carId} is not found.");
+        }
+
+        if (car.Status != CarStatus.Free)
+        {
+            throw new UnavailableCarException($"Car with id: {carId} is not available for handover.");
+        }
+
+        return car;
     }
 
     private async Task<OilMark> GetAndValidateOilMarkAsync(int oilMarkId)
