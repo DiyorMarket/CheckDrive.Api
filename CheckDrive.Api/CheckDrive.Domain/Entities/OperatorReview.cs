@@ -5,8 +5,8 @@ namespace CheckDrive.Domain.Entities;
 
 public class OperatorReview : ReviewBase
 {
-    public double InitialOilAmount { get; set; }
-    public double OilRefillAmount { get; set; }
+    public decimal InitialOilAmount { get; set; }
+    public decimal OilRefillAmount { get; set; }
 
     public int CheckPointId { get; set; }
     public required CheckPoint CheckPoint { get; set; }

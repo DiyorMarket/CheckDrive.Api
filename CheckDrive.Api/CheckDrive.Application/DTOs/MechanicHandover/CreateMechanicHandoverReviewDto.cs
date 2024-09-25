@@ -7,8 +7,8 @@ public sealed record CreateMechanicHandoverReviewDto(
     int CarId,
     Guid ReviewerId,
     string? Notes,
-    int InitialMileage,
-    bool IsApprovedByReviewer)
+    bool IsApprovedByReviewer,
+    int InitialMileage)
     : CreateReviewDtoBase(
         ReviewerId: ReviewerId,
         Notes: Notes,
