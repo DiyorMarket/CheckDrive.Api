@@ -2,7 +2,7 @@
 
 namespace CheckDrive.Application.DTOs.MechanicHandover;
 
-public class MechanicHandoverReviewDto : ReviewDto
+public class MechanicHandoverReviewDto : ReviewDtoBase
 {
     public int InitialMileage { get; set; }
 }

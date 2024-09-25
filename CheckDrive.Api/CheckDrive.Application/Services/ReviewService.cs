@@ -2,7 +2,6 @@
 using CheckDrive.Application.DTOs.DoctorReview;
 using CheckDrive.Application.DTOs.MechanicHandover;
 using CheckDrive.Application.DTOs.OperatorReview;
-using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Entities.Identity;
@@ -18,43 +17,35 @@ internal sealed class ReviewService : IReviewService
     private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public async Task<ReviewDto> CreateAsync(CreateDoctorReviewDto review)
+    public ReviewService(
+        ICheckDriveDbContext context,
+        ICurrentUserService currentUserService,
+        IMapper mapper)
+    {
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
+    public async Task<DoctorReviewDto> CreateAsync(CreateDoctorReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(review);
 
         var doctor = await GetAndValidateDoctorAsync(review.ReviewerId);
         var driver = await GetAndValidateDriverAsync(review.DriverId);
 
-        var checkPoint = new CheckPoint
-        {
-            StartDate = DateTime.UtcNow,
-            Status = review.IsApprovedByReviewer ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection,
-            Stage = CheckPointStage.DoctorReview,
-            DriverId = review.DriverId
-        };
-        var createdCheckPoint = _context.CheckPoints.Add(checkPoint).Entity;
+        var checkPoint = _mapper.Map<CheckPoint>(review);
+        checkPoint.Driver = driver;
 
-        var reviewEntity = new DoctorReview
-        {
-            CheckPoint = checkPoint,
-            Doctor = doctor,
-            Notes = review.Notes,
-            Status = review.IsApprovedByReviewer ? ReviewStatus.Completed : ReviewStatus.RejectedByReviewer
-        };
+        var reviewEntity = _mapper.Map<DoctorReview>(review);
+        reviewEntity.CheckPoint = checkPoint;
+        reviewEntity.Doctor = doctor;
+
         var createdReview = _context.DoctorReviews.Add(reviewEntity).Entity;
 
         await _context.SaveChangesAsync();
 
-        var dto = new ReviewDto();
-        dto.CheckPointId = createdCheckPoint.Id;
-        dto.ReviewerId = doctor.Id;
-        dto.ReviewerName = doctor.FirstName + " " + doctor.LastName;
-        dto.Date = createdReview.Date;
-        dto.Notes = createdReview.Notes;
-        dto.Status = reviewEntity.Status;
-        dto.Type = GetType(createdCheckPoint.Stage);
-        dto.DriverId = driver.Id;
-        dto.DriverName = driver.FirstName + " " + driver.LastName;
+        var dto = _mapper.Map<DoctorReviewDto>(createdReview);
 
         return dto;
     }
@@ -235,18 +226,5 @@ internal sealed class ReviewService : IReviewService
         }
 
         return oilMark;
-    }
-
-    private static ReviewType GetType(CheckPointStage stage)
-    {
-        switch (stage)
-        {
-            case CheckPointStage.DoctorReview:
-                return ReviewType.Doctor;
-            case CheckPointStage.MechanicHandover:
-                return ReviewType.MechanicHandover;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(stage));
-        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace CheckDrive.Application.DTOs.Review;
 
-public record CreateReviewDtoBase(
+public abstract record CreateReviewDtoBase(
     Guid ReviewerId,
     string? Notes,
     bool IsApprovedByReviewer);

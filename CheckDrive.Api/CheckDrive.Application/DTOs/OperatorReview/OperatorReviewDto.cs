@@ -2,7 +2,7 @@
 
 namespace CheckDrive.Application.DTOs.OperatorReview;
 
-public class OperatorReviewDto : ReviewDto
+public class OperatorReviewDto : ReviewDtoBase
 {
     public double InitialOilAmount { get; set; }
     public double OilRefillAmount { get; set; }
