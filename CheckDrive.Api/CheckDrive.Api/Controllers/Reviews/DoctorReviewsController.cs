@@ -1,22 +1,24 @@
 ﻿using CheckDrive.Application.DTOs.DoctorReview;
-using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.Interfaces.Review;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CheckDrive.Api.Controllers;
+namespace CheckDrive.Api.Controllers.Reviews;
 
-[Route("api/doctors")]
+[Route("api/reviews/doctors/{doctorId:guid}")]
 [ApiController]
-public class DoctorsController : ControllerBase
+public class DoctorReviewsController : ControllerBase
 {
-    private readonly IReviewService _reviewService;
+    private readonly IDoctorReviewService _reviewService;
 
-    public DoctorsController(IReviewService reviewService)
+    public DoctorReviewsController(IDoctorReviewService reviewService)
     {
         _reviewService = reviewService ?? throw new ArgumentNullException(nameof(reviewService));
     }
 
-    [HttpPost("{doctorId:guid}/reviews")]
-    public async Task<ActionResult<DoctorReviewDto>> CreateReview(Guid doctorId, CreateDoctorReviewDto review)
+    [HttpPost]
+    public async Task<ActionResult<DoctorReviewDto>> CreateReview(
+        [FromRoute] Guid doctorId,
+        [FromBody] CreateDoctorReviewDto review)
     {
         if (doctorId != review.ReviewerId)
         {
