@@ -115,10 +115,10 @@ internal sealed class OperatorReviewService : IOperatorReviewService
 
         if (car.FuelCapacity < total)
         {
-            throw new FuelRefilExceededException($"{total} exceeds car fuel capacity: {car.FuelCapacity}.");
+            throw new FuelAmountExceedsCarCapacityException($"{total} exceeds car fuel capacity: {car.FuelCapacity}.");
         }
 
-        car.FuelCapacity = total;
+        car.RemainingFuel = total;
     }
 
     private static OperatorReview CreateReviewEntity(
@@ -139,8 +139,8 @@ internal sealed class OperatorReviewService : IOperatorReviewService
             Operator = @operator,
             InitialOilAmount = review.InitialOilAmount,
             OilRefillAmount = review.OilRefillAmount,
-            Date = DateTime.Now,
             Notes = review.Notes,
+            Date = DateTime.Now,
             Status = review.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer
         };
 

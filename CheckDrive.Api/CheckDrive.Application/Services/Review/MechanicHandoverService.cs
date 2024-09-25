@@ -35,16 +35,11 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         var car = await GetAndValidateCarAsync(review.CarId);
 
         var entity = CreateReviewEntity(review, mechanic, car, checkPoint);
-
-        checkPoint.Stage = CheckPointStage.MechanicHandover;
-        car.Status = CarStatus.Busy;
-
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
-
         var createdReview = _context.MechanicHandovers.Add(entity).Entity;
+
+        UpdateCheckPoint(checkPoint, review);
+        UpdateCar(car, review);
+
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<MechanicHandoverReviewDto>(createdReview);
@@ -111,7 +106,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         return car;
     }
 
-    private MechanicHandover CreateReviewEntity(
+    private static MechanicHandover CreateReviewEntity(
         CreateMechanicHandoverReviewDto review,
         User mechanic,
         Car car,
@@ -129,5 +124,31 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         };
 
         return entity;
+    }
+
+    private static void UpdateCar(Car car, CreateMechanicHandoverReviewDto review)
+    {
+        ArgumentNullException.ThrowIfNull(car);
+
+        if (review.InitialMileage < car.Mileage)
+        {
+            throw new InvalidMileageException(
+                $"Initial mileage ({review.InitialMileage}) cannot be less than current mileage of car: {car.Mileage}.");
+        }
+
+        car.Mileage = review.InitialMileage;
+        car.Status = CarStatus.Busy;
+    }
+
+    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateMechanicHandoverReviewDto review)
+    {
+        ArgumentNullException.ThrowIfNull(checkPoint);
+
+        checkPoint.Stage = CheckPointStage.MechanicHandover;
+
+        if (!review.IsApprovedByReviewer)
+        {
+            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
+        }
     }
 }
