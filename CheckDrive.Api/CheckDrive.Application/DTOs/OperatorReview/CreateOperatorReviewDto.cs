@@ -2,7 +2,7 @@
 
 namespace CheckDrive.Application.DTOs.OperatorReview;
 
-public record CreateOperatorReviewDto(
+public sealed record CreateOperatorReviewDto(
     int CheckPointId,
     Guid ReviewerId,
     int OilMarkId,
