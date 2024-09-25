@@ -123,6 +123,9 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         if (review.IsApprovedByReviewer)
         {
             checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
+            return;
         }
+
+        checkPoint.Status = CheckPointStatus.Completed;
     }
 }
