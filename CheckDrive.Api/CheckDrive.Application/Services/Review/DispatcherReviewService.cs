@@ -13,16 +13,11 @@ namespace CheckDrive.Application.Services.Review;
 internal sealed class DispatcherReviewService : IDispatcherReviewService
 {
     private readonly ICheckDriveDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public DispatcherReviewService(
-        ICheckDriveDbContext context,
-        ICurrentUserService currentUserService,
-        IMapper mapper)
+    public DispatcherReviewService(ICheckDriveDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 

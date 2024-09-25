@@ -28,12 +28,12 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
 
-        var entity = CreateReviewEntity(checkPoint, mechanic, review);
-        var createdReview = _context.MechanicAcceptances.Add(entity).Entity;
-
         UpdateCheckPoint(checkPoint, review);
         UpdateCar(checkPoint, review);
 
+        var reviewEntity = CreateReviewEntity(checkPoint, mechanic, review);
+
+        var createdReview = _context.MechanicAcceptances.Add(reviewEntity).Entity;
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<MechanicAcceptanceReviewDto>(createdReview);

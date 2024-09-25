@@ -13,16 +13,11 @@ namespace CheckDrive.Application.Services.Review;
 internal sealed class DoctorReviewService : IDoctorReviewService
 {
     private readonly ICheckDriveDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public DoctorReviewService(
-        ICheckDriveDbContext context,
-        ICurrentUserService currentUserService,
-        IMapper mapper)
+    public DoctorReviewService(ICheckDriveDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
@@ -33,15 +28,10 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var doctor = await GetAndValidateDoctorAsync(review.ReviewerId);
         var driver = await GetAndValidateDriverAsync(review.DriverId);
 
-        var checkPoint = _mapper.Map<CheckPoint>(review);
-        checkPoint.Driver = driver;
-
-        var reviewEntity = _mapper.Map<DoctorReview>(review);
-        reviewEntity.CheckPoint = checkPoint;
-        reviewEntity.Doctor = doctor;
+        var checkPoint = CreateCheckPoint(review, driver);
+        var reviewEntity = CreateReviewEntity(review, checkPoint, doctor);
 
         var createdReview = _context.DoctorReviews.Add(reviewEntity).Entity;
-
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<DoctorReviewDto>(createdReview);
@@ -59,11 +49,9 @@ internal sealed class DoctorReviewService : IDoctorReviewService
             throw new EntityNotFoundException($"Doctor with id: {doctorId} is not found.");
         }
 
-        var currentUserId = _currentUserService.GetCurrentUserId();
-
-        if (doctor.Id != currentUserId)
+        if (doctor.Position != EmployeePosition.Doctor)
         {
-            throw new InvalidOperationException($"Only account owner can perform review.");
+            throw new InvalidOperationException("Only doctor can perform Doctor Review.");
         }
 
         return doctor;
@@ -80,5 +68,38 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         }
 
         return driver;
+    }
+
+    private static CheckPoint CreateCheckPoint(CreateDoctorReviewDto review, User driver)
+    {
+        ArgumentNullException.ThrowIfNull(review);
+
+        var checkPoint = new CheckPoint
+        {
+            Notes = string.Empty,
+            StartDate = DateTime.UtcNow,
+            Stage = CheckPointStage.DoctorReview,
+            Status = review.IsApprovedByReviewer ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection,
+            DriverId = driver.Id
+        };
+
+        return checkPoint;
+    }
+
+    private static DoctorReview CreateReviewEntity(CreateDoctorReviewDto review, CheckPoint checkPoint, User doctor)
+    {
+        ArgumentNullException.ThrowIfNull(review);
+        ArgumentNullException.ThrowIfNull(checkPoint);
+
+        var doctorReview = new DoctorReview
+        {
+            CheckPoint = checkPoint,
+            Doctor = doctor,
+            Date = DateTime.UtcNow,
+            Notes = review.Notes,
+            Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer
+        };
+
+        return doctorReview;
     }
 }

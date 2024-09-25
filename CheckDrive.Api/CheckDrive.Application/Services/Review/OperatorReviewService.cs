@@ -34,17 +34,12 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         var @operator = await GetAndValidateOperatorAsync(review.ReviewerId);
         var oilMark = await GetAndValidateOilMarkAsync(review.OilMarkId);
 
-        var entity = CreateReviewEntity(checkPoint, oilMark, @operator, review);
-
-        checkPoint.Stage = CheckPointStage.OperatorReview;
         RefillCar(checkPoint.MechanicHandover!.Car, review);
+        UpdateCheckPoint(checkPoint, review);
 
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
+        var reviewEntity = CreateReviewEntity(checkPoint, oilMark, @operator, review);
 
-        var createdReview = _context.OperatorReviews.Add(entity).Entity;
+        var createdReview = _context.OperatorReviews.Add(reviewEntity).Entity;
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<OperatorReviewDto>(createdReview);
@@ -119,6 +114,19 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         }
 
         car.RemainingFuel = total;
+    }
+
+    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateOperatorReviewDto review)
+    {
+        ArgumentNullException.ThrowIfNull(checkPoint);
+        ArgumentNullException.ThrowIfNull(review);
+
+        checkPoint.Stage = CheckPointStage.OperatorReview;
+
+        if (!review.IsApprovedByReviewer)
+        {
+            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
+        }
     }
 
     private static OperatorReview CreateReviewEntity(
