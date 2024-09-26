@@ -13,16 +13,11 @@ namespace CheckDrive.Application.Services.Review;
 internal sealed class MechanicHandoverService : IMechanicHandoverService
 {
     private readonly ICheckDriveDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public MechanicHandoverService(
-        ICheckDriveDbContext context,
-        ICurrentUserService currentUserService,
-        IMapper mapper)
+    public MechanicHandoverService(ICheckDriveDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
@@ -55,13 +50,6 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         if (mechanic is null)
         {
             throw new EntityNotFoundException($"Mechanic with id: {mechanicId} is not found.");
-        }
-
-        var currentUserId = _currentUserService.GetCurrentUserId();
-
-        if (mechanic.Id != currentUserId)
-        {
-            throw new InvalidOperationException($"Only account owner can perform review.");
         }
 
         return mechanic;

@@ -13,16 +13,11 @@ namespace CheckDrive.Application.Services.Review;
 internal sealed class OperatorReviewService : IOperatorReviewService
 {
     private readonly ICheckDriveDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
     private readonly IMapper _mapper;
 
-    public OperatorReviewService(
-        ICheckDriveDbContext context,
-        ICurrentUserService currentUserService,
-        IMapper mapper)
+    public OperatorReviewService(ICheckDriveDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
@@ -77,13 +72,6 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         if (operatorEntity is null)
         {
             throw new EntityNotFoundException($"Operator with id: {operatorId} is not found.");
-        }
-
-        var currentUserId = _currentUserService.GetCurrentUserId();
-
-        if (operatorEntity.Id != currentUserId)
-        {
-            throw new InvalidOperationException($"Only account owner can perform review.");
         }
 
         return operatorEntity;

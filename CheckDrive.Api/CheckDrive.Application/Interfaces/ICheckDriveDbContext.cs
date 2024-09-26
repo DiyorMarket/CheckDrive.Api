@@ -18,5 +18,5 @@ public interface ICheckDriveDbContext
     DbSet<Debt> Debts { get; set; }
     DbSet<OilMark> OilMarks { get; set; }
 
-    Task<int> SaveChangesAsync();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

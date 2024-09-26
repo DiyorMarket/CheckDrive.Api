@@ -1,11 +1,12 @@
-﻿using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Application.Interfaces;
+using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace CheckDrive.Infrastructure.Persistence;
 
-public class CheckDriveDbContext : DbContext
+public class CheckDriveDbContext : DbContext, ICheckDriveDbContext
 {
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Role> Roles { get; set; }
@@ -24,6 +25,8 @@ public class CheckDriveDbContext : DbContext
     {
         Database.EnsureCreated();
         Database.Migrate();
+
+        SaveChangesAsync();
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
