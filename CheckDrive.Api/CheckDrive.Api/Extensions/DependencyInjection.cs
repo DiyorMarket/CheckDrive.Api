@@ -1,5 +1,6 @@
 ﻿using CheckDrive.Infrastructure.JwtToken;
 using CheckDrive.Infrastructure.Persistence;
+using FluentEmail.MailKitSmtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -190,6 +191,30 @@ namespace CheckDrive.Api.Extensions
                         context.User.HasClaim(c => c.Type == "Mechanic" && c.Value == "true") ||
                         context.User.HasClaim(c => c.Type == "Admin" && c.Value == "true"));
                 });
+        }
+
+        private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
+        {
+            var emailSettings = configuration.GetSection(EmailConfiguration.SectionName).Get<EmailConfiguration>();
+
+            if (emailSettings is null)
+            {
+                throw new InvalidOperationException("Configuration values for email did not load correctly.");
+            }
+
+            var smptOptions = new SmtpClientOptions
+            {
+                Server = emailSettings.Server,
+                Port = emailSettings.Port,
+                User = emailSettings.From,
+                Password = emailSettings.Password,
+                UseSsl = true,
+                RequiresAuthentication = true
+            };
+
+            services.AddFluentEmail(emailSettings.From, emailSettings.UserName)
+                .AddMailKitSender(smptOptions)
+                .AddRazorRenderer();
         }
 
     }
