@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CheckDrive.Domain\CheckDrive.Domain.csproj" />
+    <InternalsVisibleTo Include="CheckDrive.Tests.Unit"/>
   </ItemGroup>
 
 </Project>

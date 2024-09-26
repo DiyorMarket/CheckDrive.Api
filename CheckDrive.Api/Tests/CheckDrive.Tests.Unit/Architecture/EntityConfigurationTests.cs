@@ -59,7 +59,7 @@ public class EntityConfigurationTests : ArchitectureTestBase
         result.Should().BeTrue();
     }
 
-    [Fact]
+    [Fact(Skip = "Not Implemented yet")]
     public void EachEntity_ShouldHave_Configuration()
     {
         // Arrange

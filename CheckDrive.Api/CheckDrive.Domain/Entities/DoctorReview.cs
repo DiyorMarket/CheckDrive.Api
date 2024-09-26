@@ -6,8 +6,8 @@ namespace CheckDrive.Domain.Entities;
 public class DoctorReview : ReviewBase
 {
     public int CheckPointId { get; set; }
-    public required CheckPoint CheckPoint { get; set; }
+    public required virtual CheckPoint CheckPoint { get; set; }
 
     public Guid DoctorId { get; set; }
-    public required User Doctor { get; set; }
+    public required virtual User Doctor { get; set; }
 }

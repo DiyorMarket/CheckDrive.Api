@@ -9,8 +9,8 @@ public class DispatcherReview : ReviewBase
     public decimal? DistanceTravelledAdjustment { get; set; }
 
     public int CheckPointId { get; set; }
-    public required CheckPoint CheckPoint { get; set; }
+    public required virtual CheckPoint CheckPoint { get; set; }
 
     public int DispatcherId { get; set; }
-    public required User Dispatcher { get; set; }
+    public required virtual User Dispatcher { get; set; }
 }

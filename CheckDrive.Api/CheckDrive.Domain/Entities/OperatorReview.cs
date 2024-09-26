@@ -9,11 +9,11 @@ public class OperatorReview : ReviewBase
     public decimal OilRefillAmount { get; set; }
 
     public int CheckPointId { get; set; }
-    public required CheckPoint CheckPoint { get; set; }
+    public required virtual CheckPoint CheckPoint { get; set; }
 
     public int OilMarkId { get; set; }
-    public required OilMark OilMark { get; set; }
+    public required virtual OilMark OilMark { get; set; }
 
     public int OperatorId { get; set; }
-    public required User Operator { get; set; }
+    public required virtual User Operator { get; set; }
 }

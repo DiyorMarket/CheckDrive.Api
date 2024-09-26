@@ -10,5 +10,5 @@ public class Debt : EntityBase
     public DebtStatus Status { get; set; }
 
     public int CheckPointId { get; set; }
-    public required CheckPoint CheckPoint { get; set; }
+    public required virtual CheckPoint CheckPoint { get; set; }
 }

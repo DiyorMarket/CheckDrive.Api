@@ -9,8 +9,8 @@ public class MechanicAcceptance : ReviewBase
     public decimal RemainingFuelAmount { get; set; }
 
     public int CheckPointId { get; set; }
-    public required CheckPoint CheckPoint { get; set; }
+    public required virtual CheckPoint CheckPoint { get; set; }
 
     public int MechanicId { get; set; }
-    public required User Mechanic { get; set; }
+    public required virtual User Mechanic { get; set; }
 }

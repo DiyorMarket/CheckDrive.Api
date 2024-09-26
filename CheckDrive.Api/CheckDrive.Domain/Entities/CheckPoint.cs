@@ -12,23 +12,23 @@ public class CheckPoint : EntityBase
     public CheckPointStage Stage { get; set; }
 
     public Guid DriverId { get; set; }
-    public User Driver { get; set; }
+    public virtual User Driver { get; set; }
 
     public int DoctorReviewId { get; set; }
-    public DoctorReview DoctorReview { get; set; }
+    public virtual DoctorReview DoctorReview { get; set; }
 
     public int? MechanicHandoverId { get; set; }
-    public MechanicHandover? MechanicHandover { get; set; }
+    public virtual MechanicHandover? MechanicHandover { get; set; }
 
     public int? OperatorReviewId { get; set; }
-    public OperatorReview? OperatorReview { get; set; }
+    public virtual OperatorReview? OperatorReview { get; set; }
 
     public int? MechanicAcceptanceId { get; set; }
-    public MechanicAcceptance? MechanicAcceptance { get; set; }
+    public virtual MechanicAcceptance? MechanicAcceptance { get; set; }
 
     public int? DispatcherReviewId { get; set; }
-    public DispatcherReview? DispatcherReview { get; set; }
+    public virtual DispatcherReview? DispatcherReview { get; set; }
 
     public int? DebtId { get; set; }
-    public Debt? Debt { get; set; }
+    public virtual Debt? Debt { get; set; }
 }

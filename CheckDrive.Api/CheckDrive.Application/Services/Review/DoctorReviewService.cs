@@ -31,10 +31,10 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var checkPoint = CreateCheckPoint(review, driver);
         var reviewEntity = CreateReviewEntity(review, checkPoint, doctor);
 
-        var createdReview = _context.DoctorReviews.Add(reviewEntity).Entity;
+        _context.DoctorReviews.Add(reviewEntity);
         await _context.SaveChangesAsync();
 
-        var dto = _mapper.Map<DoctorReviewDto>(createdReview);
+        var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
 
         return dto;
     }
@@ -42,7 +42,7 @@ internal sealed class DoctorReviewService : IDoctorReviewService
     private async Task<User> GetAndValidateDoctorAsync(Guid doctorId)
     {
         var doctor = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == doctorId && x.Position == EmployeePosition.Doctor);
+            .FirstOrDefaultAsync(x => x.Id == doctorId);
 
         if (doctor is null)
         {
