@@ -59,24 +59,11 @@ public class EntityConfigurationTests : ArchitectureTestBase
         result.Should().BeTrue();
     }
 
-    [Fact(Skip = "Not Implemented yet")]
-    public void EachEntity_ShouldHave_Configuration()
-    {
-        // Arrange
-        var entities = GetEntities();
-        var configurations = GetEntityConfigurations();
-
-        // Assert & Assert
-        configurations.Count.Should().Be(
-            entities.Count,
-            $"there should be {entities.Count} Entity Configurations");
-    }
-
     [Fact]
     public void ConfigurationName_ShouldStartWith_CorrespondingEntityName()
     {
         // Arrange
-        var entities = GetEntities();
+        var entities = GetEntities(true);
         var configurations = GetEntityConfigurations();
 
         // Act & Assert

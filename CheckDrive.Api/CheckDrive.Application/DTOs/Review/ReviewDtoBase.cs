@@ -4,9 +4,9 @@ namespace CheckDrive.Application.DTOs.Review;
 
 public abstract record ReviewDtoBase(
     int CheckPointId,
-    Guid ReviewerId,
+    int ReviewerId,
     string ReviewerName,
-    Guid DriverId,
+    int DriverId,
     string DriverName,
     string? Notes,
     DateTime Date,

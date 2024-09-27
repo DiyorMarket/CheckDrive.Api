@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.MechanicAcceptance;
-using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Entities.Identity;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
+using CheckDrive.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -76,9 +75,9 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         return checkPoint;
     }
 
-    private async Task<User> GetAndValidateMechanicAsync(Guid mechanicId)
+    private async Task<Mechanic> GetAndValidateMechanicAsync(int mechanicId)
     {
-        var mechanic = await _context.Users
+        var mechanic = await _context.Mechanics
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
         if (mechanic is null)
@@ -86,17 +85,12 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
             throw new EntityNotFoundException($"Mechanic with id: {mechanicId} is not found.");
         }
 
-        if (mechanic.Position != EmployeePosition.Mechanic)
-        {
-            throw new InvalidOperationException("Only Mechanics can perform Mechanic Acceptance Review.");
-        }
-
         return mechanic;
     }
 
     private static MechanicAcceptance CreateReviewEntity(
         CheckPoint checkPoint,
-        User mechanic,
+        Mechanic mechanic,
         CreateMechanicAcceptanceReviewDto review)
     {
         var entity = new MechanicAcceptance

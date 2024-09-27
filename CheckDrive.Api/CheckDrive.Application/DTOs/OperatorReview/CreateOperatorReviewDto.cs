@@ -4,7 +4,7 @@ namespace CheckDrive.Application.DTOs.OperatorReview;
 
 public sealed record CreateOperatorReviewDto(
     int CheckPointId,
-    Guid ReviewerId,
+    int ReviewerId,
     int OilMarkId,
     string? Notes,
     bool IsApprovedByReviewer,

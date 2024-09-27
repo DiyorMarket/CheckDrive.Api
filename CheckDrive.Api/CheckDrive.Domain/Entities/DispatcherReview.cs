@@ -1,5 +1,4 @@
 using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities.Identity;
 
 namespace CheckDrive.Domain.Entities;
 
@@ -12,5 +11,5 @@ public class DispatcherReview : ReviewBase
     public required virtual CheckPoint CheckPoint { get; set; }
 
     public int DispatcherId { get; set; }
-    public required virtual User Dispatcher { get; set; }
+    public required virtual Dispatcher Dispatcher { get; set; }
 }

@@ -10,8 +10,8 @@ internal sealed class DoctorReviewMappings : Profile
     public DoctorReviewMappings()
     {
         CreateMap<DoctorReview, DoctorReviewDto>()
-            .ForCtorParam(nameof(DoctorReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DriverId))
-            .ForCtorParam(nameof(DoctorReviewDto.DriverName), cfg => cfg.MapFrom(e => $"{e.CheckPoint.Driver.FirstName} {e.CheckPoint.Driver.LastName}"))
+            .ForCtorParam(nameof(DoctorReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.DriverId))
+            .ForCtorParam(nameof(DoctorReviewDto.DriverName), cfg => cfg.MapFrom(e => $"{e.CheckPoint.DoctorReview.Driver.FirstName} {e.CheckPoint.DoctorReview.Driver.LastName}"))
             .ForCtorParam(nameof(DoctorReviewDto.ReviewerId), cfg => cfg.MapFrom(e => e.DoctorId))
             .ForCtorParam(nameof(DoctorReviewDto.ReviewerName), cfg => cfg.MapFrom(e => $"{e.Doctor.FirstName} {e.Doctor.LastName}"));
 

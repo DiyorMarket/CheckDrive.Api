@@ -4,7 +4,7 @@ namespace CheckDrive.Application.DTOs.MechanicAcceptance;
 
 public sealed record CreateMechanicAcceptanceReviewDto(
     int CheckPointId,
-    Guid ReviewerId,
+    int ReviewerId,
     string? Notes,
     bool IsApprovedByReviewer,
     int FinalMileage,

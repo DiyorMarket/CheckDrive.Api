@@ -14,8 +14,8 @@ internal sealed class MechanicHandoverMappings : Profile
             .ForMember(x => x.Status, cfg => cfg.MapFrom(x => x.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer));
 
         CreateMap<MechanicHandover, MechanicHandoverReviewDto>()
-            .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DriverId))
-            .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverName), cfg => cfg.MapFrom(e => $"{e.CheckPoint.Driver.FirstName} {e.CheckPoint.Driver.LastName}"))
+            .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.DriverId))
+            .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverName), cfg => cfg.MapFrom(e => $"{e.CheckPoint.DoctorReview.Driver.FirstName} {e.CheckPoint.DoctorReview.Driver.LastName}"))
             .ForCtorParam(nameof(MechanicHandoverReviewDto.ReviewerId), cfg => cfg.MapFrom(e => e.MechanicId))
             .ForCtorParam(nameof(MechanicHandoverReviewDto.ReviewerName), cfg => cfg.MapFrom(e => $"{e.Mechanic.FirstName} {e.Mechanic.LastName}"));
     }

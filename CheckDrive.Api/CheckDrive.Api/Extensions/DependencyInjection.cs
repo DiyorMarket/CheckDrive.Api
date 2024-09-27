@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
+using CheckDrive.TestDataCreator.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         AddSwagger(services);
         AddAuthentication(services, configuration);
         AddAuthorization(services);
+        AddConfigurationOptiosn(services, configuration);
         AddSyncfusion(configuration);
 
         return services;
@@ -119,6 +121,14 @@ public static class DependencyInjection
                     context.User.HasClaim(c => c.Type == "Mechanic" && c.Value == "true") ||
                     context.User.HasClaim(c => c.Type == "Admin" && c.Value == "true"));
             });
+    }
+
+    private static void AddConfigurationOptiosn(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<DataSeedOptions>()
+            .Bind(configuration.GetSection(DataSeedOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
     }
 
     private static void AddSyncfusion(IConfiguration configuration)

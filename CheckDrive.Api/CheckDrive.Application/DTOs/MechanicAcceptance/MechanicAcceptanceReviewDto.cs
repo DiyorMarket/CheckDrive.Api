@@ -5,9 +5,9 @@ namespace CheckDrive.Application.DTOs.MechanicAcceptance;
 
 public sealed record MechanicAcceptanceReviewDto(
     int CheckPointId,
-    Guid ReviewerId,
+    int ReviewerId,
     string ReviewerName,
-    Guid DriverId,
+    int DriverId,
     string DriverName,
     string? Notes,
     DateTime Date,

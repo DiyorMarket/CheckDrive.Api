@@ -1,6 +1,7 @@
-﻿using CheckDrive.Application.Interfaces;
+﻿using CheckDrive.Domain.Interfaces;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,10 @@ public static class DependencyInjection
     {
         services.AddDbContext<ICheckDriveDbContext, CheckDriveDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<CheckDriveDbContext>()
+            .AddDefaultTokenProviders();
 
         AddConfigurations(services, configuration);
 

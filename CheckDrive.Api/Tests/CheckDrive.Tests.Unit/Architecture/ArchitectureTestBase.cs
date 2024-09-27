@@ -22,11 +22,11 @@ public abstract class ArchitectureTestBase : UnitTestBase
     {
     }
 
-    protected List<Type> GetEntities()
+    protected List<Type> GetEntities(bool inluceBaseEntities = false)
     {
         return DomainAssembly
             .GetTypes()
-            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .Where(t => (inluceBaseEntities || !t.IsAbstract) && !t.IsInterface)
             .Where(t => t.IsAssignableTo(typeof(EntityBase)))
             .ToList();
     }

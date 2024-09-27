@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+﻿using AutoFixture;
+using AutoMapper;
 using CheckDrive.Application.DTOs.DoctorReview;
-using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Services.Review;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Entities.Identity;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
+using CheckDrive.Domain.Interfaces;
 using Moq;
 using Moq.EntityFrameworkCore;
 
@@ -28,30 +28,18 @@ public class DoctorReviewServiceTests : ServiceTestBase
     public async Task CreateAsync_ValidInput_ReturnsCreatedDoctorReviewDto()
     {
         // Arrange
-        var createDto = new CreateDoctorReviewDto(
-            DriverId: Guid.NewGuid(),
-            ReviewerId: Guid.NewGuid(),
-            Notes: "Test notes",
-            IsApprovedByReviewer: true);
+        var doctor = _fixture.Create<Doctor>();
+        var driver = _fixture.Create<Driver>();
+        var createDto = _fixture.Build<CreateDoctorReviewDto>()
+            .With(d => d.DriverId, driver.Id)
+            .With(d => d.ReviewerId, doctor.Id)
+            .Create();
 
-        var doctor = new User { Id = createDto.ReviewerId, Position = EmployeePosition.Doctor };
-        var driver = new User { Id = createDto.DriverId, Position = EmployeePosition.Driver };
-
-        var users = new List<User> { doctor, driver }.AsQueryable();
-        _mockContext.Setup(c => c.Users).ReturnsDbSet(users);
-
+        _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor> { doctor });
+        _mockContext.Setup(c => c.Drivers).ReturnsDbSet(new List<Driver> { driver });
         _mockContext.Setup(c => c.DoctorReviews.Add(It.IsAny<DoctorReview>()));
 
-        var expectedDto = new DoctorReviewDto(
-            CheckPointId: 1,
-            DriverId: createDto.DriverId,
-            DriverName: "John Doe",
-            ReviewerId: createDto.ReviewerId,
-            ReviewerName: "Dr. Smith",
-            Notes: createDto.Notes,
-            Date: DateTime.UtcNow,
-            Status: ReviewStatus.Approved);
-
+        var expectedDto = _fixture.Create<DoctorReviewDto>();
         _mockMapper.Setup(m => m.Map<DoctorReviewDto>(It.IsAny<DoctorReview>())).Returns(expectedDto);
 
         // Act
@@ -60,23 +48,15 @@ public class DoctorReviewServiceTests : ServiceTestBase
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedDto, result);
-
-        _mockContext.Verify(c => c.DoctorReviews.Add(It.IsAny<DoctorReview>()), Times.Once);
-        _mockContext.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _mockContext.Verify(c => c.SaveChangesAsync(default), Times.Once);
     }
 
     [Fact]
     public async Task CreateAsync_DoctorNotFound_ThrowsEntityNotFoundException()
     {
         // Arrange
-        var createDto = new CreateDoctorReviewDto(
-            DriverId: Guid.NewGuid(),
-            ReviewerId: Guid.NewGuid(),
-            Notes: "Test notes",
-            IsApprovedByReviewer: true);
-
-        var users = new List<User>().AsQueryable();
-        _mockContext.Setup(c => c.Users).ReturnsDbSet(users);
+        var createDto = _fixture.Create<CreateDoctorReviewDto>();
+        _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor>());
 
         // Act & Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _service.CreateAsync(createDto));
@@ -86,39 +66,16 @@ public class DoctorReviewServiceTests : ServiceTestBase
     public async Task CreateAsync_DriverNotFound_ThrowsEntityNotFoundException()
     {
         // Arrange
-        var createDto = new CreateDoctorReviewDto(
-            DriverId: Guid.NewGuid(),
-            ReviewerId: Guid.NewGuid(),
-            Notes: "Test notes",
-            IsApprovedByReviewer: true);
+        var doctor = _fixture.Create<Doctor>();
+        var createDto = _fixture.Build<CreateDoctorReviewDto>()
+            .With(d => d.ReviewerId, doctor.Id)
+            .Create();
 
-        var doctor = new User { Id = createDto.ReviewerId, Position = EmployeePosition.Doctor };
-
-        var users = new List<User> { doctor }.AsQueryable();
-        _mockContext.Setup(c => c.Users).ReturnsDbSet(users);
+        _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor> { doctor });
+        _mockContext.Setup(c => c.Drivers).ReturnsDbSet(new List<Driver>());
 
         // Act & Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _service.CreateAsync(createDto));
-    }
-
-    [Fact]
-    public async Task CreateAsync_ReviewerNotDoctor_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var createDto = new CreateDoctorReviewDto(
-            DriverId: Guid.NewGuid(),
-            ReviewerId: Guid.NewGuid(),
-            Notes: "Test notes",
-            IsApprovedByReviewer: true);
-
-        var notDoctor = new User { Id = createDto.ReviewerId, Position = EmployeePosition.Operator };
-        var driver = new User { Id = createDto.DriverId, Position = EmployeePosition.Driver };
-        var users = new List<User> { notDoctor, driver }.AsQueryable();
-
-        _mockContext.Setup(c => c.Users).ReturnsDbSet(users);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateAsync(createDto));
     }
 
     [Fact]
@@ -126,5 +83,33 @@ public class DoctorReviewServiceTests : ServiceTestBase
     {
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => _service.CreateAsync(null!));
+    }
+
+    [Fact]
+    public async Task CreateAsync_RejectedReview_CreatesCheckPointWithCorrectStatus()
+    {
+        // Arrange
+        var doctor = _fixture.Create<Doctor>();
+        var driver = _fixture.Create<Driver>();
+        var createDto = _fixture.Build<CreateDoctorReviewDto>()
+            .With(d => d.DriverId, driver.Id)
+            .With(d => d.ReviewerId, doctor.Id)
+            .With(d => d.IsApprovedByReviewer, false)
+            .Create();
+
+        _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor> { doctor });
+        _mockContext.Setup(c => c.Drivers).ReturnsDbSet(new List<Driver> { driver });
+
+        DoctorReview capturedReview = null;
+        _mockContext.Setup(c => c.DoctorReviews.Add(It.IsAny<DoctorReview>()))
+            .Callback<DoctorReview>(r => capturedReview = r);
+
+        // Act
+        await _service.CreateAsync(createDto);
+
+        // Assert
+        Assert.NotNull(capturedReview);
+        Assert.Equal(CheckPointStatus.InterruptedByReviewerRejection, capturedReview.CheckPoint.Status);
+        Assert.Equal(ReviewStatus.RejectedByReviewer, capturedReview.Status);
     }
 }

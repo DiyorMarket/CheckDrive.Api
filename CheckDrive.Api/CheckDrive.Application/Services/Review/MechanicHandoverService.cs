@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.MechanicHandover;
-using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Entities.Identity;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
+using CheckDrive.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -42,10 +41,10 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         return dto;
     }
 
-    private async Task<User> GetAndValidateMechanicAsync(Guid mechanicId)
+    private async Task<Mechanic> GetAndValidateMechanicAsync(int mechanicId)
     {
-        var mechanic = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == mechanicId && x.Position == EmployeePosition.Mechanic);
+        var mechanic = await _context.Mechanics
+            .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
         if (mechanic is null)
         {
@@ -96,7 +95,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
 
     private static MechanicHandover CreateReviewEntity(
         CreateMechanicHandoverReviewDto review,
-        User mechanic,
+        Mechanic mechanic,
         Car car,
         CheckPoint checkPoint)
     {

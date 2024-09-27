@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.DispatcherReview;
-using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Entities.Identity;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
+using CheckDrive.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -72,9 +71,9 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         return checkPoint;
     }
 
-    private async Task<User> GetAndValidateDispatcherAsync(Guid dispatcherId)
+    private async Task<Dispatcher> GetAndValidateDispatcherAsync(int dispatcherId)
     {
-        var dispatcher = await _context.Users
+        var dispatcher = await _context.Dispatchers
             .FirstOrDefaultAsync(x => x.Id == dispatcherId);
 
         if (dispatcher is null)
@@ -82,15 +81,10 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
             throw new EntityNotFoundException($"Dispatcher with id: {dispatcherId} is not found.");
         }
 
-        if (dispatcher.Position != EmployeePosition.Dispatcher)
-        {
-            throw new InvalidOperationException($"Only Dispatcher perform 'Dispatcher Review'");
-        }
-
         return dispatcher;
     }
 
-    private static DispatcherReview CreateReviewEntity(CheckPoint checkPoint, User dispatcher, CreateDispatcherReviewDto review)
+    private static DispatcherReview CreateReviewEntity(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(checkPoint);
 

@@ -1,5 +1,9 @@
 ﻿using Bogus;
-using CheckDrive.Application.Interfaces;
+using CheckDrive.Domain.Entities;
+using CheckDrive.Domain.Interfaces;
+using CheckDrive.TestDataCreator;
+using CheckDrive.TestDataCreator.Configurations;
+using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Api.Helpers;
 
@@ -7,24 +11,281 @@ public static class DatabaseSeeder
 {
     private static Faker _faker = new Faker();
 
-    public static void SeedDatabase(ICheckDriveDbContext context)
+    public static void SeedDatabase(
+        ICheckDriveDbContext context,
+        UserManager<IdentityUser> userManager,
+        DataSeedOptions options)
     {
-
-        //CreateRoles(context);
-        //CreateOilMarks(context);
-        //CreateAccounts(context);
-        //CreateCars(context);
-        //CreateDrivers(context);
-        //CreateDoctors(context);
-        //CreateOperators(context);
-        //CreateDispatchers(context);
-        //CreateMechanics(context);
-        //CreateDoctorReviews(context);
-        //CreateMechanicHandovers(context);
-        //CreateOperatorReviews(context);
-        //CreateMechanicAcceptance(context);
-        //CreateDispatcherReviews(context);
+        CreateCars(context, options);
+        CreateRoles(context);
+        CreateDrivers(context, userManager, options);
+        CreateDoctors(context, userManager, options);
+        CreateMechanics(context, userManager, options);
+        CreateOperators(context, userManager, options);
+        CreateDispatchers(context, userManager, options);
+        // CreateEmployees(context, userManager, options);
     }
+
+    private static void CreateCars(ICheckDriveDbContext context, DataSeedOptions options)
+    {
+        if (context.Cars.Any()) return;
+
+        var uniqueCarsByName = new Dictionary<string, Car>();
+
+        for (int i = 0; i < options.CarsCount; i++)
+        {
+            var car = FakeDataGenerator.GetCar().Generate();
+
+            if (uniqueCarsByName.TryAdd(car.Model, car))
+            {
+                context.Cars.Add(car);
+            }
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateRoles(ICheckDriveDbContext context)
+    {
+        if (context.Roles.Any()) return;
+
+        var driver = new IdentityRole { Name = "Driver" };
+        var doctor = new IdentityRole { Name = "Doctor" };
+        var mechanic = new IdentityRole { Name = "Mechanic" };
+        var @operator = new IdentityRole { Name = "Operator" };
+        var dispatcher = new IdentityRole { Name = "Dispatcher" };
+        var manager = new IdentityRole { Name = "Manager" };
+        var admin = new IdentityRole { Name = "Admin" };
+
+        context.Roles.AddRange(driver, doctor, mechanic, @operator, dispatcher, manager, admin);
+
+        context.SaveChanges();
+    }
+
+    private static void CreateDrivers(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    {
+        if (context.Drivers.Any()) return;
+
+        var role = context.Roles.First(x => x.Name == "driver");
+        var uniqueDriversByName = new Dictionary<string, Driver>();
+
+        for (int i = 0; i < options.DriversCount; i++)
+        {
+            var account = FakeDataGenerator.GetAccount().Generate();
+            var driver = FakeDataGenerator.GetEmployee<Driver>().Generate();
+
+            if (uniqueDriversByName.TryAdd(driver.FirstName + driver.LastName, driver))
+            {
+                var result = userManager.CreateAsync(account, $"Qwerty-{i}");
+
+                if (!result.Result.Succeeded)
+                {
+                    continue;
+                }
+
+                driver.Account = account;
+                context.Drivers.Add(driver);
+            }
+        }
+
+        context.SaveChanges();
+        var drivers = context.Drivers.ToArray();
+
+        foreach (var driver in drivers)
+        {
+            var userRole = new IdentityUserRole<string> { RoleId = role.Id, UserId = driver.AccountId };
+            context.UserRoles.Add(userRole);
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateDoctors(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    {
+        if (context.Doctors.Any()) return;
+
+        var role = context.Roles.First(x => x.Name == "doctor");
+        var uniqueDoctorsByName = new Dictionary<string, Doctor>();
+
+        for (int i = 0; i < options.DoctorsCount; i++)
+        {
+            var account = FakeDataGenerator.GetAccount().Generate();
+            var doctor = FakeDataGenerator.GetEmployee<Doctor>().Generate();
+
+            if (uniqueDoctorsByName.TryAdd(doctor.FirstName + doctor.LastName, doctor))
+            {
+                var result = userManager.CreateAsync(account, $"Qwerty-{i}");
+
+                if (!result.Result.Succeeded)
+                {
+                    continue;
+                }
+
+                doctor.Account = account;
+                context.Doctors.Add(doctor);
+            }
+        }
+
+        context.SaveChanges();
+        var doctors = context.Doctors.ToArray();
+
+        foreach (var doctor in doctors)
+        {
+            var userRole = new IdentityUserRole<string> { RoleId = role.Id, UserId = doctor.AccountId };
+            context.UserRoles.Add(userRole);
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateMechanics(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    {
+        if (context.Mechanics.Any()) return;
+
+        var role = context.Roles.First(x => x.Name == "mechanic");
+        var uniqueMechanicsByName = new Dictionary<string, Mechanic>();
+
+        for (int i = 0; i < options.DriversCount; i++)
+        {
+            var account = FakeDataGenerator.GetAccount().Generate();
+            var mechanic = FakeDataGenerator.GetEmployee<Mechanic>().Generate();
+
+            if (uniqueMechanicsByName.TryAdd(mechanic.FirstName + mechanic.LastName, mechanic))
+            {
+                var result = userManager.CreateAsync(account, $"Qwerty-{i}");
+
+                if (!result.Result.Succeeded)
+                {
+                    continue;
+                }
+
+                mechanic.Account = account;
+                context.Mechanics.Add(mechanic);
+            }
+        }
+
+        context.SaveChanges();
+        var mechanics = context.Mechanics.ToArray();
+
+        foreach (var mechanic in mechanics)
+        {
+            var userRole = new IdentityUserRole<string> { RoleId = role.Id, UserId = mechanic.AccountId };
+            context.UserRoles.Add(userRole);
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateOperators(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    {
+        if (context.Operators.Any()) return;
+
+        var role = context.Roles.First(x => x.Name == "operator");
+        var uniqueOperatorsByName = new Dictionary<string, Operator>();
+
+        for (int i = 0; i < options.DriversCount; i++)
+        {
+            var account = FakeDataGenerator.GetAccount().Generate();
+            var @operator = FakeDataGenerator.GetEmployee<Operator>().Generate();
+
+            if (uniqueOperatorsByName.TryAdd(@operator.FirstName + @operator.LastName, @operator))
+            {
+                var result = userManager.CreateAsync(account, $"Qwerty-{i}");
+
+                if (!result.Result.Succeeded)
+                {
+                    continue;
+                }
+
+                @operator.Account = account;
+                context.Operators.Add(@operator);
+            }
+        }
+
+        context.SaveChanges();
+        var operators = context.Operators.ToArray();
+
+        foreach (var @operator in operators)
+        {
+            var userRole = new IdentityUserRole<string> { RoleId = role.Id, UserId = @operator.AccountId };
+            context.UserRoles.Add(userRole);
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateDispatchers(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    {
+        if (context.Dispatchers.Any()) return;
+
+        var role = context.Roles.First(x => x.Name == "dispatcher");
+        var uniqueDispatchersByName = new Dictionary<string, Dispatcher>();
+
+        for (int i = 0; i < options.DriversCount; i++)
+        {
+            var account = FakeDataGenerator.GetAccount().Generate();
+            var dispatcher = FakeDataGenerator.GetEmployee<Dispatcher>().Generate();
+
+            if (uniqueDispatchersByName.TryAdd(dispatcher.FirstName + dispatcher.LastName, dispatcher))
+            {
+                var result = userManager.CreateAsync(account, $"Qwerty-{i}");
+
+                if (!result.Result.Succeeded)
+                {
+                    continue;
+                }
+
+                dispatcher.Account = account;
+                context.Dispatchers.Add(dispatcher);
+            }
+        }
+
+        context.SaveChanges();
+        var dispatchers = context.Dispatchers.ToArray();
+
+        foreach (var dispatcher in dispatchers)
+        {
+            var userRole = new IdentityUserRole<string> { RoleId = role.Id, UserId = dispatcher.AccountId };
+            context.UserRoles.Add(userRole);
+        }
+
+        context.SaveChanges();
+    }
+
+    //private static void CreateEmployees(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    //{
+    //    if (context.Users.Any())
+    //    {
+    //        return;
+    //    }
+
+    //    var roles = context.Roles.Where(x => x.Name != "Admin").Select(x => x.Id).ToArray();
+    //    var uniqueEmployeesByName = new Dictionary<string, Employee>();
+
+    //    for (int i = 0; i < options.UsersCount; i++)
+    //    {
+    //        var employee = FakeDataGenerator.GetEmployee().Generate();
+    //        var account = FakeDataGenerator.GetAccount().Generate();
+    //        var role = _faker.PickRandom(roles);
+
+    //        if (uniqueEmployeesByName.TryAdd(employee.FirstName + employee.LastName, employee))
+    //        {
+    //            var result = userManager.CreateAsync(account, $"Qwerty-{i}#");
+    //            var userRole = new IdentityUserRole<string> { RoleId = role, UserId = account.Id };
+
+    //            if (!result.Result.Succeeded)
+    //            {
+    //                continue;
+    //            }
+
+    //            context.UserRoles.Add(userRole);
+    //            employee.Account = account;
+    //            context.Employees.Add(employee);
+    //        }
+    //    }
+
+    //    context.SaveChanges();
+    //}
 
     //private static void CreateRoles(CheckDriveDbContext context)
     //{

@@ -1,5 +1,4 @@
 ﻿using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities.Identity;
 
 namespace CheckDrive.Domain.Entities;
 
@@ -12,5 +11,5 @@ public class MechanicAcceptance : ReviewBase
     public required virtual CheckPoint CheckPoint { get; set; }
 
     public int MechanicId { get; set; }
-    public required virtual User Mechanic { get; set; }
+    public required virtual Mechanic Mechanic { get; set; }
 }

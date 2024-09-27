@@ -5,9 +5,9 @@ namespace CheckDrive.Application.DTOs.DoctorReview;
 
 public sealed record DoctorReviewDto(
     int CheckPointId,
-    Guid DriverId,
+    int DriverId,
     string DriverName,
-    Guid ReviewerId,
+    int ReviewerId,
     string ReviewerName,
     string? Notes,
     DateTime Date,

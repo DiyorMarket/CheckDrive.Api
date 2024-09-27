@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers.Reviews;
 
-[Route("api/reviews/operators/{operatorId:guid}")]
+[Route("api/reviews/operators/{operatorId:int}")]
 [ApiController]
 public class OperatorReviewsController : ControllerBase
 {
@@ -17,7 +17,7 @@ public class OperatorReviewsController : ControllerBase
 
     [HttpPost]
     public async Task<ActionResult<OperatorReviewDto>> CreateAsync(
-        [FromRoute] Guid operatorId,
+        [FromRoute] int operatorId,
         [FromBody] CreateOperatorReviewDto review)
     {
         if (review.ReviewerId != operatorId)

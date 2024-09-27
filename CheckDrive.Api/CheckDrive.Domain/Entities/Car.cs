@@ -16,10 +16,10 @@ public class Car : EntityBase
     public decimal RemainingFuel { get; set; }
     public CarStatus Status { get; set; }
 
-    public virtual ICollection<CheckPoint> CheckPoints { get; set; }
+    public virtual ICollection<MechanicHandover> Handovers { get; set; }
 
     public Car()
     {
-        CheckPoints = new HashSet<CheckPoint>();
+        Handovers = new HashSet<MechanicHandover>();
     }
 }

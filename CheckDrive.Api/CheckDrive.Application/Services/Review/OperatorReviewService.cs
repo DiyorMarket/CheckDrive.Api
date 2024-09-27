@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.OperatorReview;
-using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Entities.Identity;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
+using CheckDrive.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -64,17 +63,17 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         return checkPoint;
     }
 
-    private async Task<User> GetAndValidateOperatorAsync(Guid operatorId)
+    private async Task<Operator> GetAndValidateOperatorAsync(int operatorId)
     {
-        var operatorEntity = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == operatorId && x.Position == EmployeePosition.Operator);
+        var @operator = await _context.Operators
+            .FirstOrDefaultAsync(x => x.Id == operatorId);
 
-        if (operatorEntity is null)
+        if (@operator is null)
         {
             throw new EntityNotFoundException($"Operator with id: {operatorId} is not found.");
         }
 
-        return operatorEntity;
+        return @operator;
     }
 
     private async Task<OilMark> GetAndValidateOilMarkAsync(int oilMarkId)
@@ -120,13 +119,9 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     private static OperatorReview CreateReviewEntity(
         CheckPoint checkPoint,
         OilMark oilMark,
-        User @operator,
+        Operator @operator,
         CreateOperatorReviewDto review)
     {
-        if (@operator.Position != EmployeePosition.Operator)
-        {
-            throw new InvalidOperationException("Only employees having Operator position can perform Operator Review.");
-        }
 
         var entity = new OperatorReview()
         {

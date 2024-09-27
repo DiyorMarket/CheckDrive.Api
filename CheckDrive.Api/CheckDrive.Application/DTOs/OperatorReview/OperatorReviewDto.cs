@@ -5,9 +5,9 @@ namespace CheckDrive.Application.DTOs.OperatorReview;
 
 public sealed record OperatorReviewDto(
     int CheckPointId,
-    Guid ReviewerId,
+    int ReviewerId,
     string ReviewerName,
-    Guid DriverId,
+    int DriverId,
     string DriverName,
     int OilMarkId,
     string OilMarkName,

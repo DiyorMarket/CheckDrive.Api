@@ -41,7 +41,7 @@ public class EntityTests : ArchitectureTestBase
         result.Should().BeTrue("entities should reside in 'Entities' namespace");
     }
 
-    [Fact(Skip = "Identity types do not inherit EntityBase")]
+    [Fact]
     public void EntitiesNamespace_ShouldContain_OnlyEntities()
     {
         // Arrange
