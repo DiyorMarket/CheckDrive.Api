@@ -11,7 +11,7 @@ public class SmsService : ISmsService
     public SmsService()
     {
         _client = new HttpClient();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjY0OTkwMTksImlhdCI6MTcyMzkwNzAxOSwicm9sZSI6InRlc3QiLCJzaWduIjoiZmM4NTg4ZTdiZmFmMDIzYWFjMDAyYmUzMTViZWY1YmY2OWUyZThiMDdkYjQ4Nzk0ODUwY2EyZWMyN2IwN2NiNCIsInN1YiI6IjgwMjgifQ.E4SIqUEXPlbCfN39Q7UUI0P-9jzySg-0BaF9tkp9bvE");
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "There is should be token");
     }
 
     public async Task SendAsync(SmsMetadata metadata)

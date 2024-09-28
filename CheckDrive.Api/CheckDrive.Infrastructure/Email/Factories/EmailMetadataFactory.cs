@@ -9,8 +9,7 @@ public class EmailMetadataFactory : IEmailMetadataFactory
     private readonly Dictionary<EmailType, string> emailSubjects = new()
     {
         { EmailType.EmailConfirmation, "Email Confirmation" },
-        { EmailType.ForgotPassword, "Password Reset" },
-        { EmailType.DebtNotification, "Debt warning" }
+        { EmailType.ForgotPassword, "Password Reset" }
     };
 
     public EmailMetadata Create(

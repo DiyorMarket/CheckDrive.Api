@@ -9,7 +9,6 @@ namespace CheckDrive.Infrastructure.Models
     public enum EmailType
     {
         ForgotPassword,
-        EmailConfirmation,
-        DebtNotification
+        EmailConfirmation
     }
 }

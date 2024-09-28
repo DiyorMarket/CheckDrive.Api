@@ -7,8 +7,7 @@ public class EmailService : IEmailService
     private readonly Dictionary<EmailType, string> templateNames = new()
     {
        { EmailType.EmailConfirmation, "EmailConfirmationTemplate.cshtml" },
-       { EmailType.ForgotPassword, "ForgotPasswordTemplate.cshtml" },
-       { EmailType.DebtNotification, "DebtNotificationTemplate.cshtml" }
+       { EmailType.ForgotPassword, "ForgotPasswordTemplate.cshtml" }
     };
 
     private readonly IFluentEmail _fluentEmail;
