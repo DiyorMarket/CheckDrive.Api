@@ -2,9 +2,6 @@ using CheckDrive.Api.Extensions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
-var configuration = builder.Configuration;
-
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
     .Enrich.FromLogContext()
@@ -13,21 +10,17 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File(new CustomJsonFormatter(), "logs/error_.txt", Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+var builder = WebApplication.CreateBuilder(args);
+
 builder.Host.UseSerilog();
 
-builder.Services
-    .AddConfigurationOptions(configuration)
-    .ConfigureServices(configuration);
-
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBMAY9C3t2U1hhQlJBfVddX2RWfFN0QXNYfVRwcF9GaEwxOX1dQl9nSXlRfkRhWXtbdXFVRWk=");
+builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    builder.Services.SeedDatabase(services);
+    app.UseDatabaseSeeder();
 }
 
 app.UseErrorHandler();
@@ -47,8 +40,6 @@ app.UseCookiePolicy(new CookiePolicyOptions
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-//app.MapHub<ChatHub>("api/chat");
 
 app.MapControllers();
 

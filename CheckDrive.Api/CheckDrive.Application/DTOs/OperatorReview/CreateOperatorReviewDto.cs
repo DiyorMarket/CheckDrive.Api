@@ -2,14 +2,14 @@
 
 namespace CheckDrive.Application.DTOs.OperatorReview;
 
-public record CreateOperatorReviewDto(
-    Guid ReviewerId,
-    Guid DriverId,
+public sealed record CreateOperatorReviewDto(
+    int CheckPointId,
+    int ReviewerId,
     int OilMarkId,
     string? Notes,
-    double InitialOilAmount,
-    double OilRefillAmount,
-    bool IsApprovedByReviewer)
+    bool IsApprovedByReviewer,
+    decimal InitialOilAmount,
+    decimal OilRefillAmount)
     : CreateReviewDtoBase(
         ReviewerId: ReviewerId,
         Notes: Notes,
