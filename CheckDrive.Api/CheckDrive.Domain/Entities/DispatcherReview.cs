@@ -1,18 +1,15 @@
 using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities.Identity;
 
 namespace CheckDrive.Domain.Entities;
 
 public class DispatcherReview : ReviewBase
 {
-    public decimal FuelConsumption { get; set; }
     public decimal? FuelConsumptionAdjustment { get; set; }
-    public decimal DistanceTravelled { get; set; }
     public decimal? DistanceTravelledAdjustment { get; set; }
 
     public int CheckPointId { get; set; }
-    public required CheckPoint CheckPoint { get; set; }
+    public required virtual CheckPoint CheckPoint { get; set; }
 
     public int DispatcherId { get; set; }
-    public required User Dispatcher { get; set; }
+    public required virtual Dispatcher Dispatcher { get; set; }
 }

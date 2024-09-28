@@ -1,14 +1,13 @@
 ﻿using CheckDrive.Application.DTOs.Review;
-using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Application.DTOs.DoctorReview;
 
-public record CreateDoctorReviewDto(
-    Guid DriverId,
-    Guid ReviewerId,
-    string Notes,
-    ReviewStatus Status)
+public sealed record CreateDoctorReviewDto(
+    int DriverId,
+    int ReviewerId,
+    string? Notes,
+    bool IsApprovedByReviewer)
     : CreateReviewDtoBase(
-        ReviwerId: ReviewerId,
+        ReviewerId: ReviewerId,
         Notes: Notes,
-        Status: Status);
+        IsApprovedByReviewer: IsApprovedByReviewer);
