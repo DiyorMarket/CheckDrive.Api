@@ -24,8 +24,8 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     {
         ArgumentNullException.ThrowIfNull(review);
 
-        var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
+        var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
         var car = await GetAndValidateCarAsync(review.CarId);
 
         UpdateCheckPoint(checkPoint, review);
@@ -57,14 +57,16 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
-            .Where(x => x.Id == checkPointId)
-            .Where(x => x.Stage == CheckPointStage.DoctorReview)
-            .Where(x => x.Status == CheckPointStatus.InProgress)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint == null)
         {
             throw new InvalidOperationException($"Cannot start mechanic review without doctor's review present.");
+        }
+
+        if (checkPoint.Stage != CheckPointStage.DoctorReview)
+        {
+            throw new InvalidOperationException($"Cannot start car handover review when check point stage is not Doctor Review");
         }
 
         if (checkPoint.DoctorReview.Status != ReviewStatus.Approved)

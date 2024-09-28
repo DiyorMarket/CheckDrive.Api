@@ -1,9 +1,9 @@
-﻿using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Reflection;
 
 namespace CheckDrive.Infrastructure.Persistence;
@@ -15,7 +15,6 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public virtual DbSet<Mechanic> Mechanics { get; set; }
     public virtual DbSet<Operator> Operators { get; set; }
     public virtual DbSet<Dispatcher> Dispatchers { get; set; }
-    public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Car> Cars { get; set; }
     public virtual DbSet<CheckPoint> CheckPoints { get; set; }
     public virtual DbSet<DoctorReview> DoctorReviews { get; set; }
@@ -80,4 +79,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
 
         #endregion
     }
+
+    public IDbContextTransaction BeginTransaction()
+        => Database.BeginTransaction();
 }

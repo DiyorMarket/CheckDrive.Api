@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CheckDrive.Domain.Interfaces;
 
@@ -28,4 +29,5 @@ public interface ICheckDriveDbContext
 
     int SaveChanges();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    IDbContextTransaction BeginTransaction();
 }

@@ -27,17 +27,29 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
 
-        UpdateCheckPoint(checkPoint, review);
-        UpdateCar(checkPoint, review);
+        using var transaction = _context.BeginTransaction();
 
-        var reviewEntity = CreateReviewEntity(checkPoint, mechanic, review);
+        try
+        {
+            UpdateCheckPoint(checkPoint, review);
+            UpdateCar(checkPoint, review);
 
-        var createdReview = _context.MechanicAcceptances.Add(reviewEntity).Entity;
-        await _context.SaveChangesAsync();
+            var reviewEntity = CreateReviewEntity(checkPoint, mechanic, review);
 
-        var dto = _mapper.Map<MechanicAcceptanceReviewDto>(createdReview);
+            var createdReview = _context.MechanicAcceptances.Add(reviewEntity).Entity;
+            await _context.SaveChangesAsync();
 
-        return dto;
+            await transaction.CommitAsync();
+
+            var dto = _mapper.Map<MechanicAcceptanceReviewDto>(createdReview);
+
+            return dto;
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
@@ -59,17 +71,11 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
                 $"Check Point Stage should be in Operator Review to start Mechanic Acceptance Review. Check Point Stage: {checkPoint.Stage}.");
         }
 
-        if (checkPoint.OperatorReview is null)
-        {
-            throw new InvalidOperationException(
-                "Operator review should not be null in order to start Mechanic Acceptance Review.");
-        }
-
-        if (checkPoint.OperatorReview.Status != ReviewStatus.Approved)
+        if (checkPoint.Status != CheckPointStatus.InProgress)
         {
             throw new InvalidOperationException(
                 $"Operator Review should be approved before starting Mechanic Acceptance Review. " +
-                $"Current operator review status: {checkPoint.OperatorReview.Status}");
+                $"Current check point status: {checkPoint.Status}");
         }
 
         return checkPoint;
@@ -147,6 +153,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
                 $"Final mileage ({review.FinalMileage}) cannot be less than the current milea of a car ({car.Mileage}).");
         }
         car.Mileage = review.FinalMileage;
+        car.Status = CarStatus.Free;
     }
 
     private static decimal CalculateFuelConsumption(

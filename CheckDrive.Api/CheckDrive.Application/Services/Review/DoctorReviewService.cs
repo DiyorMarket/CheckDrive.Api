@@ -70,7 +70,6 @@ internal sealed class DoctorReviewService : IDoctorReviewService
 
         var checkPoint = new CheckPoint
         {
-            Notes = string.Empty,
             StartDate = DateTime.UtcNow,
             Stage = CheckPointStage.DoctorReview,
             Status = review.IsApprovedByReviewer ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection,

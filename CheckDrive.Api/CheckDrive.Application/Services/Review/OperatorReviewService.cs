@@ -44,18 +44,22 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
-            .Where(x => x.Id == checkPointId)
-            .Where(x => x.MechanicHandover != null)
+            .AsTracking()
             .Include(x => x.MechanicHandover)
             .ThenInclude(mh => mh!.Car)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)
         {
             throw new EntityNotFoundException($"Check point with id: {checkPointId} is not found.");
         }
 
-        if (checkPoint.MechanicHandover!.Status != ReviewStatus.Approved)
+        if (checkPoint.Stage != CheckPointStage.MechanicHandover)
+        {
+            throw new InvalidOperationException($"Cannot start car operator review when check point stage is not Mechanic Handover Review");
+        }
+
+        if (checkPoint.Status != CheckPointStatus.InProgress)
         {
             throw new InvalidOperationException($"Cannot start Operator Review while Mechanic Review is not completed.");
         }
@@ -93,6 +97,11 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     {
         ArgumentNullException.ThrowIfNull(car);
 
+        if (!review.IsApprovedByReviewer)
+        {
+            return;
+        }
+
         var total = review.InitialOilAmount + review.OilRefillAmount;
 
         if (car.FuelCapacity < total)
@@ -122,7 +131,6 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         Operator @operator,
         CreateOperatorReviewDto review)
     {
-
         var entity = new OperatorReview()
         {
             CheckPoint = checkPoint,
@@ -131,7 +139,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
             InitialOilAmount = review.InitialOilAmount,
             OilRefillAmount = review.OilRefillAmount,
             Notes = review.Notes,
-            Date = DateTime.Now,
+            Date = DateTime.UtcNow,
             Status = review.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer
         };
 

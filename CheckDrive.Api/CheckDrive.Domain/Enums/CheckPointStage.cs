@@ -7,5 +7,5 @@ public enum CheckPointStage
     OperatorReview = 2,
     MechanicAcceptance = 3,
     DispatcherReview = 4,
-    ManagerReview = 5
+    ManagerReview = 5,
 }

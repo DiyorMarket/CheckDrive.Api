@@ -27,13 +27,14 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var dispatcher = await GetAndValidateDispatcherAsync(review.ReviewerId);
 
-        var entity = CreateReviewEntity(checkPoint, dispatcher, review);
         UpdateCheckPoint(checkPoint, review);
 
-        var createdReview = _context.DispatcherReviews.Add(entity).Entity;
+        var reviewEntity = CreateReviewEntity(checkPoint, dispatcher, review);
+
+        _context.DispatcherReviews.Add(reviewEntity);
         await _context.SaveChangesAsync();
 
-        var dto = _mapper.Map<DispatcherReviewDto>(createdReview);
+        var dto = _mapper.Map<DispatcherReviewDto>(reviewEntity);
 
         return dto;
     }
@@ -57,12 +58,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
                 $"Check Point should be in Mechanic Acceptance stage in order to start Dispatcher Review.");
         }
 
-        if (checkPoint.MechanicAcceptance is null)
-        {
-            throw new InvalidOperationException($"Cannot start Dispatcher Review without Mechanic Acceptance.");
-        }
-
-        if (checkPoint.MechanicAcceptance.Status != ReviewStatus.Approved)
+        if (checkPoint.Status != CheckPointStatus.InProgress)
         {
             throw new InvalidReviewStatusException(
                 $"Mechanic Acceptance Review should be in 'Approved' status in order to start Dispatcher Review.");
@@ -114,7 +110,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
             return;
         }
 
-        if (review.IsApprovedByReviewer)
+        if (!review.IsApprovedByReviewer)
         {
             checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
             return;
