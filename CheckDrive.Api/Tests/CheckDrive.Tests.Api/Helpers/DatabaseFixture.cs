@@ -1,4 +1,5 @@
 ﻿using CheckDrive.Infrastructure.Persistence;
+using DotNet.Testcontainers.Builders;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
@@ -8,7 +9,9 @@ namespace CheckDrive.Tests.Api.Helpers;
 public class DatabaseFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _sqlServerContainer = new MsSqlBuilder()
+        .WithExposedPort(1433)
         .WithName("TestDb")
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
         .Build();
 
     private CheckDriveDbContext? _context;
@@ -61,6 +64,10 @@ public class DatabaseFixture : IAsyncLifetime
         catch (Exception ex)
         {
             Console.WriteLine("There was an error intializing test database, {0}", ex.Message);
+
+            var logs = await _sqlServerContainer.GetLogsAsync();
+            Console.WriteLine("Container Logs: " + logs);
+
             throw;
         }
     }
