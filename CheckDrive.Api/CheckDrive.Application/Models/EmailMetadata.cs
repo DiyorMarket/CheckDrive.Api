@@ -1,6 +1,7 @@
-﻿using FluentEmail.Core.Models;
+﻿using CheckDrive.Domain.Enums;
+using FluentEmail.Core.Models;
 
-namespace CheckDrive.Infrastructure.Models;
+namespace CheckDrive.Application.Models;
 
 public class EmailMetadata
 {

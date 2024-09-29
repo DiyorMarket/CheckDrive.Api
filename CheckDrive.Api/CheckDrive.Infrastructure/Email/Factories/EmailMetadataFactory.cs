@@ -1,10 +1,10 @@
-﻿using CheckDrive.Infrastructure.Models;
+﻿using CheckDrive.Application.Models;
+using CheckDrive.Domain.Enums;
 using FluentEmail.Core.Models;
-using System.Net;
 
 namespace CheckDrive.Infrastructure.Email.Factories;
 
-public class EmailMetadataFactory : IEmailMetadataFactory
+internal sealed class EmailMetadataFactory : IEmailMetadataFactory
 {
     private readonly Dictionary<EmailType, string> emailSubjects = new()
     {

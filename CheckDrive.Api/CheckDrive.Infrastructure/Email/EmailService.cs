@@ -1,8 +1,11 @@
-﻿using CheckDrive.Infrastructure.Models;
+﻿using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.Models;
+using CheckDrive.Domain.Enums;
 using FluentEmail.Core;
 
 namespace CheckDrive.Infrastructure.Email;
-public class EmailService : IEmailService
+
+internal sealed class EmailService : IEmailService
 {
     private readonly Dictionary<EmailType, string> templateNames = new()
     {
@@ -14,21 +17,18 @@ public class EmailService : IEmailService
 
     public EmailService(IFluentEmail fluentEmail)
     {
-        _fluentEmail = fluentEmail;
+        _fluentEmail = fluentEmail ?? throw new ArgumentNullException(nameof(fluentEmail));
     }
+
     public async Task SendAsync(EmailMetadata metadata)
     {
         var template = GetTemplate(metadata.EmailType);
+
         await _fluentEmail
             .To(metadata.To)
             .Subject(metadata.Subject)
             .UsingTemplateFromFile(template, metadata)
             .SendAsync();
-    }
-
-    public Task SendEmailAsync(EmailMetadata metadata)
-    {
-        throw new NotImplementedException();
     }
 
     private string GetTemplate(EmailType emailType)

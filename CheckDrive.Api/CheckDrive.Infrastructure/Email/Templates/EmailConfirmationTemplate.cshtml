@@ -1,4 +1,4 @@
-﻿@using CheckDrive.Infrastructure.Models
+﻿@using CheckDrive.Application.Models
 @model EmailMetadata
 
 <!DOCTYPE html>
@@ -11,502 +11,508 @@
     <meta name="supported-color-schemes" content="light dark" />
     <title>Elektron pochtangizni tasdiqlang.</title>
     <style type="text/css" rel="stylesheet" media="all">
-    /* Base ------------------------------ */
+        /* Base ------------------------------ */
 
-    @@import url("https://fonts.googleapis.com/css?family=Nunito+Sans:400,700&display=swap");
-    body {
-      width: 100% !important;
-      height: 100%;
-      margin: 0;
-      -webkit-text-size-adjust: none;
-    }
+        @@import url("https://fonts.googleapis.com/css?family=Nunito+Sans:400,700&display=swap");
 
-    a {
-      color: #3869D4;
-    }
+        body {
+            width: 100% !important;
+            height: 100%;
+            margin: 0;
+            -webkit-text-size-adjust: none;
+        }
 
-    a img {
-      border: none;
-    }
+        a {
+            color: #3869D4;
+        }
 
-    td {
-      word-break: break-word;
-    }
+            a img {
+                border: none;
+            }
 
-    .preheader {
-      display: none !important;
-      visibility: hidden;
-      mso-hide: all;
-      font-size: 1px;
-      line-height: 1px;
-      max-height: 0;
-      max-width: 0;
-      opacity: 0;
-      overflow: hidden;
-    }
-    /* Type ------------------------------ */
+        td {
+            word-break: break-word;
+        }
 
-    body,
-    td,
-    th {
-      font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
-    }
+        .preheader {
+            display: none !important;
+            visibility: hidden;
+            mso-hide: all;
+            font-size: 1px;
+            line-height: 1px;
+            max-height: 0;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        /* Type ------------------------------ */
 
-    h1 {
-      margin-top: 0;
-      color: #333333;
-      font-size: 22px;
-      font-weight: bold;
-      text-align: left;
-    }
+        body,
+        td,
+        th {
+            font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
+        }
 
-    h2 {
-      margin-top: 0;
-      color: #333333;
-      font-size: 16px;
-      font-weight: bold;
-      text-align: left;
-    }
+        h1 {
+            margin-top: 0;
+            color: #333333;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: left;
+        }
 
-    h3 {
-      margin-top: 0;
-      color: #333333;
-      font-size: 14px;
-      font-weight: bold;
-      text-align: left;
-    }
+        h2 {
+            margin-top: 0;
+            color: #333333;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: left;
+        }
 
-    td,
-    th {
-      font-size: 16px;
-    }
+        h3 {
+            margin-top: 0;
+            color: #333333;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: left;
+        }
 
-    p,
-    ul,
-    ol,
-    blockquote {
-      margin: .4em 0 1.1875em;
-      font-size: 16px;
-      line-height: 1.625;
-    }
+        td,
+        th {
+            font-size: 16px;
+        }
 
-    p.sub {
-      font-size: 13px;
-    }
-    /* Utilities ------------------------------ */
+        p,
+        ul,
+        ol,
+        blockquote {
+            margin: .4em 0 1.1875em;
+            font-size: 16px;
+            line-height: 1.625;
+        }
 
-    .align-right {
-      text-align: right;
-    }
+            p.sub {
+                font-size: 13px;
+            }
+        /* Utilities ------------------------------ */
 
-    .align-left {
-      text-align: left;
-    }
+        .align-right {
+            text-align: right;
+        }
 
-    .align-center {
-      text-align: center;
-    }
+        .align-left {
+            text-align: left;
+        }
 
-    .u-margin-bottom-none {
-      margin-bottom: 0;
-    }
-    /* Buttons ------------------------------ */
+        .align-center {
+            text-align: center;
+        }
 
-    .button {
-      background-color: #3869D4;
-      border-top: 10px solid #3869D4;
-      border-right: 18px solid #3869D4;
-      border-bottom: 10px solid #3869D4;
-      border-left: 18px solid #3869D4;
-      display: inline-block;
-      color: #FFF;
-      text-decoration: none;
-      border-radius: 3px;
-      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
-      -webkit-text-size-adjust: none;
-      box-sizing: border-box;
-    }
+        .u-margin-bottom-none {
+            margin-bottom: 0;
+        }
+        /* Buttons ------------------------------ */
 
-    .button--green {
-      background-color: #22BC66;
-      border-top: 10px solid #22BC66;
-      border-right: 18px solid #22BC66;
-      border-bottom: 10px solid #22BC66;
-      border-left: 18px solid #22BC66;
-      color: #fafafa;
-    }
+        .button {
+            background-color: #3869D4;
+            border-top: 10px solid #3869D4;
+            border-right: 18px solid #3869D4;
+            border-bottom: 10px solid #3869D4;
+            border-left: 18px solid #3869D4;
+            display: inline-block;
+            color: #FFF;
+            text-decoration: none;
+            border-radius: 3px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
+            -webkit-text-size-adjust: none;
+            box-sizing: border-box;
+        }
 
-    .button--red {
-      background-color: #FF6136;
-      border-top: 10px solid #FF6136;
-      border-right: 18px solid #FF6136;
-      border-bottom: 10px solid #FF6136;
-      border-left: 18px solid #FF6136;
-    }
+        .button--green {
+            background-color: #22BC66;
+            border-top: 10px solid #22BC66;
+            border-right: 18px solid #22BC66;
+            border-bottom: 10px solid #22BC66;
+            border-left: 18px solid #22BC66;
+            color: #fafafa;
+        }
 
-    @@media only screen and (max-width: 500px) {
-      .button {
-        width: 100% !important;
-        text-align: center !important;
-      }
-    }
-    /* Attribute list ------------------------------ */
+        .button--red {
+            background-color: #FF6136;
+            border-top: 10px solid #FF6136;
+            border-right: 18px solid #FF6136;
+            border-bottom: 10px solid #FF6136;
+            border-left: 18px solid #FF6136;
+        }
 
-    .attributes {
-      margin: 0 0 21px;
-    }
+        @@media only screen and (max-width: 500px) {
+            .button {
+                width: 100% !important;
+                text-align: center !important;
+            }
+        }
+        /* Attribute list ------------------------------ */
 
-    .attributes_content {
-      background-color: #F4F4F7;
-      padding: 16px;
-    }
+        .attributes {
+            margin: 0 0 21px;
+        }
 
-    .attributes_item {
-      padding: 0;
-    }
-    /* Related Items ------------------------------ */
+        .attributes_content {
+            background-color: #F4F4F7;
+            padding: 16px;
+        }
 
-    .related {
-      width: 100%;
-      margin: 0;
-      padding: 25px 0 0 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-    }
+        .attributes_item {
+            padding: 0;
+        }
+        /* Related Items ------------------------------ */
 
-    .related_item {
-      padding: 10px 0;
-      color: #CBCCCF;
-      font-size: 15px;
-      line-height: 18px;
-    }
+        .related {
+            width: 100%;
+            margin: 0;
+            padding: 25px 0 0 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+        }
 
-    .related_item-title {
-      display: block;
-      margin: .5em 0 0;
-    }
+        .related_item {
+            padding: 10px 0;
+            color: #CBCCCF;
+            font-size: 15px;
+            line-height: 18px;
+        }
 
-    .related_item-thumb {
-      display: block;
-      padding-bottom: 10px;
-    }
+        .related_item-title {
+            display: block;
+            margin: .5em 0 0;
+        }
 
-    .related_heading {
-      border-top: 1px solid #CBCCCF;
-      text-align: center;
-      padding: 25px 0 10px;
-    }
-    /* Discount Code ------------------------------ */
+        .related_item-thumb {
+            display: block;
+            padding-bottom: 10px;
+        }
 
-    .discount {
-      width: 100%;
-      margin: 0;
-      padding: 24px;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-      background-color: #F4F4F7;
-      border: 2px dashed #CBCCCF;
-    }
+        .related_heading {
+            border-top: 1px solid #CBCCCF;
+            text-align: center;
+            padding: 25px 0 10px;
+        }
+        /* Discount Code ------------------------------ */
 
-    .discount_heading {
-      text-align: center;
-    }
+        .discount {
+            width: 100%;
+            margin: 0;
+            padding: 24px;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+            background-color: #F4F4F7;
+            border: 2px dashed #CBCCCF;
+        }
 
-    .discount_body {
-      text-align: center;
-      font-size: 15px;
-    }
-    /* Social Icons ------------------------------ */
+        .discount_heading {
+            text-align: center;
+        }
 
-    .social {
-      width: auto;
-    }
+        .discount_body {
+            text-align: center;
+            font-size: 15px;
+        }
+        /* Social Icons ------------------------------ */
 
-    .social td {
-      padding: 0;
-      width: auto;
-    }
+        .social {
+            width: auto;
+        }
 
-    .social_icon {
-      height: 20px;
-      margin: 0 8px 10px 8px;
-      padding: 0;
-    }
-    /* Data table ------------------------------ */
+            .social td {
+                padding: 0;
+                width: auto;
+            }
 
-    .purchase {
-      width: 100%;
-      margin: 0;
-      padding: 35px 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-    }
+        .social_icon {
+            height: 20px;
+            margin: 0 8px 10px 8px;
+            padding: 0;
+        }
+        /* Data table ------------------------------ */
 
-    .purchase_content {
-      width: 100%;
-      margin: 0;
-      padding: 25px 0 0 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-    }
+        .purchase {
+            width: 100%;
+            margin: 0;
+            padding: 35px 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+        }
 
-    .purchase_item {
-      padding: 10px 0;
-      color: #51545E;
-      font-size: 15px;
-      line-height: 18px;
-    }
+        .purchase_content {
+            width: 100%;
+            margin: 0;
+            padding: 25px 0 0 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+        }
 
-    .purchase_heading {
-      padding-bottom: 8px;
-      border-bottom: 1px solid #EAEAEC;
-    }
+        .purchase_item {
+            padding: 10px 0;
+            color: #51545E;
+            font-size: 15px;
+            line-height: 18px;
+        }
 
-    .purchase_heading p {
-      margin: 0;
-      color: #85878E;
-      font-size: 12px;
-    }
+        .purchase_heading {
+            padding-bottom: 8px;
+            border-bottom: 1px solid #EAEAEC;
+        }
 
-    .purchase_footer {
-      padding-top: 15px;
-      border-top: 1px solid #EAEAEC;
-    }
+            .purchase_heading p {
+                margin: 0;
+                color: #85878E;
+                font-size: 12px;
+            }
 
-    .purchase_total {
-      margin: 0;
-      text-align: right;
-      font-weight: bold;
-      color: #333333;
-    }
+        .purchase_footer {
+            padding-top: 15px;
+            border-top: 1px solid #EAEAEC;
+        }
 
-    .purchase_total--label {
-      padding: 0 15px 0 0;
-    }
+        .purchase_total {
+            margin: 0;
+            text-align: right;
+            font-weight: bold;
+            color: #333333;
+        }
 
-    body {
-      background-color: #F2F4F6;
-      color: #51545E;
-    }
+        .purchase_total--label {
+            padding: 0 15px 0 0;
+        }
 
-    p {
-      color: #51545E;
-    }
+        body {
+            background-color: #F2F4F6;
+            color: #51545E;
+        }
 
-    .email-wrapper {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-      background-color: #F2F4F6;
-    }
+        p {
+            color: #51545E;
+        }
 
-    .email-content {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-    }
-    /* Masthead ----------------------- */
+        .email-wrapper {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+            background-color: #F2F4F6;
+        }
 
-    .email-masthead {
-      padding: 25px 0;
-      text-align: center;
-    }
+        .email-content {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+        }
+        /* Masthead ----------------------- */
 
-    .email-masthead_logo {
-      width: 94px;
-    }
+        .email-masthead {
+            padding: 25px 0;
+            text-align: center;
+        }
 
-    .email-masthead_name {
-      font-size: 16px;
-      font-weight: bold;
-      color: #A8AAAF;
-      text-decoration: none;
-      text-shadow: 0 1px 0 white;
-    }
-    /* Body ------------------------------ */
+        .email-masthead_logo {
+            width: 94px;
+        }
 
-    .email-body {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-    }
+        .email-masthead_name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #A8AAAF;
+            text-decoration: none;
+            text-shadow: 0 1px 0 white;
+        }
+        /* Body ------------------------------ */
 
-    .email-body_inner {
-      width: 570px;
-      margin: 0 auto;
-      padding: 0;
-      -premailer-width: 570px;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-      background-color: #FFFFFF;
-    }
+        .email-body {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+        }
 
-    .email-footer {
-      width: 570px;
-      margin: 0 auto;
-      padding: 0;
-      -premailer-width: 570px;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-      text-align: center;
-    }
+        .email-body_inner {
+            width: 570px;
+            margin: 0 auto;
+            padding: 0;
+            -premailer-width: 570px;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+            background-color: #FFFFFF;
+        }
 
-    .email-footer p {
-      color: #A8AAAF;
-    }
+        .email-footer {
+            width: 570px;
+            margin: 0 auto;
+            padding: 0;
+            -premailer-width: 570px;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+            text-align: center;
+        }
 
-    .body-action {
-      width: 100%;
-      margin: 30px auto;
-      padding: 0;
-      -premailer-width: 100%;
-      -premailer-cellpadding: 0;
-      -premailer-cellspacing: 0;
-      text-align: center;
-    }
+            .email-footer p {
+                color: #A8AAAF;
+            }
 
-    .body-sub {
-      margin-top: 25px;
-      padding-top: 25px;
-      border-top: 1px solid #EAEAEC;
-    }
+        .body-action {
+            width: 100%;
+            margin: 30px auto;
+            padding: 0;
+            -premailer-width: 100%;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+            text-align: center;
+        }
 
-    .content-cell {
-      padding: 45px;
-    }
-    /*Media Queries ------------------------------ */
+        .body-sub {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #EAEAEC;
+        }
 
-    @@media only screen and (max-width: 600px) {
+        .content-cell {
+            padding: 45px;
+        }
+        /*Media Queries ------------------------------ */
 
-      .email-body_inner,
-      .email-footer {
-        width: 100% !important;
-      }
-    }
+        @@media only screen and (max-width: 600px) {
 
-    @@media (prefers-color-scheme: dark) {
-      body,
-      .email-body,
-      .email-body_inner,
-      .email-content,
-      .email-wrapper,
-      .email-masthead,
-      .email-footer {
-        background-color: #333333 !important;
-        color: #FFF !important;
-      }
-      p,
-      ul,
-      ol,
-      blockquote,
-      h1,
-      h2,
-      h3 {
-        color: #FFF !important;
-      }
-      .attributes_content,
-      .discount {
-        background-color: #222 !important;
-      }
-      .email-masthead_name {
-        text-shadow: none !important;
-      }
-    }
+            .email-body_inner,
+            .email-footer {
+                width: 100% !important;
+            }
+        }
+
+        @@media (prefers-color-scheme: dark) {
+            body,
+            .email-body,
+            .email-body_inner,
+            .email-content,
+            .email-wrapper,
+            .email-masthead,
+            .email-footer {
+                background-color: #333333 !important;
+                color: #FFF !important;
+            }
+
+            p,
+            ul,
+            ol,
+            blockquote,
+            h1,
+            h2,
+            h3 {
+                color: #FFF !important;
+            }
+
+            .attributes_content,
+            .discount {
+                background-color: #222 !important;
+            }
+
+            .email-masthead_name {
+                text-shadow: none !important;
+            }
+        }
     </style>
     <!--[if mso]>
-    <style type="text/css">
-      .f-fallback  {
-        font-family: Arial, sans-serif;
-      }
-    </style>
-  <![endif]-->
+      <style type="text/css">
+        .f-fallback  {
+          font-family: Arial, sans-serif;
+        }
+      </style>
+    <![endif]-->
 </head>
 <body>
-  <span class="preheader">Hisobingizga kirish uchun elektron pochta manzilingizni tasdiqlang.</span>
-  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-    <tr>
-      <td align="center">
-        <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-          <tr>
-            <td class="email-masthead">
-              <a href="https://example.com" class="f-fallback email-masthead_name">
-              ATP Garage
-            </a>
-            </td>
-          </tr>
-          <!-- Email Body -->
-          <tr>
-            <td class="email-body" width="100%" cellpadding="0" cellspacing="0">
-              <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-                <!-- Body content -->
-                <tr>
-                  <td class="content-cell">
-                    <div class="f-fallback">
-                      <h1>Hi @Model.UserInfo?.Name,</h1>
-                      <p>ATP garaj boshqarish tizimiga ro'yxatdan o'tganingiz uchun tashakkur! Sizni yangi foydalanuvchi sifatida qabul qilganimizdan xursandmiz. Quyidagi tugmani bosish orqali elektron pochta manzilingizni tasdiqlang:</p>
-                      <!-- Action -->
-                      <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-                        <tr>
-                          <td align="center">
-                            <!-- Border based button -->
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
-                              <tr>
-                                <td align="center">
-                                  <a href="@Model.ClientUri" class="f-fallback button button--green" target="_blank">Confirm Email</a>
-                                </td>
-                              </tr>
+    <span class="preheader">Hisobingizga kirish uchun elektron pochta manzilingizni tasdiqlang.</span>
+    <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+            <td align="center">
+                <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                    <tr>
+                        <td class="email-masthead">
+                            <a href="https://example.com" class="f-fallback email-masthead_name">
+                                ATP Garage
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Email Body -->
+                    <tr>
+                        <td class="email-body" width="100%" cellpadding="0" cellspacing="0">
+                            <table class="email-body_inner" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+                                <!-- Body content -->
+                                <tr>
+                                    <td class="content-cell">
+                                        <div class="f-fallback">
+                                            <h1>Hi @Model.UserInfo?.Name,</h1>
+                                            <p>ATP garaj boshqarish tizimiga ro'yxatdan o'tganingiz uchun tashakkur! Sizni yangi foydalanuvchi sifatida qabul qilganimizdan xursandmiz. Quyidagi tugmani bosish orqali elektron pochta manzilingizni tasdiqlang:</p>
+                                            <!-- Action -->
+                                            <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                                                <tr>
+                                                    <td align="center">
+                                                        <!-- Border based button -->
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                                                            <tr>
+                                                                <td align="center">
+                                                                    <a href="@Model.ClientUri" class="f-fallback button button--green" target="_blank">Confirm Email</a>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <p>Agar siz ushbu hisob qaydnomasida ro'yxatdan o'tmagan bo'lsangiz, iltimos, ushbu xatga e'tibor bermang.</p>
+                                            <p>Rahmat, <br>ATP garaj jamoasi.</p>
+                                            <!-- Sub copy -->
+                                            <table class="body-sub" role="presentation">
+                                                <tr>
+                                                    <td>
+                                                        <p class="f-fallback sub">
+                                                            Agarda sizda yuqoridagi tugma bilan muammo yuzaga kelgan bo'lsa, ushbu URLdan nusxa oling va veb-brauzeringizga joylashtiring.
+                                                        </p>
+                                                        <p class="f-fallback sub">@Model.ClientUri</p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
                             </table>
-                          </td>
-                        </tr>
-                      </table>
-                      <p>Agar siz ushbu hisob qaydnomasida ro'yxatdan o'tmagan bo'lsangiz, iltimos, ushbu xatga e'tibor bermang.</p>
-                      <p>Rahmat, <br>ATP garaj jamoasi.</p>
-                      <!-- Sub copy -->
-                      <table class="body-sub" role="presentation">
-                        <tr>
-                          <td>
-                            <p class="f-fallback sub">Agarda sizda yuqoridagi tugma bilan muammo yuzaga kelgan bo'lsa, ushbu URLdan nusxa oling va veb-brauzeringizga joylashtiring.
-                            </p>
-                            <p class="f-fallback sub">@Model.ClientUri</p>
-                          </td>
-                        </tr>
-                      </table>
-                    </div>
-                  </td>
-                </tr>
-              </table>
+                        </td>
+                    </tr>
+                    <!-- Email Footer -->
+                    <tr>
+                        <td>
+                            <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
+                                <tr>
+                                    <td class="content-cell" align="center">
+                                        <p class="f-fallback sub align-center">&copy; 2024 ATP Garaj tizimi. Barcha huquqlar ximoyalangan.</p>
+                                        <p class="f-fallback sub align-center">
+                                            ATP Garaj tizimi <br>Sergeli .<br>Sergeli
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </td>
-          </tr>
-          <!-- Email Footer -->
-          <tr>
-            <td>
-              <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-                <tr>
-                  <td class="content-cell" align="center">
-                    <p class="f-fallback sub align-center">&copy; 2024 ATP Garaj tizimi. Barcha huquqlar ximoyalangan.</p>
-                    <p class="f-fallback sub align-center">ATP Garaj tizimi <br>Sergeli .<br>Sergeli
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+        </tr>
+    </table>
 </body>
 </html>

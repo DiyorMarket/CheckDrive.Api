@@ -27,8 +27,8 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder
             .HasDiscriminator(x => x.Position)
-            .HasValue<Doctor>(EmployeePosition.Doctor)
             .HasValue<Driver>(EmployeePosition.Driver)
+            .HasValue<Doctor>(EmployeePosition.Doctor)
             .HasValue<Mechanic>(EmployeePosition.Mechanic)
             .HasValue<Operator>(EmployeePosition.Operator)
             .HasValue<Dispatcher>(EmployeePosition.Dispatcher);
