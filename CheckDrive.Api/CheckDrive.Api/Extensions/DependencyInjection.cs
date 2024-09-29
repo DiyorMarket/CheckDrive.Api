@@ -1,10 +1,13 @@
-﻿using CheckDrive.Application.Extensions;
+﻿using CheckDrive.Api.Filters;
+using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 
@@ -40,6 +43,7 @@ public static class DependencyInjection
             {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
             })
             .AddXmlSerializerFormatters();
     }
@@ -48,7 +52,12 @@ public static class DependencyInjection
     {
         services
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen();
+            .AddSwaggerGen(setup =>
+            {
+                setup.SwaggerDoc("v1", new OpenApiInfo { Title = "Check-Drive API", Version = "v1" });
+
+                setup.SchemaFilter<EnumSchemaFilter>();
+            });
     }
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
