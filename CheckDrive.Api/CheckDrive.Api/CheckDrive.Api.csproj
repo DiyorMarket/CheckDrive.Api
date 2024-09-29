@@ -31,6 +31,7 @@
     <ProjectReference Include="..\CheckDrive.Application\CheckDrive.Application.csproj" />
     <ProjectReference Include="..\CheckDrive.Infrastructure\CheckDrive.Infrastructure.csproj" />
     <ProjectReference Include="..\CheckDrive.TestDataCreator\CheckDrive.TestDataCreator.csproj" />
+    <InternalsVisibleTo Include="CheckDrive.Tests.Api"/>
   </ItemGroup>
 
 </Project>
