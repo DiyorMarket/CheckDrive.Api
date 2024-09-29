@@ -5,26 +5,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CheckDrive.Infrastructure.Configurations
+namespace CheckDrive.Infrastructure.Configurations;
+
+public class EmailConfigurations
 {
-    public class EmailConfigurations
-    {
-        public const string SectionName = "EmailConfiguration";
+    public const string SectionName = "EmailConfiguration";
 
-        [Required]
-        [EmailAddress]
-        public required string From { get; set; }
+    [Required]
+    [EmailAddress]
+    public required string From { get; set; }
 
-        [Required]
-        public required string Server { get; set; }
+    [Required]
+    public required string Server { get; set; }
 
-        [Required]
-        public required int Port { get; set; }
+    [Required]
+    public required int Port { get; set; }
 
-        [Required]
-        public required string UserName { get; set; }
+    [Required]
+    public required string UserName { get; set; }
 
-        [Required]
-        public required string Password { get; set; }
-    }
+    [Required]
+    public required string Password { get; set; }
 }

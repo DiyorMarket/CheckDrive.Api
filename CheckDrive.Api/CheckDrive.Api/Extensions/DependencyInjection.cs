@@ -1,7 +1,5 @@
-﻿using CheckDrive.Infrastructure.JwtToken;
-using CheckDrive.Infrastructure.Persistence;
-using FluentEmail.MailKitSmtp;
-﻿using CheckDrive.Application.Extensions;
+﻿using FluentEmail.MailKitSmtp;
+using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
@@ -142,32 +140,31 @@ public static class DependencyInjection
         {
             throw new InvalidOperationException("Syncfusion key is not found in configurations.");
         }
-      
+
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
     }
 
     private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
     {
-          var emailSettings = configuration.GetSection(EmailConfiguration.SectionName).Get<EmailConfiguration>();
+        var emailSettings = configuration.GetSection(EmailConfigurations.SectionName).Get<EmailConfigurations>();
 
-          if (emailSettings is null)
-          {
-              throw new InvalidOperationException("Configuration values for email did not load correctly.");
-          }
-
-          var smptOptions = new SmtpClientOptions
-          {
-              Server = emailSettings.Server,
-              Port = emailSettings.Port,
-              User = emailSettings.From,
-              Password = emailSettings.Password,
-              UseSsl = true,
-              RequiresAuthentication = true
-          };
-
-          services.AddFluentEmail(emailSettings.From, emailSettings.UserName)
-                .AddMailKitSender(smptOptions)
-                .AddRazorRenderer();
+        if (emailSettings is null)
+        {
+            throw new InvalidOperationException("Configuration values for email did not load correctly.");
         }
+
+        var smptOptions = new SmtpClientOptions
+        {
+            Server = emailSettings.Server,
+            Port = emailSettings.Port,
+            User = emailSettings.From,
+            Password = emailSettings.Password,
+            UseSsl = true,
+            RequiresAuthentication = true
+        };
+
+        services.AddFluentEmail(emailSettings.From, emailSettings.UserName)
+              .AddMailKitSender(smptOptions)
+              .AddRazorRenderer();
     }
 }

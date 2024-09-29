@@ -13,7 +13,7 @@ public static class DependencyInjection
     public static IServiceCollection RegisterInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ICheckDriveDbContext, CheckDriveDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("CheckDriveConnection")));
 
         services.AddIdentity<IdentityUser, IdentityRole>()
             .AddEntityFrameworkStores<CheckDriveDbContext>()
