@@ -1,4 +1,6 @@
-﻿using CheckDrive.Application.Interfaces.Review;
+﻿using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.Interfaces.Review;
+using CheckDrive.Application.Services;
 using CheckDrive.Application.Services.Review;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,5 +24,6 @@ public static class DependencyInjection
         services.AddScoped<IOperatorReviewService, OperatorReviewService>();
         services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
         services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
+        services.AddScoped<ICheckPointService, CheckPointService>();
     }
 }
