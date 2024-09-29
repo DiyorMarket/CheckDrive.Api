@@ -57,6 +57,7 @@ public class DatabaseFixture : IAsyncLifetime
         catch (Exception ex)
         {
             Console.WriteLine("There was an error intializing test database, {0}", ex.Message);
+            throw;
         }
     }
 
