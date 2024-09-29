@@ -47,7 +47,11 @@ public class DatabaseFixture : IAsyncLifetime
     {
         try
         {
-            _context = await GetSqlServerAsync();
+            await _sqlServerContainer.StartAsync();
+
+            Console.WriteLine("Docker container started: " + _sqlServerContainer.Id);
+
+            _context = GetSqlServer();
 
             await _context.Database.EnsureDeletedAsync();
             await _context.Database.EnsureCreatedAsync();
@@ -74,10 +78,8 @@ public class DatabaseFixture : IAsyncLifetime
         }
     }
 
-    private async Task<CheckDriveDbContext> GetSqlServerAsync()
+    private CheckDriveDbContext GetSqlServer()
     {
-        await _sqlServerContainer.StartAsync();
-
         var options = new DbContextOptionsBuilder<CheckDriveDbContext>()
             .UseSqlServer(SqlServerConnectionString)
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
