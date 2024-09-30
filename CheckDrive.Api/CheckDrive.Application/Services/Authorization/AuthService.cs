@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.Identity;
 using CheckDrive.Application.Interfaces.Authorization;
-using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities;
-using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
-using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CheckDrive.Application.Services.Authorization;
 

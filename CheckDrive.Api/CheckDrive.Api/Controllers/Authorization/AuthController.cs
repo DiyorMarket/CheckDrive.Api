@@ -26,7 +26,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register/admin")]
-   // [Authorize(Roles = $"{Roles.Administrator}")]
+    [Authorize(Roles = $"{Roles.Administrator}")]
     public async Task<IActionResult> RegisterAdmin(RegisterDto registerUser)
     {
         // Register the new user with a position (role)
