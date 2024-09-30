@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using CheckDrive.Domain.Common;
 using CheckDrive.Infrastructure.Persistence;
+using CheckDrive.Domain.Authorization;
 
 namespace CheckDrive.Api.Extensions;
 
