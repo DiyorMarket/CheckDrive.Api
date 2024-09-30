@@ -1,6 +1,4 @@
-﻿using CheckDrive.Application.DTOs.Identity;
-using CheckDrive.Domain.Authorization;
-using CheckDrive.Domain.Common;
+﻿using CheckDrive.Domain.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
