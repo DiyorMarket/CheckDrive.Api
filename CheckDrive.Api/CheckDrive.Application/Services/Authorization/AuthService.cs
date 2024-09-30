@@ -12,7 +12,7 @@ public class AuthService(
     JwtHandler jwtHandler,
     UserManager<IdentityUser> userManager,
     RoleManager<IdentityRole> roleManager,
-    IEmployeeFactory employeeFactory
+    IEmployeeRegistrationFactory employeeFactory
     ) : IAuthService
 {
     private readonly JwtHandler _jwtHandler = jwtHandler 
@@ -27,7 +27,7 @@ public class AuthService(
     private readonly IMapper _mapper = mapper 
         ?? throw new ArgumentNullException(nameof(mapper));
 
-    private readonly IEmployeeFactory _employeeFactory = employeeFactory 
+    private readonly IEmployeeRegistrationFactory _employeeFactory = employeeFactory 
         ?? throw new ArgumentNullException(nameof(employeeFactory));
 
     public async Task<string> LoginAsync(LoginDto loginDto)

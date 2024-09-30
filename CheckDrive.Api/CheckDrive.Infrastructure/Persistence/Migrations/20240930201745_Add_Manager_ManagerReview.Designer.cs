@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20240930190229_Add_Manager_ManagerReview_DefaultAdmins")]
-    partial class Add_Manager_ManagerReview_DefaultAdmins
+    [Migration("20240930201745_Add_Manager_ManagerReview")]
+    partial class Add_Manager_ManagerReview
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

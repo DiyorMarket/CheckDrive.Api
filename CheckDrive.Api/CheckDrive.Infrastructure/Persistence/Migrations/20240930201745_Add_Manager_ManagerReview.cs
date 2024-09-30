@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CheckDrive.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
-public partial class Add_Manager_ManagerReview_DefaultAdmins : Migration
+public partial class Add_Manager_ManagerReview : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)

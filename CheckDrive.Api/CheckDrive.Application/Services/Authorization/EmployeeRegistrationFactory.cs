@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Application.Services.Authorization;
 
-internal sealed class EmployeeFactory : IEmployeeFactory
+internal sealed class EmployeeRegistrationFactory : IEmployeeRegistrationFactory
 {
     private readonly ICheckDriveDbContext _dbContext;
 
-    public EmployeeFactory(ICheckDriveDbContext dbContext)
+    public EmployeeRegistrationFactory(ICheckDriveDbContext dbContext)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
@@ -126,7 +126,7 @@ internal sealed class EmployeeFactory : IEmployeeFactory
             AccountId = user.Id,
             Account = user
         };
-        //  await _dbContext.Managers.AddAsync(manager);
+        await _dbContext.Managers.AddAsync(manager);
     }
 
     private async Task CreateOperatorAsync(RegisterDto registerDto, IdentityUser user)
