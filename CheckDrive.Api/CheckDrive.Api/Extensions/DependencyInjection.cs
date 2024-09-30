@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using CheckDrive.Domain.Common;
+using CheckDrive.Infrastructure.Persistence;
 
 namespace CheckDrive.Api.Extensions;
 
@@ -15,7 +18,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterApplication();
+        services.RegisterApplication(configuration);
         services.RegisterInfrastructure(configuration);
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
@@ -35,7 +38,7 @@ public static class DependencyInjection
         AddAuthentication(services, configuration);
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
-        AddSyncfusion(configuration);
+        //AddSyncfusion(configuration);
 
         return services;
     }
@@ -83,6 +86,24 @@ public static class DependencyInjection
                     }
                 };
             });
+    }
+    private static void AddIdentity(IServiceCollection services)
+    {
+        services.AddIdentity<Employee, IdentityRole>(options =>
+        {
+            options.Password.RequiredLength = 7;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireDigit = false;
+        })
+            .AddEntityFrameworkStores<CheckDriveDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(12);
+        });
     }
 
     private static void AddAuthorization(IServiceCollection services)
@@ -132,17 +153,17 @@ public static class DependencyInjection
             .ValidateOnStart();
     }
 
-    private static void AddSyncfusion(IConfiguration configuration)
-    {
-        var key = configuration.GetValue<string>("SyncfusionKey");
+    //private static void AddSyncfusion(IConfiguration configuration)
+    //{
+    //    var key = configuration.GetValue<string>("SyncfusionKey");
 
-        if (string.IsNullOrEmpty(key))
-        {
-            throw new InvalidOperationException("Syncfusion key is not found in configurations.");
-        }
+    //    if (string.IsNullOrEmpty(key))
+    //    {
+    //        throw new InvalidOperationException("Syncfusion key is not found in configurations.");
+    //    }
 
-        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
-    }
+    //    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
+    //}
 
     private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
     {
