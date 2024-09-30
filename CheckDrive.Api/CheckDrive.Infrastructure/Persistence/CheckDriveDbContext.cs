@@ -31,7 +31,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
         : base(options)
     {
         Database.EnsureCreated();
-        Database.Migrate();
+        //Database.Migrate();
 
         SaveChangesAsync();
     }
