@@ -9,7 +9,7 @@ namespace CheckDrive.Infrastructure.Configurations;
 
 public class EmailConfigurations
 {
-    public const string SectionName = "EmailConfiguration";
+    public const string SectionName = nameof(EmailConfigurations);
 
     [Required]
     [EmailAddress]

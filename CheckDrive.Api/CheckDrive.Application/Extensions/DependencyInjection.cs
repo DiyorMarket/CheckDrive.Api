@@ -10,7 +10,9 @@ namespace CheckDrive.Application.Extensions;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection RegisterApplication(this IServiceCollection services,IConfiguration configuration)
+    public static IServiceCollection RegisterApplication(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         AddServices(services);
         AddConfigurations(services,configuration);
@@ -21,9 +23,9 @@ public static class DependencyInjection
 
     private static void AddServices(IServiceCollection services)
     {
+        services.AddScoped<JwtHandler>();    
         services.AddScoped<IAuthService,AuthService>();
         services.AddScoped<IEmployeeFactory,EmployeeFactory>();
-        services.AddScoped<JwtHandler>();    
         services.AddScoped<IDoctorReviewService, DoctorReviewService>();
         services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
         services.AddScoped<IOperatorReviewService, OperatorReviewService>();

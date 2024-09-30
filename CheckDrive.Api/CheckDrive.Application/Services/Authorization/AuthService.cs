@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Application.Constants;
 using CheckDrive.Application.DTOs.Identity;
 using CheckDrive.Application.Interfaces.Authorization;
 using CheckDrive.Domain.Exceptions;
@@ -31,7 +32,7 @@ public class AuthService(
 
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
-        var user = await _userManager.FindByEmailAsync(loginDto.Login)
+        var user = await _userManager.FindByEmailAsync(loginDto.Email)
             ?? throw new InvalidLoginAttemptException();
 
         ValidateUserForLogin(user, loginDto.Password);
@@ -39,7 +40,7 @@ public class AuthService(
         return await _jwtHandler.GenerateTokenAsync(user);
     }
 
-    public async Task RegisterAsync(RegisterDto registerDto)
+    public async Task RegisterEmployeeAsync(RegisterDto registerDto)
     {
         //Create a new Identity User and assign his password
         var user = await CreateUser(registerDto);

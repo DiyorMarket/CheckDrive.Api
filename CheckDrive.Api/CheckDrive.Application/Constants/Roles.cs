@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CheckDrive.Application.DTOs.Identity;
+﻿namespace CheckDrive.Application.Constants;
 public class Roles
 {
     public const string Administrator = nameof(Administrator);
-
     public const string Driver = nameof(Driver);
     public const string Doctor = nameof(Doctor);
     public const string Manager = nameof(Manager);

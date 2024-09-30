@@ -1,4 +1,5 @@
-﻿using CheckDrive.Application.DTOs.Identity;
+﻿using CheckDrive.Application.Constants;
+using CheckDrive.Application.DTOs.Identity;
 using CheckDrive.Application.Interfaces.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Register(RegisterDto registerUser)
     {
         // Register the new user with a position (role)
-        await _authService.RegisterAsync(registerUser);
+        await _authService.RegisterEmployeeAsync(registerUser);
         return Accepted();
     }
 

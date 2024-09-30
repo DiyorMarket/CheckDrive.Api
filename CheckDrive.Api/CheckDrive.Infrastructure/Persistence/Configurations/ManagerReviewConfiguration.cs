@@ -27,7 +27,5 @@ internal sealed class ManagerReviewConfiguration : IEntityTypeConfiguration<Mana
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
         #endregion
-
-
     }
 }
