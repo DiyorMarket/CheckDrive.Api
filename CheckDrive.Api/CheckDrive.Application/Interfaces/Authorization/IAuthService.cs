@@ -6,5 +6,5 @@ public interface IAuthService
 {
     Task<string> LoginAsync(LoginDto login);
     Task RegisterAdministratorAsync(RegisterDto registerUser);
-    Task RegisterAsync(RegisterDto registerUser);
+    Task RegisterEmployeeAsync(RegisterDto registerUser);
 }

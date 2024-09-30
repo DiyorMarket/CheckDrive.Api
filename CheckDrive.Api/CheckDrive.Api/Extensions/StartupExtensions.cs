@@ -1,6 +1,6 @@
 ﻿using CheckDrive.Api.Helpers;
 using CheckDrive.Api.Middlewares;
-using CheckDrive.Application.DTOs.Identity;
+using CheckDrive.Application.Constants;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.TestDataCreator.Configurations;
 using Microsoft.AspNetCore.Identity;
