@@ -33,14 +33,7 @@ internal sealed class CheckPointService : ICheckPointService
 
         var query = GetQuery(queryParameters);
         var checkPoints = await query.ToArrayAsync();
-        var dtos = checkPoints.Select(x => new CheckPointDto(
-            Id: x.Id,
-            StartDate: x.StartDate,
-            Status: x.Status,
-            Stage: x.Stage,
-            GetReviews(x),
-            GetDebt(x)))
-            .ToList();
+        var dtos = _mapper.Map<List<CheckPointDto>>(checkPoints);
 
         return dtos;
     }
