@@ -25,5 +25,6 @@ public static class DependencyInjection
         services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
         services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
         services.AddScoped<ICheckPointService, CheckPointService>();
+        services.AddScoped<IAccountService, AccountService>();
     }
 }
