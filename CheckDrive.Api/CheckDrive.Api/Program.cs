@@ -37,8 +37,6 @@ app.UseCookiePolicy(new CookiePolicyOptions
     Secure = CookieSecurePolicy.Always,
 });
 
-await app.UseEnsureRolesCreatedAsync();
-
 app.UseAuthentication();
 
 app.UseAuthorization();

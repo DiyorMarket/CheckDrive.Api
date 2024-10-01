@@ -28,30 +28,4 @@ public static class StartupExtensions
 
         return app;
     }
-    public static async Task<IApplicationBuilder> UseEnsureRolesCreatedAsync(this WebApplication app)
-    {
-        using (var scope = app.Services.CreateScope())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var roles = new[] 
-            {
-                Roles.Administrator,
-                Roles.Dispatcher,
-                Roles.Driver,
-                Roles.Doctor,
-                Roles.Mechanic,
-                Roles.Manager,
-                Roles.Operator
-            };
-
-            foreach (var role in roles)
-            {
-                if (!await roleManager.RoleExistsAsync(role))
-                {
-                    await roleManager.CreateAsync(new IdentityRole(role));
-                }
-            }
-        }
-        return app;
-    }
 }
