@@ -10,13 +10,9 @@ namespace CheckDrive.Application.Services.Authorization;
 public class AuthService : IAuthService
 {
     private readonly JwtHandler _jwtHandler;
-
     private readonly UserManager<IdentityUser> _userManager;
-
     private readonly RoleManager<IdentityRole> _roleManager;
-
     private readonly IMapper _mapper;
-
     private readonly IEmployeeRegistrationService _employeeFactory;
 
     public AuthService(
@@ -27,16 +23,11 @@ public class AuthService : IAuthService
         IEmployeeRegistrationService employeeFactory
     )
     {
-        _jwtHandler = jwtHandler 
-            ?? throw new ArgumentNullException(nameof(jwtHandler));
-        _userManager = userManager 
-            ?? throw new ArgumentNullException(nameof(userManager));
-        _roleManager = roleManager 
-            ?? throw new ArgumentNullException(nameof(roleManager));
-        _mapper = mapper 
-            ?? throw new ArgumentNullException(nameof(mapper));
-        _employeeFactory = employeeFactory 
-            ?? throw new ArgumentNullException(nameof(employeeFactory));
+        _jwtHandler = jwtHandler ?? throw new ArgumentNullException(nameof(jwtHandler));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _employeeFactory = employeeFactory ?? throw new ArgumentNullException(nameof(employeeFactory));
     }
 
     public async Task<string> LoginAsync(LoginDto loginDto)

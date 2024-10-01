@@ -37,11 +37,13 @@ public class ErrorHandlerMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.NotFound;
             message = exception.Message;
         }
+
         if (exception is InvalidLoginAttemptException)
         {
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             message = exception.Message;
         }
+
         if (exception is RegistrationFailedException)
         {
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

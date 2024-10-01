@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Domain.Common;
 
 namespace CheckDrive.Domain.Entities;
+
 public class ManagerReview : ReviewBase
 {
     public int CheckPointId { get; set; }
