@@ -1,4 +1,5 @@
-﻿using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -10,6 +11,7 @@ namespace CheckDrive.Infrastructure.Persistence;
 
 public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
 {
+    public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Driver> Drivers { get; set; }
     public virtual DbSet<Doctor> Doctors { get; set; }
     public virtual DbSet<Mechanic> Mechanics { get; set; }
@@ -28,6 +30,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public CheckDriveDbContext(DbContextOptions<CheckDriveDbContext> options)
         : base(options)
     {
+        Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

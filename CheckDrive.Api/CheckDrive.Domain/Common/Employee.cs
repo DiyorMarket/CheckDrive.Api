@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Domain.Common;
 
-public abstract class Employee : EntityBase
+public class Employee : EntityBase
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }

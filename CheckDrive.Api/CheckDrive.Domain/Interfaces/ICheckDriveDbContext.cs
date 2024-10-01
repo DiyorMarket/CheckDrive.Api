@@ -1,4 +1,5 @@
-﻿using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -7,6 +8,7 @@ namespace CheckDrive.Domain.Interfaces;
 
 public interface ICheckDriveDbContext
 {
+    DbSet<Employee> Employees { get; set; }
     DbSet<Driver> Drivers { get; set; }
     DbSet<Doctor> Doctors { get; set; }
     DbSet<Mechanic> Mechanics { get; set; }
