@@ -6,7 +6,6 @@ using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Authorization;
 using CheckDrive.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
 
 namespace CheckDrive.Application.Services.Authorization;
 
@@ -38,9 +37,14 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByNameAsync(loginDto.UserName)
             ?? throw new InvalidLoginAttemptException("Invalid email or password");
 
-        await ValidateUserForLogin(user, loginDto.Password);
+        if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
+        {
+            throw new InvalidLoginAttemptException("Invalid email or password");
+        }
+        var roles = await _userManager.GetRolesAsync(user);
 
-        string token = await _jwtHandler.GenerateTokenAsync(user);
+        string token = _jwtHandler.GenerateToken(user,roles);
+
         return token;
     }
 
@@ -50,19 +54,12 @@ public class AuthService : IAuthService
         await AssignRole(registerDto);
     }
 
-    private async Task ValidateUserForLogin(IdentityUser? user, string password)
-    {
-        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
-        {
-            throw new InvalidLoginAttemptException("Invalid email or password");
-        }
-    }
-
     private async Task CreateUser(RegisterDto registerDto)
     {
         var account = CreateAccountDto(registerDto);
         await _accountService.CreateAsync(account);
     }
+
     private CreateAccountDto CreateAccountDto(RegisterDto registerDto) 
         => new (registerDto.Username,
             registerDto.Password,
@@ -74,7 +71,7 @@ public class AuthService : IAuthService
             registerDto.Address,
             registerDto.Passport,
             registerDto.Birthdate,
-            Domain.Enums.EmployeePosition.Manager );
+            Domain.Enums.EmployeePosition.Manager);
 
     private async Task AssignRole(RegisterDto registerDto)
     {

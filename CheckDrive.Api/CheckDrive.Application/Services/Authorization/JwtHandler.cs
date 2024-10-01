@@ -7,25 +7,21 @@ using System.Security.Claims;
 using System.Text;
 
 namespace CheckDrive.Application.Services.Authorization;
-public sealed class JwtHandler(IOptions<JwtOptions> options,
-    UserManager<IdentityUser>userManager)
+public sealed class JwtHandler(IOptions<JwtOptions> options )
 {
     private readonly JwtOptions _options = options.Value 
         ?? throw new ArgumentNullException(nameof(options));
-    private readonly UserManager<IdentityUser> _userManager = userManager
-        ?? throw new ArgumentNullException(nameof(userManager));
 
-    public async Task<string> GenerateTokenAsync(IdentityUser user)
+    public string GenerateToken(IdentityUser user,
+        IList<string> roles)
     {
-        var roles = await _userManager.GetRolesAsync(user);
-
         var claims = GetClaims(user, roles);
 
         var signingKey = GetSigningKey();
         var securityToken = new JwtSecurityToken(
             claims: claims,
             expires: DateTime.UtcNow.AddHours(_options.ExpiresHours),
-            signingCredentials: signingKey );
+            signingCredentials: signingKey);
 
         var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
 
