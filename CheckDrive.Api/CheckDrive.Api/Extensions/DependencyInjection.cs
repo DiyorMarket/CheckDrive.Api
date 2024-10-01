@@ -37,6 +37,7 @@ public static class DependencyInjection
         services
             .AddControllers(options =>
             {
+                options.SuppressAsyncSuffixInActionNames = false;
                 options.ReturnHttpNotAcceptable = true;
             })
             .AddNewtonsoftJson(options =>

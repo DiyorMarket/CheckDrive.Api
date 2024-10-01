@@ -23,7 +23,7 @@ public class AccountsController : ControllerBase
         return Ok(accounts);
     }
 
-    [HttpGet("{id}", Name = "GetByIdAsync")]
+    [HttpGet("{id}", Name = nameof(GetAccountByIdAsync))]
     public async Task<ActionResult<AccountDto>> GetAccountByIdAsync(string id)
     {
         var account = await _service.GetByIdAsync(id);
@@ -36,7 +36,7 @@ public class AccountsController : ControllerBase
     {
         var createdAccount = await _service.CreateAsync(account);
 
-        return CreatedAtAction("GetByIdAsync", new { id = createdAccount.Id }, createdAccount);
+        return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = createdAccount.Id }, createdAccount);
     }
 
     [HttpPut("{id}")]
