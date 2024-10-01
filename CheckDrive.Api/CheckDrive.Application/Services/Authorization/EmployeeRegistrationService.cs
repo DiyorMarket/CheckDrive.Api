@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Application.Services.Authorization;
 
-internal sealed class EmployeeRegistrationService : IEmployeeRegistrationFactory
+internal sealed class EmployeeRegistrationService : IEmployeeRegistrationService
 {
     private readonly ICheckDriveDbContext _dbContext;
 
