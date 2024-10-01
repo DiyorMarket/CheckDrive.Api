@@ -42,7 +42,7 @@ public class AuthService : IAuthService
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
         var user = await _userManager.FindByEmailAsync(loginDto.Email)
-            ?? throw new InvalidLoginAttemptException();
+            ?? throw new InvalidLoginAttemptException("Invalid email or password");
 
         ValidateUserForLogin(user, loginDto.Password);
 
@@ -67,7 +67,7 @@ public class AuthService : IAuthService
     {
         if (user == null || !user.EmailConfirmed || !await _userManager.CheckPasswordAsync(user, password))
         {
-            throw new InvalidLoginAttemptException();
+            throw new InvalidLoginAttemptException("Invalid email or password");
         }
     }
 
