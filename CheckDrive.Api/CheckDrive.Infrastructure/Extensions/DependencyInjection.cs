@@ -28,7 +28,7 @@ public static class DependencyInjection
     private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ICheckDriveDbContext, CheckDriveDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("CheckDriveConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddIdentity<IdentityUser, IdentityRole>()
             .AddEntityFrameworkStores<CheckDriveDbContext>()

@@ -17,7 +17,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         AddServices(services);
-        AddConfigurations(services,configuration);
+        AddConfigurations(services, configuration);
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         return services;

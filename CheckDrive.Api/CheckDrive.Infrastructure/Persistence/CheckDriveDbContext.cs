@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace CheckDrive.Infrastructure.Persistence;
 
-public class CheckDriveDbContext : IdentityDbContext<IdentityUser,IdentityRole,string>, ICheckDriveDbContext
+public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
 {
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Driver> Drivers { get; set; }

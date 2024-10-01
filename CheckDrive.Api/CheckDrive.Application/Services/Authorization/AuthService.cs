@@ -50,14 +50,10 @@ public class AuthService : IAuthService
 
     public async Task RegisterAsync(RegisterDto registerDto)
     {
-        await CreateUser(registerDto);
-        await AssignRole(registerDto);
-    }
-
-    private async Task CreateUser(RegisterDto registerDto)
-    {
         var account = CreateAccountDto(registerDto);
+
         await _accountService.CreateAsync(account);
+        await AssignRole(registerDto);
     }
 
     private CreateAccountDto CreateAccountDto(RegisterDto registerDto) 
