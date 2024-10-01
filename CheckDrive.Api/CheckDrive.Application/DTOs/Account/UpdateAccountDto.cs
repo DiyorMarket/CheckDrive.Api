@@ -3,7 +3,7 @@
 namespace CheckDrive.Application.DTOs.Account;
 
 public record class UpdateAccountDto(
-    Guid Id,
+    string Id,
     string Username,
     string Password,
     string PasswordConfirm,

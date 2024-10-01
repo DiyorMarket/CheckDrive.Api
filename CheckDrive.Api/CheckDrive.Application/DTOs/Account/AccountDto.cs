@@ -3,7 +3,7 @@
 namespace CheckDrive.Application.DTOs.Account;
 
 public record class AccountDto(
-    Guid Id,
+    string Id,
     string Username,
     string PhoneNumber,
     string? Email,

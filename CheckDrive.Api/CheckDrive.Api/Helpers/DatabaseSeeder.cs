@@ -23,7 +23,6 @@ public static class DatabaseSeeder
         CreateMechanics(context, userManager, options);
         CreateOperators(context, userManager, options);
         CreateDispatchers(context, userManager, options);
-        // CreateEmployees(context, userManager, options);
     }
 
     private static void CreateCars(ICheckDriveDbContext context, DataSeedOptions options)

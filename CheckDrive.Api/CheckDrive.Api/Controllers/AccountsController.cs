@@ -23,7 +23,7 @@ public class AccountsController : ControllerBase
         return Ok(accounts);
     }
 
-    [HttpGet("{id}", Name = nameof(GetAccountByIdAsync))]
+    [HttpGet("{id}", Name = "GetByIdAsync")]
     public async Task<ActionResult<AccountDto>> GetAccountByIdAsync(string id)
     {
         var account = await _service.GetByIdAsync(id);
@@ -36,6 +36,27 @@ public class AccountsController : ControllerBase
     {
         var createdAccount = await _service.CreateAsync(account);
 
-        return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = createdAccount.Id }, createdAccount);
+        return CreatedAtAction("GetByIdAsync", new { id = createdAccount.Id }, createdAccount);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<AccountDto>> UpdateAsync([FromRoute] string id, [FromBody] UpdateAccountDto account)
+    {
+        if (id != account.Id)
+        {
+            return BadRequest($"Route id: {id} does not match with body id: {account.Id}.");
+        }
+
+        var updatedAccount = await _service.UpdateAsync(account);
+
+        return Ok(updatedAccount);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteAsync(string id)
+    {
+        await _service.DeleteAsync(id);
+
+        return NoContent();
     }
 }

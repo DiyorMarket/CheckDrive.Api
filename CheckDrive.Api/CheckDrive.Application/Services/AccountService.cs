@@ -77,21 +77,22 @@ internal sealed class AccountService : IAccountService
         return dto;
     }
 
-    public async Task<AccountDto> UpdateAsync(UpdateAccountDto account)
+    // Update Employee & Accunt
+    public Task<AccountDto> UpdateAsync(UpdateAccountDto account)
     {
         throw new NotImplementedException();
     }
 
     public async Task DeleteAsync(string id)
     {
-        var employee = await _context.Employees.FirstOrDefaultAsync(x => x.AccountId == id);
+        var account = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
 
-        if (employee is null)
+        if (account is null)
         {
-            throw new EntityNotFoundException($"Employee with id: {id} is not found.");
+            throw new EntityNotFoundException($"User account with id: {id} is not found.");
         }
 
-        _context.Employees.Remove(employee);
+        _context.Users.Remove(account);
         await _context.SaveChangesAsync();
     }
 }
