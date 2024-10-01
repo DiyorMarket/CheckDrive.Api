@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace CheckDrive.Infrastructure.Persistence;
 
-public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
+public class CheckDriveDbContext : IdentityDbContext<IdentityUser,IdentityRole,string>, ICheckDriveDbContext
 {
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Driver> Drivers { get; set; }
@@ -76,6 +76,55 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
         {
             e.ToTable("UserRole");
         });
+
+        #endregion
+
+        #region Role
+
+        builder.Entity<IdentityRole>().HasData(
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Administrator,
+                NormalizedName = Application.Constants.Roles.Administrator.ToUpper(),
+            },
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Driver,
+                NormalizedName = Application.Constants.Roles.Driver.ToUpper(),
+            },
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Doctor,
+                NormalizedName = Application.Constants.Roles.Doctor.ToUpper(),
+            },
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Dispatcher,
+                NormalizedName = Application.Constants.Roles.Dispatcher.ToUpper(),
+            },
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Manager,
+                NormalizedName = Application.Constants.Roles.Manager.ToUpper(),
+            },
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Mechanic,
+                NormalizedName = Application.Constants.Roles.Mechanic.ToUpper(),
+            },
+            new IdentityRole()
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Application.Constants.Roles.Operator,
+                NormalizedName = Application.Constants.Roles.Operator.ToUpper(),
+            }
+        );
 
         #endregion
     }

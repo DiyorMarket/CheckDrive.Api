@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.Constants;
+using CheckDrive.Application.DTOs.Account;
 using CheckDrive.Application.DTOs.Identity;
+using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Authorization;
 using CheckDrive.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 
 namespace CheckDrive.Application.Services.Authorization;
 
@@ -12,30 +15,30 @@ public class AuthService : IAuthService
     private readonly JwtHandler _jwtHandler;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IAccountService _accountService;
     private readonly IMapper _mapper;
-    private readonly IEmployeeRegistrationService _employeeFactory;
 
     public AuthService(
         IMapper mapper,
         JwtHandler jwtHandler,
         UserManager<IdentityUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        IEmployeeRegistrationService employeeFactory
+        IAccountService accountService
     )
     {
         _jwtHandler = jwtHandler ?? throw new ArgumentNullException(nameof(jwtHandler));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _accountService = accountService ?? throw new ArgumentNullException(nameof(roleManager));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _employeeFactory = employeeFactory ?? throw new ArgumentNullException(nameof(employeeFactory));
     }
 
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
-        var user = await _userManager.FindByEmailAsync(loginDto.Email)
+        var user = await _userManager.FindByNameAsync(loginDto.UserName)
             ?? throw new InvalidLoginAttemptException("Invalid email or password");
 
-        ValidateUserForLogin(user, loginDto.Password);
+        await ValidateUserForLogin(user, loginDto.Password);
 
         string token = await _jwtHandler.GenerateTokenAsync(user);
         return token;
@@ -43,44 +46,47 @@ public class AuthService : IAuthService
 
     public async Task RegisterAsync(RegisterDto registerDto)
     {
-        var user = await CreateUser(registerDto);
-        await AssignRole(user);
+        await CreateUser(registerDto);
+        await AssignRole(registerDto);
     }
 
-    private async void ValidateUserForLogin(IdentityUser? user, string password)
+    private async Task ValidateUserForLogin(IdentityUser? user, string password)
     {
-        if (user == null || !user.EmailConfirmed || !await _userManager.CheckPasswordAsync(user, password))
+        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
         {
             throw new InvalidLoginAttemptException("Invalid email or password");
         }
     }
 
-    private async Task<IdentityUser> CreateUser(RegisterDto registerDto)
+    private async Task CreateUser(RegisterDto registerDto)
     {
-        var user = new IdentityUser
-        {
-            UserName = registerDto.Email,
-            Email = registerDto.Email,
-            EmailConfirmed = true
-        };
-
-        var createUserResult = await _userManager.CreateAsync(user, registerDto.Password);
-        if (!createUserResult.Succeeded)
-        {
-            throw new RegistrationFailedException((string.Join(", ", createUserResult.Errors.Select(e => e.Description))));
-        }
-
-        return user;
+        var account = CreateAccountDto(registerDto);
+        await _accountService.CreateAsync(account);
     }
+    private CreateAccountDto CreateAccountDto(RegisterDto registerDto) 
+        => new (registerDto.Username,
+            registerDto.Password,
+            registerDto.PasswordConfirm,
+            registerDto.PhoneNumber,
+            registerDto.Email,
+            registerDto.FirstName,
+            registerDto.LastName,
+            registerDto.Address,
+            registerDto.Passport,
+            registerDto.Birthdate,
+            Domain.Enums.EmployeePosition.Manager );
 
-    private async Task AssignRole(IdentityUser user)
+    private async Task AssignRole(RegisterDto registerDto)
     {
+        var user = await _userManager.FindByNameAsync(registerDto.Username)
+            ?? throw new RegistrationFailedException();
+       
         if (!await _roleManager.RoleExistsAsync(Roles.Manager))
         {
             throw new InvalidOperationException("The role does not exist.");
         }
-
         var roleResult = await _userManager.AddToRoleAsync(user, Roles.Manager);
+       
         if (!roleResult.Succeeded)
         {
             await _userManager.DeleteAsync(user);

@@ -27,7 +27,6 @@ public static class DependencyInjection
     {
         services.AddScoped<JwtHandler>();    
         services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IEmployeeRegistrationService, EmployeeRegistrationService>();
         services.AddScoped<IDoctorReviewService, DoctorReviewService>();
         services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
         services.AddScoped<IOperatorReviewService, OperatorReviewService>();
