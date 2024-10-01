@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.Account;
-using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Application.Mappings;

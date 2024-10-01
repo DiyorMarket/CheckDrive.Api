@@ -1,6 +1,4 @@
-﻿using CheckDrive.Domain.Common;
-
-namespace CheckDrive.Domain.Entities;
+﻿namespace CheckDrive.Domain.Entities;
 
 public class Dispatcher : Employee
 {

@@ -1,5 +1,4 @@
-﻿using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

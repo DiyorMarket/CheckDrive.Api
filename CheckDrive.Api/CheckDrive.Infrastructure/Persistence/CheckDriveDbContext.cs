@@ -1,5 +1,4 @@
-﻿using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
