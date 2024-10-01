@@ -1,5 +1,4 @@
-﻿using CheckDrive.Domain.Common;
-using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,6 +26,7 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder
             .HasDiscriminator(x => x.Position)
+            .HasValue<Employee>(EmployeePosition.Base)
             .HasValue<Driver>(EmployeePosition.Driver)
             .HasValue<Doctor>(EmployeePosition.Doctor)
             .HasValue<Mechanic>(EmployeePosition.Mechanic)

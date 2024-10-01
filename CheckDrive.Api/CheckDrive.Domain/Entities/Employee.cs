@@ -1,9 +1,10 @@
-﻿using CheckDrive.Domain.Enums;
+﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
-namespace CheckDrive.Domain.Common;
+namespace CheckDrive.Domain.Entities;
 
-public abstract class Employee : EntityBase
+public class Employee : EntityBase
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }

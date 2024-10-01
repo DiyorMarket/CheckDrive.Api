@@ -2,11 +2,11 @@
 
 public enum EmployeePosition
 {
-    Driver,
-    Doctor,
-    Mechanic,
-    Operator,
-    Dispatcher,
-    Manager,
-    Custom
+    Base = 0,
+    Driver = 1,
+    Doctor = 2,
+    Mechanic = 3,
+    Operator = 4,
+    Dispatcher = 5,
+    Manager = 6,
 }

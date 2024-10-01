@@ -1,6 +1,5 @@
 ﻿using Bogus;
 using Bogus.Extensions.Poland;
-using CheckDrive.Domain.Common;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
