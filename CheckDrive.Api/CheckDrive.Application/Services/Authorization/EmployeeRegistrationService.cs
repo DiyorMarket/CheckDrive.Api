@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Application.Services.Authorization;
 
-internal sealed class EmployeeRegistrationFactory : IEmployeeRegistrationFactory
+internal sealed class EmployeeRegistrationService : IEmployeeRegistrationFactory
 {
     private readonly ICheckDriveDbContext _dbContext;
 
-    public EmployeeRegistrationFactory(ICheckDriveDbContext dbContext)
+    public EmployeeRegistrationService(ICheckDriveDbContext dbContext)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }

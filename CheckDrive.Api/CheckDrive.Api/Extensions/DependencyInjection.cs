@@ -39,7 +39,7 @@ public static class DependencyInjection
         AddAuthentication(services, configuration);
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
-        //AddSyncfusion(configuration);
+        AddSyncfusion(configuration);
 
         return services;
     }
@@ -90,7 +90,7 @@ public static class DependencyInjection
     }
     private static void AddIdentity(IServiceCollection services)
     {
-        services.AddIdentity<Employee, IdentityRole>(options =>
+        services.AddIdentity<IdentityUser, IdentityRole>(options =>
         {
             options.Password.RequiredLength = 7;
             options.Password.RequireUppercase = false;
@@ -154,17 +154,17 @@ public static class DependencyInjection
             .ValidateOnStart();
     }
 
-    //private static void AddSyncfusion(IConfiguration configuration)
-    //{
-    //    var key = configuration.GetValue<string>("SyncfusionKey");
+    private static void AddSyncfusion(IConfiguration configuration)
+    {
+        var key = configuration.GetValue<string>("SyncfusionKey");
 
-    //    if (string.IsNullOrEmpty(key))
-    //    {
-    //        throw new InvalidOperationException("Syncfusion key is not found in configurations.");
-    //    }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new InvalidOperationException("Syncfusion key is not found in configurations.");
+        }
 
-    //    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
-    //}
+        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
+    }
 
     private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
     {

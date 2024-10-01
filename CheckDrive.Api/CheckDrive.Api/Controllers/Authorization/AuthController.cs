@@ -5,35 +5,38 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers.Authorization;
+
 [Route("api/auth")]
 [ApiController]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService = authService
-        ?? throw new ArgumentNullException(nameof(authService));
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
+    {
+        _authService = authService
+            ?? throw new ArgumentNullException(nameof(authService));
+    }
 
     [HttpPost("register/employee")]
     [Authorize(Roles = $"{Roles.Manager},{Roles.Administrator}")]
     public async Task<IActionResult> Register(RegisterDto registerUser)
     {
-        // Register the new user with a position (role)
         await _authService.RegisterEmployeeAsync(registerUser);
-        return Accepted();
+        return Created();
     }
 
     [HttpPost("register/admin")]
     [Authorize(Roles = $"{Roles.Administrator}")]
     public async Task<IActionResult> RegisterAdmin(RegisterDto registerUser)
     {
-        // Register the new user with a role administrator
         await _authService.RegisterAdministratorAsync(registerUser);
-        return Accepted();
+        return Created();
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginUser)
     {
-        //Login user and gets token
         var token = await _authService.LoginAsync(loginUser);
         return Ok(token);
     }

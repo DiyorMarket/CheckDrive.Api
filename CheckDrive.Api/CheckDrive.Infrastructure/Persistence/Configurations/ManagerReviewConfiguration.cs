@@ -26,6 +26,7 @@ internal sealed class ManagerReviewConfiguration : IEntityTypeConfiguration<Mana
             .HasForeignKey(dr => dr.ManagerId)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
+
         #endregion
     }
 }

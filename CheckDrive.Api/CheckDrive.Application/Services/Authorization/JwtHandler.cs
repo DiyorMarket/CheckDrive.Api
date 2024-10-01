@@ -7,8 +7,8 @@ using System.Security.Claims;
 using System.Text;
 
 namespace CheckDrive.Application.Services.Authorization;
-public sealed class JwtHandler(IOptions<JwtOptions> options
-    ,UserManager<IdentityUser>userManager)
+public sealed class JwtHandler(IOptions<JwtOptions> options,
+    UserManager<IdentityUser>userManager)
 {
     private readonly JwtOptions _options = options.Value 
         ?? throw new ArgumentNullException(nameof(options));

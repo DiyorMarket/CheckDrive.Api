@@ -24,15 +24,16 @@ public static class DependencyInjection
     private static void AddServices(IServiceCollection services)
     {
         services.AddScoped<JwtHandler>();    
-        services.AddScoped<IAuthService,AuthService>();
-        services.AddScoped<IEmployeeRegistrationFactory,EmployeeRegistrationFactory>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IEmployeeRegistrationFactory, EmployeeRegistrationFactory>();
         services.AddScoped<IDoctorReviewService, DoctorReviewService>();
         services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
         services.AddScoped<IOperatorReviewService, OperatorReviewService>();
         services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
         services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
     }
-    private static void AddConfigurations(IServiceCollection services, IConfiguration configuration)
+    private static void AddConfigurations(IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))

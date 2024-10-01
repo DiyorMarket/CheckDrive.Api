@@ -7,28 +7,37 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Application.Services.Authorization;
 
-public class AuthService(
-    IMapper mapper,
-    JwtHandler jwtHandler,
-    UserManager<IdentityUser> userManager,
-    RoleManager<IdentityRole> roleManager,
-    IEmployeeRegistrationFactory employeeFactory
-    ) : IAuthService
+public class AuthService : IAuthService
 {
-    private readonly JwtHandler _jwtHandler = jwtHandler 
-        ?? throw new ArgumentNullException(nameof(jwtHandler));
+    private readonly JwtHandler _jwtHandler;
 
-    private readonly UserManager<IdentityUser> _userManager = userManager 
-        ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly UserManager<IdentityUser> _userManager;
 
-    private readonly RoleManager<IdentityRole> _roleManager = roleManager 
-        ?? throw new ArgumentNullException(nameof(roleManager));
+    private readonly RoleManager<IdentityRole> _roleManager;
 
-    private readonly IMapper _mapper = mapper 
-        ?? throw new ArgumentNullException(nameof(mapper));
+    private readonly IMapper _mapper;
 
-    private readonly IEmployeeRegistrationFactory _employeeFactory = employeeFactory 
-        ?? throw new ArgumentNullException(nameof(employeeFactory));
+    private readonly IEmployeeRegistrationService _employeeFactory;
+
+    public AuthService(
+        IMapper mapper,
+        JwtHandler jwtHandler,
+        UserManager<IdentityUser> userManager,
+        RoleManager<IdentityRole> roleManager,
+        IEmployeeRegistrationService employeeFactory
+    )
+    {
+        _jwtHandler = jwtHandler 
+            ?? throw new ArgumentNullException(nameof(jwtHandler));
+        _userManager = userManager 
+            ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager 
+            ?? throw new ArgumentNullException(nameof(roleManager));
+        _mapper = mapper 
+            ?? throw new ArgumentNullException(nameof(mapper));
+        _employeeFactory = employeeFactory 
+            ?? throw new ArgumentNullException(nameof(employeeFactory));
+    }
 
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
@@ -42,21 +51,16 @@ public class AuthService(
 
     public async Task RegisterEmployeeAsync(RegisterDto registerDto)
     {
-        //Create a new Identity User and assign his password
         var user = await CreateUser(registerDto);
 
-        //Assign role a new Identity User 
         await AssignRole(user, registerDto.Position.ToString());
 
-        //Create Employee with required properties
         await _employeeFactory.CreateEmployee(registerDto, user);
     }
 
     public async Task RegisterAdministratorAsync(RegisterDto registerDto)
     {
-        //Create new Identity User and assign password
         var user = await CreateUser(registerDto);
-        //Assign role to user
         await AssignRole(user, Roles.Administrator);
     }
     private async void ValidateUserForLogin(IdentityUser? user, string password)
