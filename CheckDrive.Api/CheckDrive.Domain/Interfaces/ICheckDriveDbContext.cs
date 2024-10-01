@@ -7,6 +7,7 @@ namespace CheckDrive.Domain.Interfaces;
 
 public interface ICheckDriveDbContext
 {
+    DbSet<Employee> Employees { get; set; }
     DbSet<Driver> Drivers { get; set; }
     DbSet<Doctor> Doctors { get; set; }
     DbSet<Manager> Managers { get; set; }

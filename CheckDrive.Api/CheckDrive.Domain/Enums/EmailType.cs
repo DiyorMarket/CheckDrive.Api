@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CheckDrive.Infrastructure.Models
+namespace CheckDrive.Domain.Enums
 {
     public enum EmailType
     {

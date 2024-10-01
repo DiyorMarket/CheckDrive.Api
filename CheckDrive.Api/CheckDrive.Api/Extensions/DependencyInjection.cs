@@ -1,4 +1,5 @@
 ﻿using FluentEmail.MailKitSmtp;
+﻿using CheckDrive.Api.Filters;
 using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
@@ -6,6 +7,8 @@ using CheckDrive.TestDataCreator.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
@@ -23,18 +26,8 @@ public static class DependencyInjection
         services.RegisterInfrastructure(configuration);
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
-        services
-            .AddControllers(options =>
-            {
-                options.ReturnHttpNotAcceptable = true;
-            })
-            .AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            })
-            .AddXmlSerializerFormatters();
 
+        AddControllers(services);
         AddSwagger(services);
         AddAuthentication(services, configuration);
         AddAuthorization(services);
@@ -44,11 +37,33 @@ public static class DependencyInjection
         return services;
     }
 
+    private static void AddControllers(IServiceCollection services)
+    {
+        services
+            .AddControllers(options =>
+            {
+                options.SuppressAsyncSuffixInActionNames = false;
+                options.ReturnHttpNotAcceptable = true;
+            })
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+            })
+            .AddXmlSerializerFormatters();
+    }
+
     private static void AddSwagger(IServiceCollection services)
     {
         services
             .AddEndpointsApiExplorer()
-            .AddSwaggerGen();
+            .AddSwaggerGen(setup =>
+            {
+                setup.SwaggerDoc("v1", new OpenApiInfo { Title = "Check-Drive API", Version = "v1" });
+
+                setup.SchemaFilter<EnumSchemaFilter>();
+            });
     }
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
@@ -164,29 +179,5 @@ public static class DependencyInjection
         }
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
-    }
-
-    private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
-    {
-        var emailSettings = configuration.GetSection(EmailConfigurations.SectionName).Get<EmailConfigurations>();
-
-        if (emailSettings is null)
-        {
-            throw new InvalidOperationException("Configuration values for email did not load correctly.");
-        }
-
-        var smptOptions = new SmtpClientOptions
-        {
-            Server = emailSettings.Server,
-            Port = emailSettings.Port,
-            User = emailSettings.From,
-            Password = emailSettings.Password,
-            UseSsl = true,
-            RequiresAuthentication = true
-        };
-
-        services.AddFluentEmail(emailSettings.From, emailSettings.UserName)
-              .AddMailKitSender(smptOptions)
-              .AddRazorRenderer();
     }
 }

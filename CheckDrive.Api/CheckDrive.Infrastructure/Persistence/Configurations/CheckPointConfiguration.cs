@@ -80,13 +80,5 @@ internal sealed class CheckPointConfiguration : IEntityTypeConfiguration<CheckPo
             .IsRequired();
 
         #endregion
-
-        #region AutoIncludes
-
-        builder
-            .Navigation(cp => cp.DoctorReview)
-            .AutoInclude();
-
-        #endregion
     }
 }

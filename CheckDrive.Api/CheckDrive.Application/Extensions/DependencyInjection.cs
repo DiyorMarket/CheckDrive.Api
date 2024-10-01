@@ -1,6 +1,8 @@
 ﻿using CheckDrive.Application.Interfaces.Authorization;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Application.Services.Authorization;
+﻿using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.Services;
 using CheckDrive.Application.Services.Review;
 using CheckDrive.Domain.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +33,8 @@ public static class DependencyInjection
         services.AddScoped<IOperatorReviewService, OperatorReviewService>();
         services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
         services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
+        services.AddScoped<ICheckPointService, CheckPointService>();
+        services.AddScoped<IAccountService, AccountService>();
     }
     private static void AddConfigurations(IServiceCollection services,
         IConfiguration configuration)

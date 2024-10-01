@@ -2,7 +2,7 @@
 using CheckDrive.Application.DTOs.DispatcherReview;
 using CheckDrive.Domain.Entities;
 
-namespace CheckDrive.Application.Mappings;
+namespace CheckDrive.Application.Mappings.Reviews;
 
 internal sealed class DispatcherReviewMappings : Profile
 {

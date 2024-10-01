@@ -8,6 +8,16 @@
 
   <ItemGroup>
     <None Remove="Email\Templates\EmailConfirmationTemplate.cshtml" />
+    <None Remove="Email\Templates\ForgotPasswordTemplate.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Email\Templates\EmailConfirmationTemplate.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Email\Templates\ForgotPasswordTemplate.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -28,11 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Include="Email\Templates\EmailConfirmationTemplate.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\CheckDrive.Application\CheckDrive.Application.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
 </Project>

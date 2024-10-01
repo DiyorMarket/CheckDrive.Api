@@ -3,7 +3,7 @@ using CheckDrive.Application.DTOs.DoctorReview;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 
-namespace CheckDrive.Application.Mappings;
+namespace CheckDrive.Application.Mappings.Reviews;
 
 internal sealed class DoctorReviewMappings : Profile
 {
