@@ -4,6 +4,7 @@ using CheckDrive.Application.DTOs.Account;
 using CheckDrive.Application.DTOs.Identity;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Authorization;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
 
@@ -67,7 +68,7 @@ public class AuthService : IAuthService
             registerDto.Address,
             registerDto.Passport,
             registerDto.Birthdate,
-            Domain.Enums.EmployeePosition.Manager);
+            EmployeePosition.Manager);
 
     private async Task AssignRole(RegisterDto registerDto)
     {
