@@ -37,23 +37,16 @@ public class AuthService : IAuthService
 
         ValidateUserForLogin(user, loginDto.Password);
 
-        return await _jwtHandler.GenerateTokenAsync(user);
+        string token = await _jwtHandler.GenerateTokenAsync(user);
+        return token;
     }
 
-    public async Task RegisterEmployeeAsync(RegisterDto registerDto)
+    public async Task RegisterAsync(RegisterDto registerDto)
     {
         var user = await CreateUser(registerDto);
-
-        await AssignRole(user, registerDto.Position.ToString());
-
-        await _employeeFactory.CreateEmployee(registerDto, user);
+        await AssignRole(user);
     }
 
-    public async Task RegisterAdministratorAsync(RegisterDto registerDto)
-    {
-        var user = await CreateUser(registerDto);
-        await AssignRole(user, Roles.Administrator);
-    }
     private async void ValidateUserForLogin(IdentityUser? user, string password)
     {
         if (user == null || !user.EmailConfirmed || !await _userManager.CheckPasswordAsync(user, password))
@@ -80,14 +73,14 @@ public class AuthService : IAuthService
         return user;
     }
 
-    private async Task AssignRole(IdentityUser user, string position)
+    private async Task AssignRole(IdentityUser user)
     {
-        if (!await _roleManager.RoleExistsAsync(position))
+        if (!await _roleManager.RoleExistsAsync(Roles.Manager))
         {
             throw new InvalidOperationException("The role does not exist.");
         }
 
-        var roleResult = await _userManager.AddToRoleAsync(user, position.ToString());
+        var roleResult = await _userManager.AddToRoleAsync(user, Roles.Manager);
         if (!roleResult.Succeeded)
         {
             await _userManager.DeleteAsync(user);

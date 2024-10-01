@@ -18,19 +18,10 @@ public class AuthController : ControllerBase
             ?? throw new ArgumentNullException(nameof(authService));
     }
 
-    [HttpPost("register/employee")]
-    [Authorize(Roles = $"{Roles.Manager},{Roles.Administrator}")]
-    public async Task<IActionResult> Register(RegisterDto registerUser)
-    {
-        await _authService.RegisterEmployeeAsync(registerUser);
-        return Created();
-    }
-
-    [HttpPost("register/admin")]
-    [Authorize(Roles = $"{Roles.Administrator}")]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterAdmin(RegisterDto registerUser)
     {
-        await _authService.RegisterAdministratorAsync(registerUser);
+        await _authService.RegisterAsync(registerUser);
         return Created();
     }
 
