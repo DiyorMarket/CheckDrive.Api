@@ -39,7 +39,7 @@ public static class DependencyInjection
         AddAuthentication(services, configuration);
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
-        //AddSyncfusion(configuration);
+        AddSyncfusion(configuration);
 
         return services;
     }
