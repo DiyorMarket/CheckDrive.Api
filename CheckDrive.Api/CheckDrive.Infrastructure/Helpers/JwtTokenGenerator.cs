@@ -1,4 +1,5 @@
-﻿using CheckDrive.Domain.Authorization;
+﻿using CheckDrive.Application.Interfaces.Authorization;
+using CheckDrive.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -6,11 +7,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace CheckDrive.Application.Services.Authorization;
-public sealed class JwtHandler(IOptions<JwtOptions> options )
+namespace CheckDrive.Infrastructure.Helpers;
+
+public sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
-    private readonly JwtOptions _options = options.Value 
+    private readonly JwtOptions _options;
+
+    public JwtTokenGenerator(IOptions<JwtOptions> options )
+    {
+        _options = options.Value 
         ?? throw new ArgumentNullException(nameof(options));
+    }
 
     public string GenerateToken(IdentityUser user,
         IList<string> roles)

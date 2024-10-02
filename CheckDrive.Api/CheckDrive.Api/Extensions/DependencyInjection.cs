@@ -1,6 +1,6 @@
-﻿using FluentEmail.MailKitSmtp;
-﻿using CheckDrive.Api.Filters;
-using CheckDrive.Application.Extensions;
+﻿using CheckDrive.Infrastructure.Persistence;
+using FluentEmail.MailKitSmtp;
+﻿using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
@@ -12,9 +12,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using CheckDrive.Domain.Common;
-using CheckDrive.Infrastructure.Persistence;
-using CheckDrive.Domain.Authorization;
+using CheckDrive.Api.Filters;
 
 namespace CheckDrive.Api.Extensions;
 
@@ -33,6 +31,7 @@ public static class DependencyInjection
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
         AddSyncfusion(configuration);
+        AddConfigurationOptiosn(services, configuration);
 
         return services;
     }
@@ -180,4 +179,38 @@ public static class DependencyInjection
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
     }
+
+    private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
+    {
+        var emailSettings = configuration.GetSection(EmailConfigurations.SectionName).Get<EmailConfigurations>();
+
+        if (emailSettings is null)
+        {
+            throw new InvalidOperationException("Configuration values for email did not load correctly.");
+        }
+
+        var smptOptions = new SmtpClientOptions
+        {
+            Server = emailSettings.Server,
+            Port = emailSettings.Port,
+            User = emailSettings.From,
+            Password = emailSettings.Password,
+            UseSsl = true,
+            RequiresAuthentication = true
+        };
+
+        services.AddFluentEmail(emailSettings.From, emailSettings.UserName)
+              .AddMailKitSender(smptOptions)
+              .AddRazorRenderer();
+    }
+
+    private static void AddConfigurations(IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+    }
 }
+

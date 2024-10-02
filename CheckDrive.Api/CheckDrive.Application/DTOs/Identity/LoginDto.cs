@@ -2,6 +2,6 @@
 
 namespace CheckDrive.Application.DTOs.Identity;
 
-public record LoginDto(
+public sealed record LoginDto(
     string UserName,
     string Password);

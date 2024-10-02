@@ -1,5 +1,4 @@
-﻿using CheckDrive.Domain.Authorization;
-using CheckDrive.Domain.Interfaces;
+﻿using CheckDrive.Domain.Interfaces;
 ﻿using CheckDrive.Application.Interfaces;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Email;
@@ -10,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CheckDrive.Application.Interfaces.Authorization;
+using CheckDrive.Infrastructure.Helpers;
 
 namespace CheckDrive.Infrastructure.Extensions;
 
@@ -83,5 +84,6 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
     }
 }

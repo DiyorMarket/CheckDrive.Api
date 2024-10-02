@@ -1,6 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CheckDrive.Application.Interfaces.Authorization;
+using System.ComponentModel.DataAnnotations;
 
-namespace CheckDrive.Domain.Authorization;
+namespace CheckDrive.Infrastructure.Configurations;
+
 public class JwtOptions
 {
     public const string SectionName = nameof(JwtOptions);
