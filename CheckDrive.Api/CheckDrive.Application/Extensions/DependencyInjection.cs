@@ -11,7 +11,7 @@ namespace CheckDrive.Application.Extensions;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection RegisterApplication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterApplication(this IServiceCollection services)
     {
         AddServices(services);
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

@@ -12,14 +12,10 @@ namespace CheckDrive.Api.Controllers.Authorization;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly IAccountService _accountService;
 
     public AuthController(IAuthService authService, IAccountService accountService)
     {
-        _authService = authService
-            ?? throw new ArgumentNullException(nameof(authService));
-        _accountService = accountService
-            ?? throw new ArgumentNullException(nameof(accountService));
+        _authService = authService ?? throw new ArgumentNullException(nameof(authService));
     }
 
     [HttpPost("login")]
