@@ -1,5 +1,4 @@
-﻿using CheckDrive.Application.Interfaces.Authorization;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CheckDrive.Infrastructure.Configurations;
 
