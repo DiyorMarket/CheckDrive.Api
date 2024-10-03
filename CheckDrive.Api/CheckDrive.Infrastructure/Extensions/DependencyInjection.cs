@@ -22,6 +22,8 @@ public static class DependencyInjection
         AddConfigurations(services, configuration);
         AddFluentEmail(services, configuration);
         AddServices(services);
+        AddIdentity(services);
+        AddConfigurationOptions(services, configuration);
 
         return services;
     }
@@ -85,5 +87,33 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+    }
+
+    private static void AddIdentity(IServiceCollection services)
+    {
+        services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        {
+            options.Password.RequiredLength = 7;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireDigit = false;
+        })
+            .AddEntityFrameworkStores<CheckDriveDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(12);
+        });
+    }
+
+    private static void AddConfigurationOptions(IServiceCollection services,
+       IConfiguration configuration)
+    {
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
     }
 }

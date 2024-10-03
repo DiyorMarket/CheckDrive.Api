@@ -5,14 +5,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CheckDrive.Application.Services.Authorization;
 
-public sealed class AuthService : IAuthService
+internal sealed class AuthService : IAuthService
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public AuthService(
-        IJwtTokenGenerator jwtTokenGenerator,
-        UserManager<IdentityUser> userManager)
+    public AuthService(IJwtTokenGenerator jwtTokenGenerator, UserManager<IdentityUser> userManager)
     {
         _jwtTokenGenerator = jwtTokenGenerator ?? throw new ArgumentNullException(nameof(jwtTokenGenerator));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -20,6 +18,11 @@ public sealed class AuthService : IAuthService
 
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
+        if(loginDto is null)
+        {
+            throw new InvalidLoginAttemptException(nameof(loginDto));
+        }
+
         var user = await _userManager.FindByNameAsync(loginDto.UserName)
             ?? throw new InvalidLoginAttemptException("Invalid email or password");
 

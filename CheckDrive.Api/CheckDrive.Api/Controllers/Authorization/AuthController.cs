@@ -13,7 +13,7 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
 
-    public AuthController(IAuthService authService, IAccountService accountService)
+    public AuthController(IAuthService authService)
     {
         _authService = authService ?? throw new ArgumentNullException(nameof(authService));
     }

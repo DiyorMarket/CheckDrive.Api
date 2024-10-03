@@ -9,7 +9,7 @@ using System.Text;
 
 namespace CheckDrive.Infrastructure.Helpers;
 
-public sealed class JwtTokenGenerator : IJwtTokenGenerator
+internal sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtOptions _options;
 
