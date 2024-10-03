@@ -32,10 +32,6 @@ public static class DependencyInjection
     {
         services.AddDbContext<ICheckDriveDbContext, CheckDriveDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
-        services.AddIdentity<IdentityUser, IdentityRole>()
-            .AddEntityFrameworkStores<CheckDriveDbContext>()
-            .AddDefaultTokenProviders();
     }
 
     private static void AddConfigurations(IServiceCollection services, IConfiguration configuration)
