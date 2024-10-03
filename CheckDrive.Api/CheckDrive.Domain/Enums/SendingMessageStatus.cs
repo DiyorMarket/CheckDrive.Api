@@ -1,9 +1,8 @@
-﻿namespace CheckDrive.Domain.Enums
+﻿namespace CheckDrive.Domain.Enums;
+
+public enum SendingMessageStatus
 {
-    public enum SendingMessageStatus
-    {
-        MechanicHandover,
-        OperatorReview,
-        MechanicAcceptance
-    }
+    MechanicHandover,
+    OperatorReview,
+    MechanicAcceptance
 }
