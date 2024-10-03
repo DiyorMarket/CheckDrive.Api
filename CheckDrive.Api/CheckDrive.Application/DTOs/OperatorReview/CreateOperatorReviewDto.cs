@@ -6,6 +6,7 @@ public sealed record CreateOperatorReviewDto(
     int CheckPointId,
     int ReviewerId,
     int OilMarkId,
+    int DriverId,
     string? Notes,
     bool IsApprovedByReviewer,
     decimal InitialOilAmount,
