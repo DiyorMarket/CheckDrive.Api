@@ -9,7 +9,7 @@ public sealed record MechanicHandoverReviewDto(
     string ReviewerName,
     int DriverId,
     string DriverName,
-    string Cars,
+    string CarModel,
     string? Notes,
     DateTime Date,
     ReviewStatus Status,
