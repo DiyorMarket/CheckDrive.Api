@@ -3,7 +3,6 @@
 namespace CheckDrive.Application.DTOs.DoctorReview;
 
 public sealed record CreateDoctorReviewDto(
-    int CheckPointId,
     int DriverId,
     int ReviewerId,
     string? Notes,
