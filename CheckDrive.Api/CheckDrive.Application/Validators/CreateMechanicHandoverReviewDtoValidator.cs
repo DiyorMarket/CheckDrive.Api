@@ -5,7 +5,7 @@ public class CreateMechanicHandoverReviewDtoValidator : AbstractValidator<Create
 {
     public CreateMechanicHandoverReviewDtoValidator()
     {
-        RuleFor(x => x.ReviewerId)
+        RuleFor(x => x.DriverId)
             .GreaterThan(0).WithMessage("Haydovchini tanlashingiz shart.");
 
         RuleFor(x => x.CarId)
