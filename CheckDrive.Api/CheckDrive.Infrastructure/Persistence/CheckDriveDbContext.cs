@@ -29,7 +29,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public CheckDriveDbContext(DbContextOptions<CheckDriveDbContext> options)
         : base(options)
     {
-        Database.EnsureCreated();
+        // Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
