@@ -1,6 +1,6 @@
 ﻿namespace CheckDrive.Application.Constants;
 
-public class Roles
+public static class Roles
 {
     public const string Administrator = nameof(Administrator);
     public const string Driver = nameof(Driver);

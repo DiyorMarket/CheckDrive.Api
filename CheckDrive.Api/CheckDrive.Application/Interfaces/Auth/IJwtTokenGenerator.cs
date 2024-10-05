@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace CheckDrive.Application.Interfaces.Authorization;
+namespace CheckDrive.Application.Interfaces.Auth;
 
 public interface IJwtTokenGenerator
 {

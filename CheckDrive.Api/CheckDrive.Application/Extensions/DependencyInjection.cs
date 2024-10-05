@@ -1,11 +1,10 @@
-﻿using CheckDrive.Application.Interfaces.Authorization;
-using CheckDrive.Application.Interfaces.Review;
-using CheckDrive.Application.Services.Authorization;
-﻿using CheckDrive.Application.Interfaces;
+﻿using CheckDrive.Application.Interfaces.Review;
+using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Services;
 using CheckDrive.Application.Services.Review;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CheckDrive.Application.Interfaces.Auth;
+using CheckDrive.Application.Services.Auth;
 
 namespace CheckDrive.Application.Extensions;
 

@@ -2,6 +2,8 @@
 using Serilog.Formatting;
 using System.Text.Json;
 
+namespace CheckDrive.Api.Helpers;
+
 public class CustomJsonFormatter : ITextFormatter
 {
     public void Format(LogEvent logEvent, TextWriter output)
