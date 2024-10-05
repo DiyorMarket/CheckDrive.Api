@@ -57,6 +57,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
+            .Include(x => x.DoctorReview)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint == null)
