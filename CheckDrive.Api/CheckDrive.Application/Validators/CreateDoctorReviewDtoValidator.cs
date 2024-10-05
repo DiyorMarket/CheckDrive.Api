@@ -2,7 +2,7 @@
 using FluentValidation;
 
 namespace CheckDrive.Application.Validators;
-public class CreateDoctorReviewDtoValidator : AbstractValidator<CreateDoctorReviewDto> 
+public class CreateDoctorReviewDtoValidator : AbstractValidator<CreateDoctorReviewDto>
 {
     public CreateDoctorReviewDtoValidator()
     {
