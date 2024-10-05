@@ -13,6 +13,7 @@ public interface ICheckDriveDbContext
     DbSet<Mechanic> Mechanics { get; set; }
     DbSet<Operator> Operators { get; set; }
     DbSet<Dispatcher> Dispatchers { get; set; }
+    DbSet<Manager> Managers { get; set; }
     DbSet<Car> Cars { get; set; }
     DbSet<CheckPoint> CheckPoints { get; set; }
     DbSet<DoctorReview> DoctorReviews { get; set; }
@@ -20,6 +21,7 @@ public interface ICheckDriveDbContext
     DbSet<OperatorReview> OperatorReviews { get; set; }
     DbSet<MechanicAcceptance> MechanicAcceptances { get; set; }
     DbSet<DispatcherReview> DispatcherReviews { get; set; }
+    DbSet<ManagerReview> ManagerReviews { get; set; }
     DbSet<Debt> Debts { get; set; }
     DbSet<OilMark> OilMarks { get; set; }
 
