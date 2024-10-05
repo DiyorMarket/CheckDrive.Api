@@ -23,7 +23,6 @@ public static class DependencyInjection
         AddFluentEmail(services, configuration);
         AddServices(services);
         AddIdentity(services);
-        AddConfigurationOptions(services, configuration);
 
         return services;
     }
@@ -48,6 +47,11 @@ public static class DependencyInjection
 
         services.AddOptions<SmsConfigurations>()
             .Bind(configuration.GetSection(SmsConfigurations.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
     }
@@ -102,14 +106,5 @@ public static class DependencyInjection
         {
             options.TokenLifespan = TimeSpan.FromHours(12);
         });
-    }
-
-    private static void AddConfigurationOptions(IServiceCollection services,
-       IConfiguration configuration)
-    {
-        services.AddOptions<JwtOptions>()
-            .Bind(configuration.GetSection(JwtOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
     }
 }

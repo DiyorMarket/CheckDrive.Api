@@ -77,7 +77,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
 
         #endregion
 
-        #region Role
+        #region Default Roles
 
         builder.Entity<IdentityRole>().HasData(
             new IdentityRole()

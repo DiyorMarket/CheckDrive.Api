@@ -15,9 +15,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
 
     public JwtTokenGenerator(IOptions<JwtOptions> options )
     {
-        _options = options is null 
-            ? throw new ArgumentNullException(nameof(options))
-            : options.Value;
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     public string GenerateToken(IdentityUser user,

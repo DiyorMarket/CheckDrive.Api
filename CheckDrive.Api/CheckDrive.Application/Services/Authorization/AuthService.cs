@@ -18,13 +18,17 @@ internal sealed class AuthService : IAuthService
 
     public async Task<string> LoginAsync(LoginDto loginDto)
     {
-        if(loginDto is null)
+        if (loginDto is null)
         {
-            throw new InvalidLoginAttemptException(nameof(loginDto));
+            throw new ArgumentNullException(nameof(loginDto));
         }
 
-        var user = await _userManager.FindByNameAsync(loginDto.UserName)
-            ?? throw new InvalidLoginAttemptException("Invalid email or password");
+        var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
+        if (user is null)
+        {
+            throw new InvalidLoginAttemptException("Invalid email or password");
+        }
 
         if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
         {
@@ -33,7 +37,7 @@ internal sealed class AuthService : IAuthService
        
         var roles = await _userManager.GetRolesAsync(user);
 
-        string token = _jwtTokenGenerator.GenerateToken(user, roles);
+        var token = _jwtTokenGenerator.GenerateToken(user, roles);
 
         return token;
     }
