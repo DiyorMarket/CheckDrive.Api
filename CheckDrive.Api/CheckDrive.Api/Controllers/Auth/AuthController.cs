@@ -1,11 +1,8 @@
-﻿using CheckDrive.Application.Constants;
-using CheckDrive.Application.DTOs.Identity;
-using CheckDrive.Application.Interfaces;
-using CheckDrive.Application.Interfaces.Authorization;
-using Microsoft.AspNetCore.Authorization;
+﻿using CheckDrive.Application.DTOs.Identity;
+using CheckDrive.Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CheckDrive.Api.Controllers.Authorization;
+namespace CheckDrive.Api.Controllers.Auth;
 
 [Route("api/auth")]
 [ApiController]
@@ -22,6 +19,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> LoginAsync([FromBody] LoginDto request)
     {
         var token = await _authService.LoginAsync(request);
+
         return Ok(token);
     }
 }

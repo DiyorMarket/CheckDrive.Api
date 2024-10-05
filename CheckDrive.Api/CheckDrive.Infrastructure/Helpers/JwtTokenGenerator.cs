@@ -1,4 +1,4 @@
-﻿using CheckDrive.Application.Interfaces.Authorization;
+﻿using CheckDrive.Application.Interfaces.Auth;
 using CheckDrive.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -13,7 +13,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
 {
     private readonly JwtOptions _options;
 
-    public JwtTokenGenerator(IOptions<JwtOptions> options )
+    public JwtTokenGenerator(IOptions<JwtOptions> options)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
@@ -46,7 +46,7 @@ internal sealed class JwtTokenGenerator : IJwtTokenGenerator
     {
         var claims = new List<Claim>()
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new (ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
         foreach (var role in roles)
