@@ -2,13 +2,15 @@
 using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Infrastructure.Sms.Factories;
+
 internal class SmsMetadataFactory : ISmsMetadataFactory
 {
     private readonly Dictionary<SmsType, string> smsSubjects = new()
     {
-        { SmsType.MessageType, "Message" },
+        { SmsType.NotificationMessage, "Notification" },
         { SmsType.ForgotPassword, "Password Reset" }
     };
+
     public SmsMetadata Create(
         SmsType smsType,
         string userName,

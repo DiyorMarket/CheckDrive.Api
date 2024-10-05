@@ -2,6 +2,7 @@
 using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Infrastructure.Sms.Factories;
+
 internal interface ISmsMetadataFactory
 {
     SmsMetadata Create(

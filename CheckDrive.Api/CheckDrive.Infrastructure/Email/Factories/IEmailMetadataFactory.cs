@@ -3,7 +3,7 @@ using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Infrastructure.Email.Factories;
 
-public interface IEmailMetadataFactory
+internal interface IEmailMetadataFactory
 {
     EmailMetadata Create(
         EmailType emailType,
