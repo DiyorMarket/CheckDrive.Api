@@ -1,5 +1,7 @@
-﻿using CheckDrive.Application.DTOs.Account;
+﻿using CheckDrive.Application.Constants;
+using CheckDrive.Application.DTOs.Account;
 using CheckDrive.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
@@ -32,6 +34,7 @@ public class AccountsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Manager},{Roles.Administrator}")]
     public async Task<ActionResult<AccountDto>> CreateAsync([FromBody] CreateAccountDto account)
     {
         var createdAccount = await _service.CreateAsync(account);
