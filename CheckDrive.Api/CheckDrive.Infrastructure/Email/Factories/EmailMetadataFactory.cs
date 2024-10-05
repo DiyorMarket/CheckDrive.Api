@@ -22,7 +22,7 @@ internal sealed class EmailMetadataFactory : IEmailMetadataFactory
         var subject = emailSubjects[emailType] ?? string.Empty;
         var addresses = cc is not null
             ? cc.Select(x => new Address(x)).ToList()
-            : [];
+            : [];   
 
         return new EmailMetadata
         {

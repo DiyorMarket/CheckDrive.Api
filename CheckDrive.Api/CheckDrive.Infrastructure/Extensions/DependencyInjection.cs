@@ -2,6 +2,7 @@
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Email;
+using CheckDrive.Infrastructure.Email.Factories;
 using CheckDrive.Infrastructure.Persistence;
 using CheckDrive.Infrastructure.Sms;
 using FluentEmail.MailKitSmtp;
@@ -82,5 +83,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
+        services.AddScoped<IEmailMetadataFactory, EmailMetadataFactory>();
+       // services.AddControllersWithViews().AddRazorRuntimeCompilation();
     }
 }

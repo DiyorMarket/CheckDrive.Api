@@ -5,9 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CheckDrive.Domain.Enums;
-
-public enum EmailType
+public enum SmsType
 {
     ForgotPassword,
-    EmailConfirmation
+    MessageType
 }
