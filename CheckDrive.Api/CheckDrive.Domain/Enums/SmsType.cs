@@ -1,7 +1,7 @@
 ﻿namespace CheckDrive.Domain.Enums;
 
-public enum EmailType
+public enum SmsType
 {
     ForgotPassword,
-    EmailConfirmation
+    NotificationMessage
 }
