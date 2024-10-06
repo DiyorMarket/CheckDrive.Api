@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Infrastructure.Persistence.Configurations;
 
-internal class ManagerReviewConfigurations : IEntityTypeConfiguration<ManagerReview>
+internal sealed class ManagerReviewConfigurations : IEntityTypeConfiguration<ManagerReview>
 {
     public void Configure(EntityTypeBuilder<ManagerReview> builder)
     {
