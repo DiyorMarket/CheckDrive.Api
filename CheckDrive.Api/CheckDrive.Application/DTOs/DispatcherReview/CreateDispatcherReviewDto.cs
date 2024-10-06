@@ -4,7 +4,6 @@ namespace CheckDrive.Application.DTOs.DispatcherReview;
 
 public sealed record CreateDispatcherReviewDto(
     int CheckPointId,
-    int DriverId,
     int ReviewerId,
     string? Notes,
     bool IsApprovedByReviewer,
