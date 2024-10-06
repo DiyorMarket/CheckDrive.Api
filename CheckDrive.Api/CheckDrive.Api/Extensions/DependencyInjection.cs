@@ -1,7 +1,11 @@
-﻿using CheckDrive.Application.Extensions;
+﻿using CheckDrive.Api.Filters;
+using CheckDrive.Application.Extensions;
+using CheckDrive.Application.Validators;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +32,7 @@ public static class DependencyInjection
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
         AddSyncfusion(configuration);
+        AddValidators(services);
 
         return services;
     }
@@ -47,6 +52,9 @@ public static class DependencyInjection
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             })
             .AddXmlSerializerFormatters();
+
+        services.AddFluentValidationAutoValidation()
+            .AddFluentValidationClientsideAdapters();
     }
 
     private static void AddSwagger(IServiceCollection services)
@@ -156,6 +164,13 @@ public static class DependencyInjection
         }
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
+    }
+    public static void AddValidators(IServiceCollection services)
+    {
+        services.AddValidatorsFromAssemblyContaining<CreateMechanicHandoverReviewDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateOperatorReviewDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateMechanicAcceptanceReviewDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateDispatcherReviewDtoValidator>();
     }
 }
 

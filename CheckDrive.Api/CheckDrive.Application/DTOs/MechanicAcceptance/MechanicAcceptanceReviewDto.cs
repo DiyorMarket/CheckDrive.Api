@@ -1,4 +1,4 @@
-﻿using CheckDrive.Application.DTOs.Review;
+﻿    using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Application.DTOs.MechanicAcceptance;
@@ -9,6 +9,8 @@ public sealed record MechanicAcceptanceReviewDto(
     string ReviewerName,
     int DriverId,
     string DriverName,
+    decimal DebtAmountFromDriver,
+    string CarModel,
     string? Notes,
     DateTime Date,
     ReviewStatus Status,
