@@ -1,5 +1,4 @@
 using CheckDrive.Api.Extensions;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
@@ -13,7 +12,7 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog();    
+builder.Host.UseSerilog();
 
 builder.Services.ConfigureServices(builder.Configuration);
 
