@@ -9,7 +9,7 @@ internal class ManagerReviewConfigurations : IEntityTypeConfiguration<ManagerRev
     public void Configure(EntityTypeBuilder<ManagerReview> builder)
     {
         builder.ToTable(nameof(ManagerReview));
-        builder.HasKey(m => m.Id);
+        builder.HasKey(mn => mn.Id);
 
         #region Relationships
 
@@ -26,6 +26,20 @@ internal class ManagerReviewConfigurations : IEntityTypeConfiguration<ManagerRev
             .HasForeignKey(mn => mn.ManagerId)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
+
+        #endregion
+
+        #region Properties
+
+        builder
+            .Property(mn => mn.DebtAmountAdjusment)
+            .HasPrecision(18, 2)
+            .IsRequired(false);
+
+        builder
+            .Property(mn => mn.FuelConsumptionAdjustment)
+            .HasPrecision(18, 2)
+            .IsRequired(false);
 
         #endregion
     }

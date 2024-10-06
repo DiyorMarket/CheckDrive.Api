@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    [Migration("20241005161211_Add_Manager_ManagerReview")]
+    [Migration("20241006100658_Add_Manager_ManagerReview")]
     partial class Add_Manager_ManagerReview
     {
         /// <inheritdoc />
@@ -284,6 +284,14 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal?>("DebtAmountAdjusment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("FuelConsumptionAdjustment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("ManagerId")
                         .HasColumnType("int");
 
@@ -477,43 +485,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1eef2d65-63aa-4bd3-ad11-97b05465411a",
+                            Id = "5089a8a9-4e4f-4c6d-848c-23f2b3a3899c",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "50732e08-b22e-4d0c-8196-13a14fda4edb",
+                            Id = "f481030e-c1b1-41fe-a889-119bf9efbe33",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "95e28700-5bea-4855-bda5-4fe4660dbaaa",
+                            Id = "153b479b-2c52-4729-94e0-513fdec3f66e",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "b8854b49-d887-4ac9-9ffe-bc391909380c",
+                            Id = "43e6d885-ec20-4a5a-a94a-8477c8a1fa60",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "099bbfb1-a22a-48f8-a707-bd954851b749",
+                            Id = "bdff891f-f7de-4ad0-9267-a5dda2cc22b9",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "78333ddd-03ba-4274-ae24-321c3563584a",
+                            Id = "18c5b372-b34e-4194-838c-cdc1c64682f2",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "2f72a51b-f05d-49b5-98fc-c2c1b32219e1",
+                            Id = "2d7e1223-bd95-4880-9805-54a68f84d74f",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });

@@ -267,6 +267,47 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.UseTphMappingStrategy();
                 });
 
+            modelBuilder.Entity("CheckDrive.Domain.Entities.ManagerReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CheckPointId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("DebtAmountAdjusment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("FuelConsumptionAdjustment")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CheckPointId")
+                        .IsUnique();
+
+                    b.HasIndex("ManagerId");
+
+                    b.ToTable("ManagerReview", (string)null);
+                });
+
             modelBuilder.Entity("CheckDrive.Domain.Entities.MechanicAcceptance", b =>
                 {
                     b.Property<int>("Id")
@@ -441,43 +482,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "46a46741-5b52-444e-a5f9-169556a44c5b",
+                            Id = "5089a8a9-4e4f-4c6d-848c-23f2b3a3899c",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "52e9693c-ccc2-453b-bb73-6f1987c60664",
+                            Id = "f481030e-c1b1-41fe-a889-119bf9efbe33",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "d864ade1-ac59-4ab3-ba59-a6c12f3250e3",
+                            Id = "153b479b-2c52-4729-94e0-513fdec3f66e",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "8da8eab2-4243-44e1-bfae-0d7a86135bea",
+                            Id = "43e6d885-ec20-4a5a-a94a-8477c8a1fa60",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "87ed0262-1d37-4824-ae87-f1a8119c9d50",
+                            Id = "bdff891f-f7de-4ad0-9267-a5dda2cc22b9",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "bcaf852e-2688-44c1-aa77-4b2d65231832",
+                            Id = "18c5b372-b34e-4194-838c-cdc1c64682f2",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "d907a396-369a-4fde-8f7d-3918e185f554",
+                            Id = "2d7e1223-bd95-4880-9805-54a68f84d74f",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });
@@ -675,6 +716,13 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasDiscriminator().HasValue(1);
                 });
 
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Manager", b =>
+                {
+                    b.HasBaseType("CheckDrive.Domain.Entities.Employee");
+
+                    b.HasDiscriminator().HasValue(6);
+                });
+
             modelBuilder.Entity("CheckDrive.Domain.Entities.Mechanic", b =>
                 {
                     b.HasBaseType("CheckDrive.Domain.Entities.Employee");
@@ -755,6 +803,25 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("CheckDrive.Domain.Entities.ManagerReview", b =>
+                {
+                    b.HasOne("CheckDrive.Domain.Entities.CheckPoint", "CheckPoint")
+                        .WithOne("ManagerReview")
+                        .HasForeignKey("CheckDrive.Domain.Entities.ManagerReview", "CheckPointId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("CheckDrive.Domain.Entities.Manager", "Manager")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CheckPoint");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.MechanicAcceptance", b =>
@@ -895,6 +962,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Navigation("DoctorReview")
                         .IsRequired();
 
+                    b.Navigation("ManagerReview");
+
                     b.Navigation("MechanicAcceptance");
 
                     b.Navigation("MechanicHandover");
@@ -918,6 +987,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.Driver", b =>
+                {
+                    b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Manager", b =>
                 {
                     b.Navigation("Reviews");
                 });
