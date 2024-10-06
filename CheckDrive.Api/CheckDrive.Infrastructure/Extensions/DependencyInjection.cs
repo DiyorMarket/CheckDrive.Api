@@ -1,5 +1,5 @@
-﻿using CheckDrive.Application.Interfaces;
-using CheckDrive.Domain.Interfaces;
+﻿using CheckDrive.Domain.Interfaces;
+using CheckDrive.Application.Interfaces;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Email;
 using CheckDrive.Infrastructure.Persistence;
@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CheckDrive.Infrastructure.Helpers;
+using CheckDrive.Application.Interfaces.Auth;
 
 namespace CheckDrive.Infrastructure.Extensions;
 
@@ -18,8 +20,9 @@ public static class DependencyInjection
     {
         AddPersistence(services, configuration);
         AddConfigurations(services, configuration);
-        AddFluentEmail(services, configuration);
+        AddEmail(services, configuration);
         AddServices(services);
+        AddIdentity(services);
 
         return services;
     }
@@ -28,10 +31,6 @@ public static class DependencyInjection
     {
         services.AddDbContext<ICheckDriveDbContext, CheckDriveDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
-        services.AddIdentity<IdentityUser, IdentityRole>()
-            .AddEntityFrameworkStores<CheckDriveDbContext>()
-            .AddDefaultTokenProviders();
     }
 
     private static void AddConfigurations(IServiceCollection services, IConfiguration configuration)
@@ -52,7 +51,7 @@ public static class DependencyInjection
             .ValidateOnStart();
     }
 
-    private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
+    private static void AddEmail(IServiceCollection services, IConfiguration configuration)
     {
         var emailSettings = configuration
             .GetSection(EmailConfigurations.SectionName)
@@ -82,5 +81,25 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+    }
+
+    private static void AddIdentity(IServiceCollection services)
+    {
+        services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        {
+            options.Password.RequiredLength = 7;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireDigit = false;
+        })
+            .AddEntityFrameworkStores<CheckDriveDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(12);
+        });
     }
 }

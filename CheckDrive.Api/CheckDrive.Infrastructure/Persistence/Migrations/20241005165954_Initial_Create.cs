@@ -2,10 +2,12 @@
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace CheckDrive.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
-public partial class InitialCreate : Migration
+public partial class Initial_Create : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -411,6 +413,20 @@ public partial class InitialCreate : Migration
                     column: x => x.OilMarkId,
                     principalTable: "OilMark",
                     principalColumn: "Id");
+            });
+
+        migrationBuilder.InsertData(
+            table: "Role",
+            columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+            values: new object[,]
+            {
+                { "46a46741-5b52-444e-a5f9-169556a44c5b", null, "Administrator", "ADMINISTRATOR" },
+                { "52e9693c-ccc2-453b-bb73-6f1987c60664", null, "Driver", "DRIVER" },
+                { "87ed0262-1d37-4824-ae87-f1a8119c9d50", null, "Manager", "MANAGER" },
+                { "8da8eab2-4243-44e1-bfae-0d7a86135bea", null, "Dispatcher", "DISPATCHER" },
+                { "bcaf852e-2688-44c1-aa77-4b2d65231832", null, "Mechanic", "MECHANIC" },
+                { "d864ade1-ac59-4ab3-ba59-a6c12f3250e3", null, "Doctor", "DOCTOR" },
+                { "d907a396-369a-4fde-8f7d-3918e185f554", null, "Operator", "OPERATOR" }
             });
 
         migrationBuilder.CreateIndex(

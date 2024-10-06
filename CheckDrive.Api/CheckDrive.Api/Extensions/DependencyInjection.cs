@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text;
+using CheckDrive.Api.Filters;
 
 namespace CheckDrive.Api.Extensions;
 
@@ -172,3 +173,4 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<CreateDispatcherReviewDtoValidator>();
     }
 }
+

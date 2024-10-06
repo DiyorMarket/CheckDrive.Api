@@ -22,56 +22,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CheckDrive.Domain.Common.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("Birthdate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Passport")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId")
-                        .IsUnique();
-
-                    b.ToTable("Employee", (string)null);
-
-                    b.HasDiscriminator<int>("Position");
-
-                    b.UseTphMappingStrategy();
-                });
-
             modelBuilder.Entity("CheckDrive.Domain.Entities.Car", b =>
                 {
                     b.Property<int>("Id")
@@ -267,6 +217,56 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.ToTable("DoctorReview", (string)null);
                 });
 
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Employee", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("Birthdate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Passport")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId")
+                        .IsUnique();
+
+                    b.ToTable("Employee", (string)null);
+
+                    b.HasDiscriminator<int>("Position").HasValue(0);
+
+                    b.UseTphMappingStrategy();
+                });
+
             modelBuilder.Entity("CheckDrive.Domain.Entities.MechanicAcceptance", b =>
                 {
                     b.Property<int>("Id")
@@ -437,6 +437,50 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("Role", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "46a46741-5b52-444e-a5f9-169556a44c5b",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = "52e9693c-ccc2-453b-bb73-6f1987c60664",
+                            Name = "Driver",
+                            NormalizedName = "DRIVER"
+                        },
+                        new
+                        {
+                            Id = "d864ade1-ac59-4ab3-ba59-a6c12f3250e3",
+                            Name = "Doctor",
+                            NormalizedName = "DOCTOR"
+                        },
+                        new
+                        {
+                            Id = "8da8eab2-4243-44e1-bfae-0d7a86135bea",
+                            Name = "Dispatcher",
+                            NormalizedName = "DISPATCHER"
+                        },
+                        new
+                        {
+                            Id = "87ed0262-1d37-4824-ae87-f1a8119c9d50",
+                            Name = "Manager",
+                            NormalizedName = "MANAGER"
+                        },
+                        new
+                        {
+                            Id = "bcaf852e-2688-44c1-aa77-4b2d65231832",
+                            Name = "Mechanic",
+                            NormalizedName = "MECHANIC"
+                        },
+                        new
+                        {
+                            Id = "d907a396-369a-4fde-8f7d-3918e185f554",
+                            Name = "Operator",
+                            NormalizedName = "OPERATOR"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -612,48 +656,37 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.Dispatcher", b =>
                 {
-                    b.HasBaseType("CheckDrive.Domain.Common.Employee");
+                    b.HasBaseType("CheckDrive.Domain.Entities.Employee");
 
-                    b.HasDiscriminator().HasValue(4);
+                    b.HasDiscriminator().HasValue(5);
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.Doctor", b =>
                 {
-                    b.HasBaseType("CheckDrive.Domain.Common.Employee");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
-            modelBuilder.Entity("CheckDrive.Domain.Entities.Driver", b =>
-                {
-                    b.HasBaseType("CheckDrive.Domain.Common.Employee");
-
-                    b.HasDiscriminator().HasValue(0);
-                });
-
-            modelBuilder.Entity("CheckDrive.Domain.Entities.Mechanic", b =>
-                {
-                    b.HasBaseType("CheckDrive.Domain.Common.Employee");
+                    b.HasBaseType("CheckDrive.Domain.Entities.Employee");
 
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("CheckDrive.Domain.Entities.Operator", b =>
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Driver", b =>
                 {
-                    b.HasBaseType("CheckDrive.Domain.Common.Employee");
+                    b.HasBaseType("CheckDrive.Domain.Entities.Employee");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Mechanic", b =>
+                {
+                    b.HasBaseType("CheckDrive.Domain.Entities.Employee");
 
                     b.HasDiscriminator().HasValue(3);
                 });
 
-            modelBuilder.Entity("CheckDrive.Domain.Common.Employee", b =>
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Operator", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Account")
-                        .WithOne()
-                        .HasForeignKey("CheckDrive.Domain.Common.Employee", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasBaseType("CheckDrive.Domain.Entities.Employee");
 
-                    b.Navigation("Account");
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.Debt", b =>
@@ -711,6 +744,17 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Navigation("Doctor");
 
                     b.Navigation("Driver");
+                });
+
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Employee", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Account")
+                        .WithOne()
+                        .HasForeignKey("CheckDrive.Domain.Entities.Employee", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.MechanicAcceptance", b =>
