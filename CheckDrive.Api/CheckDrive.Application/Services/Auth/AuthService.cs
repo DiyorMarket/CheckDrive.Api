@@ -1,9 +1,9 @@
 ﻿using CheckDrive.Application.DTOs.Identity;
-using CheckDrive.Application.Interfaces.Authorization;
+using CheckDrive.Application.Interfaces.Auth;
 using CheckDrive.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
 
-namespace CheckDrive.Application.Services.Authorization;
+namespace CheckDrive.Application.Services.Auth;
 
 internal sealed class AuthService : IAuthService
 {
@@ -16,27 +16,18 @@ internal sealed class AuthService : IAuthService
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public async Task<string> LoginAsync(LoginDto loginDto)
+    public async Task<string> LoginAsync(LoginDto request)
     {
-        if (loginDto is null)
-        {
-            throw new ArgumentNullException(nameof(loginDto));
-        }
+        ArgumentNullException.ThrowIfNull(request);
 
-        var user = await _userManager.FindByNameAsync(loginDto.UserName);
+        var user = await _userManager.FindByNameAsync(request.UserName);
 
-        if (user is null)
+        if (user is null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
             throw new InvalidLoginAttemptException("Invalid email or password");
         }
 
-        if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
-        {
-            throw new InvalidLoginAttemptException("Invalid email or password");
-        }
-       
         var roles = await _userManager.GetRolesAsync(user);
-
         var token = _jwtTokenGenerator.GenerateToken(user, roles);
 
         return token;

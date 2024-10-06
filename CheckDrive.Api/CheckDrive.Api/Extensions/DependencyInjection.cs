@@ -1,5 +1,3 @@
-﻿using CheckDrive.Infrastructure.Persistence;
-using FluentEmail.MailKitSmtp;
 ﻿using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
@@ -11,7 +9,6 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
 using CheckDrive.Api.Filters;
 
 namespace CheckDrive.Api.Extensions;

@@ -1,5 +1,5 @@
 ﻿using CheckDrive.Domain.Interfaces;
-﻿using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.Interfaces;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Email;
 using CheckDrive.Infrastructure.Persistence;
@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CheckDrive.Application.Interfaces.Authorization;
 using CheckDrive.Infrastructure.Helpers;
+using CheckDrive.Application.Interfaces.Auth;
 
 namespace CheckDrive.Infrastructure.Extensions;
 
@@ -20,7 +20,7 @@ public static class DependencyInjection
     {
         AddPersistence(services, configuration);
         AddConfigurations(services, configuration);
-        AddFluentEmail(services, configuration);
+        AddEmail(services, configuration);
         AddServices(services);
         AddIdentity(services);
 
@@ -49,14 +49,9 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(SmsConfigurations.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        services.AddOptions<JwtOptions>()
-            .Bind(configuration.GetSection(JwtOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
     }
 
-    private static void AddFluentEmail(IServiceCollection services, IConfiguration configuration)
+    private static void AddEmail(IServiceCollection services, IConfiguration configuration)
     {
         var emailSettings = configuration
             .GetSection(EmailConfigurations.SectionName)
