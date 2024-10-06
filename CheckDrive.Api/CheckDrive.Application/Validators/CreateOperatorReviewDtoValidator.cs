@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.DTOs.OperatorReview;
 using FluentValidation;
 
+namespace CheckDrive.Application.Validators;
 public class CreateOperatorReviewDtoValidator : AbstractValidator<CreateOperatorReviewDto>
 {
     public CreateOperatorReviewDtoValidator()

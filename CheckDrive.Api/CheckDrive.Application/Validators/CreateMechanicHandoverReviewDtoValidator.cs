@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.DTOs.MechanicHandover;
 using FluentValidation;
 
+namespace CheckDrive.Application.Validators;
 public class CreateMechanicHandoverReviewDtoValidator : AbstractValidator<CreateMechanicHandoverReviewDto>
 {
     public CreateMechanicHandoverReviewDtoValidator()

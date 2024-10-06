@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.DTOs.MechanicAcceptance;
 using FluentValidation;
 
+namespace CheckDrive.Application.Validators;
 public class CreateMechanicAcceptanceReviewDtoValidator : AbstractValidator<CreateMechanicAcceptanceReviewDto>
 {
     public CreateMechanicAcceptanceReviewDtoValidator()

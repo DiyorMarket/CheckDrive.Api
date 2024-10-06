@@ -1,5 +1,6 @@
 ﻿using CheckDrive.Api.Filters;
 using CheckDrive.Application.Extensions;
+using CheckDrive.Application.Validators;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;

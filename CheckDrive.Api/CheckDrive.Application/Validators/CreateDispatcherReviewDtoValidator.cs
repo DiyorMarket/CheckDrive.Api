@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.DTOs.DispatcherReview;
 using FluentValidation;
 
+namespace CheckDrive.Application.Validators;
 public class CreateDispatcherReviewDtoValidator : AbstractValidator<CreateDispatcherReviewDto>
 {
     public CreateDispatcherReviewDtoValidator()
