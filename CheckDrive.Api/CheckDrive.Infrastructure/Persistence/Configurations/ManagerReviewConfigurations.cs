@@ -9,21 +9,28 @@ internal class ManagerReviewConfigurations : IEntityTypeConfiguration<ManagerRev
     public void Configure(EntityTypeBuilder<ManagerReview> builder)
     {
         builder.ToTable(nameof(ManagerReview));
-        builder.HasKey(mn => mn.Id);
+        builder.HasKey(mr => mr.Id);
 
         #region Relationships
 
         builder
-            .HasOne(mn => mn.CheckPoint)
+            .HasOne(mr => mr.CheckPoint)
             .WithOne(cp => cp.ManagerReview)
-            .HasForeignKey<ManagerReview>(mn => mn.CheckPointId)
+            .HasForeignKey<ManagerReview>(mr => mr.CheckPointId)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
 
         builder
-            .HasOne(mn => mn.Manager)
-            .WithMany(d => d.Reviews)
-            .HasForeignKey(mn => mn.ManagerId)
+            .HasOne(mr => mr.Manager)
+            .WithMany(m => m.Reviews)
+            .HasForeignKey(mr => mr.ManagerId)
+            .OnDelete(DeleteBehavior.NoAction)
+            .IsRequired();
+
+        builder
+            .HasOne(mr => mr.Debt)
+            .WithOne(d => d.ManagerReview)
+            .HasForeignKey<ManagerReview>(mr => mr.ManagerId)
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
 
@@ -32,12 +39,12 @@ internal class ManagerReviewConfigurations : IEntityTypeConfiguration<ManagerRev
         #region Properties
 
         builder
-            .Property(mn => mn.DebtAmountAdjusment)
+            .Property(mr => mr.DebtAmountAdjusment)
             .HasPrecision(18, 2)
             .IsRequired(false);
 
         builder
-            .Property(mn => mn.FuelConsumptionAdjustment)
+            .Property(mr => mr.FuelConsumptionAdjustment)
             .HasPrecision(18, 2)
             .IsRequired(false);
 

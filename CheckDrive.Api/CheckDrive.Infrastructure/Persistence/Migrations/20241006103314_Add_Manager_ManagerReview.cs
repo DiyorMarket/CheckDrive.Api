@@ -48,6 +48,12 @@ public partial class Add_Manager_ManagerReview : Migration
             keyColumn: "Id",
             keyValue: "d907a396-369a-4fde-8f7d-3918e185f554");
 
+        migrationBuilder.AddColumn<int>(
+            name: "ManagerReviewId",
+            table: "Debt",
+            type: "int",
+            nullable: true);
+
         migrationBuilder.CreateTable(
             name: "ManagerReview",
             columns: table => new
@@ -58,6 +64,7 @@ public partial class Add_Manager_ManagerReview : Migration
                 FuelConsumptionAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 ManagerId = table.Column<int>(type: "int", nullable: false),
+                DebtId = table.Column<int>(type: "int", nullable: true),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                 Status = table.Column<int>(type: "int", nullable: false)
@@ -71,6 +78,11 @@ public partial class Add_Manager_ManagerReview : Migration
                     principalTable: "CheckPoint",
                     principalColumn: "Id");
                 table.ForeignKey(
+                    name: "FK_ManagerReview_Debt_ManagerId",
+                    column: x => x.ManagerId,
+                    principalTable: "Debt",
+                    principalColumn: "Id");
+                table.ForeignKey(
                     name: "FK_ManagerReview_Employee_ManagerId",
                     column: x => x.ManagerId,
                     principalTable: "Employee",
@@ -82,13 +94,13 @@ public partial class Add_Manager_ManagerReview : Migration
             columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
             values: new object[,]
             {
-                { "153b479b-2c52-4729-94e0-513fdec3f66e", null, "Doctor", "DOCTOR" },
-                { "18c5b372-b34e-4194-838c-cdc1c64682f2", null, "Mechanic", "MECHANIC" },
-                { "2d7e1223-bd95-4880-9805-54a68f84d74f", null, "Operator", "OPERATOR" },
-                { "43e6d885-ec20-4a5a-a94a-8477c8a1fa60", null, "Dispatcher", "DISPATCHER" },
-                { "5089a8a9-4e4f-4c6d-848c-23f2b3a3899c", null, "Administrator", "ADMINISTRATOR" },
-                { "bdff891f-f7de-4ad0-9267-a5dda2cc22b9", null, "Manager", "MANAGER" },
-                { "f481030e-c1b1-41fe-a889-119bf9efbe33", null, "Driver", "DRIVER" }
+                { "5bd07b96-507a-4b1a-b9ff-b421cfe1d205", null, "Driver", "DRIVER" },
+                { "7fbd87ba-5311-4855-b18f-54b7e711eb82", null, "Mechanic", "MECHANIC" },
+                { "8b08e145-6325-4046-b55c-77b9906966b5", null, "Doctor", "DOCTOR" },
+                { "c9734b82-c84a-43b2-b453-c4ff6eb8c1cf", null, "Operator", "OPERATOR" },
+                { "d6c0f8c6-b894-44ff-80f9-eb65961d8002", null, "Administrator", "ADMINISTRATOR" },
+                { "ed4099e0-601c-414d-b763-f2151a29040d", null, "Dispatcher", "DISPATCHER" },
+                { "ee9613ef-226d-4fba-9ab3-9a07d902018b", null, "Manager", "MANAGER" }
             });
 
         migrationBuilder.CreateIndex(
@@ -100,7 +112,8 @@ public partial class Add_Manager_ManagerReview : Migration
         migrationBuilder.CreateIndex(
             name: "IX_ManagerReview_ManagerId",
             table: "ManagerReview",
-            column: "ManagerId");
+            column: "ManagerId",
+            unique: true);
     }
 
     /// <inheritdoc />
@@ -112,37 +125,41 @@ public partial class Add_Manager_ManagerReview : Migration
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "153b479b-2c52-4729-94e0-513fdec3f66e");
+            keyValue: "5bd07b96-507a-4b1a-b9ff-b421cfe1d205");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "18c5b372-b34e-4194-838c-cdc1c64682f2");
+            keyValue: "7fbd87ba-5311-4855-b18f-54b7e711eb82");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "2d7e1223-bd95-4880-9805-54a68f84d74f");
+            keyValue: "8b08e145-6325-4046-b55c-77b9906966b5");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "43e6d885-ec20-4a5a-a94a-8477c8a1fa60");
+            keyValue: "c9734b82-c84a-43b2-b453-c4ff6eb8c1cf");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "5089a8a9-4e4f-4c6d-848c-23f2b3a3899c");
+            keyValue: "d6c0f8c6-b894-44ff-80f9-eb65961d8002");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "bdff891f-f7de-4ad0-9267-a5dda2cc22b9");
+            keyValue: "ed4099e0-601c-414d-b763-f2151a29040d");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "f481030e-c1b1-41fe-a889-119bf9efbe33");
+            keyValue: "ee9613ef-226d-4fba-9ab3-9a07d902018b");
+
+        migrationBuilder.DropColumn(
+            name: "ManagerReviewId",
+            table: "Debt");
 
         migrationBuilder.InsertData(
             table: "Role",

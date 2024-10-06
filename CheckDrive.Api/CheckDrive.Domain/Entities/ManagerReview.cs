@@ -12,4 +12,7 @@ public class ManagerReview : ReviewBase
 
     public int ManagerId { get; set; }
     public required virtual Manager Manager { get; set; }
+
+    public int? DebtId { get; set; }
+    public virtual Debt? Debt { get; set; }
 }

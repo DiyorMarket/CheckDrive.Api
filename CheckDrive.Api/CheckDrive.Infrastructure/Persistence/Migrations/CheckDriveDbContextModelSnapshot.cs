@@ -121,6 +121,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("ManagerReviewId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("PaidAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -285,6 +288,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("DebtId")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("FuelConsumptionAdjustment")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -303,7 +309,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasIndex("CheckPointId")
                         .IsUnique();
 
-                    b.HasIndex("ManagerId");
+                    b.HasIndex("ManagerId")
+                        .IsUnique();
 
                     b.ToTable("ManagerReview", (string)null);
                 });
@@ -482,43 +489,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5089a8a9-4e4f-4c6d-848c-23f2b3a3899c",
+                            Id = "d6c0f8c6-b894-44ff-80f9-eb65961d8002",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "f481030e-c1b1-41fe-a889-119bf9efbe33",
+                            Id = "5bd07b96-507a-4b1a-b9ff-b421cfe1d205",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "153b479b-2c52-4729-94e0-513fdec3f66e",
+                            Id = "8b08e145-6325-4046-b55c-77b9906966b5",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "43e6d885-ec20-4a5a-a94a-8477c8a1fa60",
+                            Id = "ed4099e0-601c-414d-b763-f2151a29040d",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "bdff891f-f7de-4ad0-9267-a5dda2cc22b9",
+                            Id = "ee9613ef-226d-4fba-9ab3-9a07d902018b",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "18c5b372-b34e-4194-838c-cdc1c64682f2",
+                            Id = "7fbd87ba-5311-4855-b18f-54b7e711eb82",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "2d7e1223-bd95-4880-9805-54a68f84d74f",
+                            Id = "c9734b82-c84a-43b2-b453-c4ff6eb8c1cf",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });
@@ -813,6 +820,12 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("CheckDrive.Domain.Entities.Debt", "Debt")
+                        .WithOne("ManagerReview")
+                        .HasForeignKey("CheckDrive.Domain.Entities.ManagerReview", "ManagerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("CheckDrive.Domain.Entities.Manager", "Manager")
                         .WithMany("Reviews")
                         .HasForeignKey("ManagerId")
@@ -820,6 +833,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("CheckPoint");
+
+                    b.Navigation("Debt");
 
                     b.Navigation("Manager");
                 });
@@ -969,6 +984,11 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Navigation("MechanicHandover");
 
                     b.Navigation("OperatorReview");
+                });
+
+            modelBuilder.Entity("CheckDrive.Domain.Entities.Debt", b =>
+                {
+                    b.Navigation("ManagerReview");
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.OilMark", b =>
