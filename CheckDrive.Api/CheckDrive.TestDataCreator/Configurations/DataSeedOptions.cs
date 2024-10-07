@@ -10,6 +10,7 @@ public class DataSeedOptions
     public int DriversCount { get; set; }
     public int DoctorsCount { get; set; }
     public int MechanicsCount { get; set; }
+    public int ManagersCount { get; set; }
     public int OperatorsCount { get; set; }
     public int DispatchersCount { get; set; }
 }
