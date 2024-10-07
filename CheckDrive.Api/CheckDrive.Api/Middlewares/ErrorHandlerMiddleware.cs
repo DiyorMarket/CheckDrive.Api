@@ -32,7 +32,7 @@ public class ErrorHandlerMiddleware
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         string message = "Internal server error. Something went wrong, please try again later.";
 
-        if (exception is NotFound)
+        if (exception is EntityNotFoundException)
         {
             context.Response.StatusCode = (int)HttpStatusCode.NotFound;
             message = exception.Message;

@@ -23,6 +23,7 @@ public static class DatabaseSeeder
         CreateMechanics(context, userManager, options);
         CreateOperators(context, userManager, options);
         CreateDispatchers(context, userManager, options);
+        CreateManagers(context, userManager, options);
     }
 
     private static void CreateCars(ICheckDriveDbContext context, DataSeedOptions options)
@@ -144,7 +145,7 @@ public static class DatabaseSeeder
         var role = context.Roles.First(x => x.Name == "mechanic");
         var uniqueMechanicsByName = new Dictionary<string, Mechanic>();
 
-        for (int i = 0; i < options.DriversCount; i++)
+        for (int i = 0; i < options.MechanicsCount; i++)
         {
             var account = FakeDataGenerator.GetAccount().Generate();
             var mechanic = FakeDataGenerator.GetEmployee<Mechanic>().Generate();
@@ -182,7 +183,7 @@ public static class DatabaseSeeder
         var role = context.Roles.First(x => x.Name == "operator");
         var uniqueOperatorsByName = new Dictionary<string, Operator>();
 
-        for (int i = 0; i < options.DriversCount; i++)
+        for (int i = 0; i < options.OperatorsCount; i++)
         {
             var account = FakeDataGenerator.GetAccount().Generate();
             var @operator = FakeDataGenerator.GetEmployee<Operator>().Generate();
@@ -220,7 +221,7 @@ public static class DatabaseSeeder
         var role = context.Roles.First(x => x.Name == "dispatcher");
         var uniqueDispatchersByName = new Dictionary<string, Dispatcher>();
 
-        for (int i = 0; i < options.DriversCount; i++)
+        for (int i = 0; i < options.DispatchersCount; i++)
         {
             var account = FakeDataGenerator.GetAccount().Generate();
             var dispatcher = FakeDataGenerator.GetEmployee<Dispatcher>().Generate();
@@ -251,6 +252,43 @@ public static class DatabaseSeeder
         context.SaveChanges();
     }
 
+    private static void CreateManagers(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    {
+        if (context.Managers.Any()) return;
+
+        var role = context.Roles.First(x => x.Name == "manager");
+        var uniqueManagersByName = new Dictionary<string, Manager>();
+
+        for (int i = 0; i < options.ManagersCount; i++)
+        {
+            var account = FakeDataGenerator.GetAccount().Generate();
+            var manager = FakeDataGenerator.GetEmployee<Manager>().Generate();
+
+            if (uniqueManagersByName.TryAdd(manager.FirstName + manager.LastName, manager))
+            {
+                var result = userManager.CreateAsync(account, $"Qwerty-{i}");
+
+                if (!result.Result.Succeeded)
+                {
+                    continue;
+                }
+
+                manager.Account = account;
+                context.Managers.Add(manager);
+            }
+        }
+
+        context.SaveChanges();
+        var managers = context.Managers.ToArray();
+
+        foreach (var manager in managers)
+        {
+            var userRole = new IdentityUserRole<string> { RoleId = role.Id, UserId = manager.AccountId };
+            context.UserRoles.Add(userRole);
+        }
+
+        context.SaveChanges();
+    }
     //private static void CreateEmployees(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
     //{
     //    if (context.Users.Any())

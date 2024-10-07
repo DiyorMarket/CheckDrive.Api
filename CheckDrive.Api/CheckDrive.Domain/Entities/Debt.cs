@@ -11,4 +11,7 @@ public class Debt : EntityBase
 
     public int CheckPointId { get; set; }
     public required virtual CheckPoint CheckPoint { get; set; }
+
+    public int? ManagerReviewId { get; set; }
+    public virtual ManagerReview? ManagerReview { get; set; }
 }
