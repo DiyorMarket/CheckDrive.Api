@@ -53,9 +53,11 @@ public static class FakeDataGenerator
         .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
         .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
 
-    public static Faker<MechanicHandover> GetMechanichandover(List<int> mechanicIds) => new Faker<MechanicHandover>()
+    public static Faker<MechanicHandover> GetMechanichandover(List<int> mechanicIds,
+        List<Car> cars) => new Faker<MechanicHandover>()
       .RuleFor(x => x.MechanicId, f => f.PickRandom(mechanicIds))
-      .RuleFor(x => x.Date, f => f.Date.Past(3))
+      .RuleFor(x => x.CarId, f => f.PickRandom(cars).Id)
+      .RuleFor(x => x.InitialMileage, f => f.PickRandom(cars).Mileage + f.Random.Int(1,10))
       .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
       .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
 }

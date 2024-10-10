@@ -26,6 +26,7 @@ public static class DatabaseSeeder
 
         CreateCheckPoints(context, options);
         CreateDoctorReviews(context, options);
+        CreateMechanicHandovers(context);
     }
 
     private static void CreateCars(ICheckDriveDbContext context, DataSeedOptions options)
@@ -294,7 +295,7 @@ public static class DatabaseSeeder
         context.SaveChanges();
     }
 
-    private static void CreateMechanicHandovers(ICheckDriveDbContext context, DataSeedOptions options)
+    private static void CreateMechanicHandovers(ICheckDriveDbContext context)
     {
         if (context.MechanicHandovers.Any()) return;
 
@@ -312,20 +313,19 @@ public static class DatabaseSeeder
 
         var uniqueMechanicHandovers= new Dictionary<int, MechanicHandover>();
 
-        for (int i = 0; i < options.DoctorReviewsCount; i++)
+        for (int i = 0; i < checkPoint.Count; i++)
         {
-            var mechanicHandover = FakeDataGenerator.GetMechanichandover(mechanicIds, carIds).Generate();
+            var mechanicHandover = FakeDataGenerator.GetMechanichandover(mechanicIds, cars).Generate();
 
             mechanicHandover.CheckPointId = checkPoint[i].Id;
+            mechanicHandover.Date = checkPoint[i].StartDate;
 
             checkPoint[i].Stage = CheckPointStage.MechanicHandover;
-
+            
             if(mechanicHandover.Status == ReviewStatus.RejectedByReviewer)
             {
                 checkPoint[i].Status = CheckPointStatus.InterruptedByReviewerRejection;
             }
-
-            cars[i].Mileage = mechanicHandover.InitialMileage;
 
             if (uniqueMechanicHandovers.TryAdd(mechanicHandover.CheckPointId, mechanicHandover))
             {
