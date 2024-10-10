@@ -39,4 +39,24 @@ public static class FakeDataGenerator
 
     public static Faker<OilMark> GetOilMark() => new Faker<OilMark>()
         .RuleFor(x => x.Name, f => f.PickRandom(_oilMarks));
+
+    public static Faker<CheckPoint> GetCheckPoints() => new Faker<CheckPoint>()
+        .RuleFor(x => x.StartDate, f => f.Date.Past(5))
+        .RuleFor(x => x.Stage, CheckPointStage.DoctorReview)
+        .RuleFor(x => x.Status, f => f.Random.Bool(0.75f) ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection);
+
+    public static Faker<DoctorReview> GetDoctorReview(List<int> doctorIds,
+        List<int> driverIds) => new Faker<DoctorReview>()
+        .RuleFor(x => x.DoctorId, f => f.PickRandom(doctorIds))
+        .RuleFor(x => x.DriverId, f => f.PickRandom(driverIds))
+        .RuleFor(x => x.Date, f => f.Date.Past(3))
+        .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
+        .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
+
+    public static Faker<MechanicHandover> GetMechanichandover(List<int> mechanicIds) => new Faker<MechanicHandover>()
+      .RuleFor(x => x.MechanicId, f => f.PickRandom(mechanicIds))
+      .RuleFor(x => x.Date, f => f.Date.Past(3))
+      .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
+      .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
 }
+
