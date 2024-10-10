@@ -24,9 +24,29 @@ public static class DatabaseSeeder
         CreateOperators(context, userManager, options);
         CreateDispatchers(context, userManager, options);
 
+        CreateDefaultOilMarks(context);
         CreateCheckPoints(context, options);
         CreateDoctorReviews(context, options);
         CreateMechanicHandovers(context);
+        CreateOperatorReviews(context);
+    }
+
+    private static void CreateDefaultOilMarks(ICheckDriveDbContext context)
+    {
+        if (context.OilMarks.Any()) return;
+
+        var oilMarks = new List<OilMark>
+        {
+            new OilMark { Name = "AI-80" },
+            new OilMark { Name = "AI-92" },
+            new OilMark { Name = "AI-95" },
+            new OilMark { Name = "AI-100" },
+            new OilMark { Name = "Diesel"},
+            new OilMark { Name = "Gas" }
+        };
+
+        context.OilMarks.AddRange(oilMarks);
+        context.SaveChanges();
     }
 
     private static void CreateCars(ICheckDriveDbContext context, DataSeedOptions options)
@@ -330,6 +350,47 @@ public static class DatabaseSeeder
             if (uniqueMechanicHandovers.TryAdd(mechanicHandover.CheckPointId, mechanicHandover))
             {
                 context.MechanicHandovers.Add(mechanicHandover);
+            }
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateOperatorReviews(ICheckDriveDbContext context)
+    {
+        if (context.OperatorReviews.Any()) return;
+
+        var checkPoint = context.CheckPoints
+            .Include(x => x.MechanicHandover)
+            .Where(x => x.Stage == CheckPointStage.MechanicHandover)
+            .Where(x => x.Status == CheckPointStatus.InProgress)
+            .ToList();
+
+        var operatorIds = context.Operators.Select(x => x.Id).ToList();
+
+        var oilMarkIds = context.OilMarks
+            .Select(x => x.Id)
+            .ToList();
+
+        var uniqueMechanicHandovers = new Dictionary<int, OperatorReview>();
+
+        for (int i = 0; i < checkPoint.Count; i++)
+        {
+            var operatorReview = FakeDataGenerator.GetOperatorReviews(operatorIds, oilMarkIds).Generate();
+
+            operatorReview.CheckPointId = checkPoint[i].Id;
+            operatorReview.Date = checkPoint[i].StartDate;
+
+            checkPoint[i].Stage = CheckPointStage.OperatorReview;
+
+            if (operatorReview.Status == ReviewStatus.RejectedByReviewer)
+            {
+                checkPoint[i].Status = CheckPointStatus.InterruptedByReviewerRejection;
+            }
+
+            if (uniqueMechanicHandovers.TryAdd(operatorReview.CheckPointId, operatorReview))
+            {
+                context.OperatorReviews.Add(operatorReview);
             }
         }
 

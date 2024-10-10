@@ -59,6 +59,15 @@ public static class FakeDataGenerator
       .RuleFor(x => x.CarId, f => f.PickRandom(cars).Id)
       .RuleFor(x => x.InitialMileage, f => f.PickRandom(cars).Mileage + f.Random.Int(1,10))
       .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
-      .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
+      .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
+
+    public static Faker<OperatorReview> GetOperatorReviews(List<int> operatorIds,
+        List<int> oilMarkIds) => new Faker<OperatorReview>()
+      .RuleFor(x => x.OperatorId, f => f.PickRandom(operatorIds))
+      .RuleFor(x => x.OilMarkId, f => f.PickRandom(oilMarkIds))
+      .RuleFor(x => x.InitialOilAmount, f => f.Random.Int(10,60))
+      .RuleFor(x => x.OilRefillAmount, f => f.Random.Int(0,60))
+      .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
+      .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
 }
 
