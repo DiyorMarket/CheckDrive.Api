@@ -283,7 +283,7 @@ public static class DatabaseSeeder
         if (context.CheckPoints.Any()) return;
 
         var checkPoints = FakeDataGenerator.GetCheckPoints()
-            .Generate(options.DoctorReviewsCount);
+            .Generate(options.CheckPointsCount);
 
         foreach (var checkPoint in checkPoints)
         {
@@ -303,7 +303,7 @@ public static class DatabaseSeeder
         var doctorIds = context.Doctors.Select(x => x.Id).ToList();
         var uniqueDoctorReviews = new Dictionary<int,DoctorReview>();
 
-        for (int i = 0; i < options.DoctorReviewsCount; i++)
+        for (int i = 0; i < options.CheckPointsCount; i++)
         {
             var doctorReview = FakeDataGenerator.GetDoctorReview(doctorIds, driverIds).Generate();
 
@@ -463,14 +463,17 @@ public static class DatabaseSeeder
             if (dispatcherReview.FuelConsumptionAdjustment.HasValue || dispatcherReview.DistanceTravelledAdjustment.HasValue)
             {
                 checkPoints[i].Stage = CheckPointStage.ManagerReview;
+                checkPoints[i].Status = CheckPointStatus.PendingManagerReview;
             }
-
-            if (dispatcherReview.Status != ReviewStatus.Approved)
+            else if (dispatcherReview.Status != ReviewStatus.Approved)
             {
                 checkPoints[i].Status = CheckPointStatus.InterruptedByReviewerRejection;
             }
+            else
+            {
+                checkPoints[i].Status = CheckPointStatus.Completed;
+            }
 
-            checkPoints[i].Status = CheckPointStatus.Completed;
 
             if (uniqueDispatcherReviews.TryAdd(dispatcherReview.CheckPointId, dispatcherReview))
             {
@@ -480,5 +483,4 @@ public static class DatabaseSeeder
 
         context.SaveChanges();
     }
-
 }

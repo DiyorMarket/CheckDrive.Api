@@ -12,5 +12,5 @@ public class DataSeedOptions
     public int MechanicsCount { get; set; }
     public int OperatorsCount { get; set; }
     public int DispatchersCount { get; set; }
-    public int DoctorReviewsCount { get; set; }
+    public int CheckPointsCount { get; set; }
 }
