@@ -5,6 +5,7 @@ using CheckDrive.TestDataCreator;
 using CheckDrive.TestDataCreator.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CheckDrive.Api.Helpers;
 
@@ -29,6 +30,8 @@ public static class DatabaseSeeder
         CreateDoctorReviews(context, options);
         CreateMechanicHandovers(context);
         CreateOperatorReviews(context);
+        CreateMechanicAcceptances(context);
+        CreateDispatcherReviews(context);
     }
 
     private static void CreateDefaultOilMarks(ICheckDriveDbContext context)
@@ -328,7 +331,6 @@ public static class DatabaseSeeder
         var mechanicIds = context.Mechanics.Select(x => x.Id).ToList();
 
         var cars = context.Cars
-            .Where(x => x.Status == CarStatus.Free)
             .ToList();
 
         var uniqueMechanicHandovers= new Dictionary<int, MechanicHandover>();
@@ -396,4 +398,87 @@ public static class DatabaseSeeder
 
         context.SaveChanges();
     }
+
+    private static void CreateMechanicAcceptances(ICheckDriveDbContext context)
+    {
+        if (context.MechanicAcceptances.Any()) return;
+
+        var checkPoint = context.CheckPoints
+            .Where(x => x.Stage == CheckPointStage.OperatorReview)
+            .Where(x => x.Status == CheckPointStatus.InProgress)
+            .ToList();
+
+        var mechanicIds = context.Mechanics.Select(x => x.Id).ToList();
+
+        var uniqueMechanicAcceptance = new Dictionary<int, MechanicAcceptance>();
+
+        for (int i = 0; i < checkPoint.Count; i++)
+        {
+            var mechanicAcceptance = FakeDataGenerator.GetMechanicAcceptance(mechanicIds).Generate();
+
+            mechanicAcceptance.CheckPointId = checkPoint[i].Id;
+
+            var randomDate = new Random().Next(1, 20);
+            mechanicAcceptance.Date = checkPoint[i].StartDate.AddDays(randomDate);
+
+            checkPoint[i].Stage = CheckPointStage.MechanicAcceptance;
+
+            if (mechanicAcceptance.Status == ReviewStatus.RejectedByReviewer)
+            {
+                checkPoint[i].Status = CheckPointStatus.InterruptedByReviewerRejection;
+            }
+
+            if (uniqueMechanicAcceptance.TryAdd(mechanicAcceptance.CheckPointId, mechanicAcceptance))
+            {
+                context.MechanicAcceptances.Add(mechanicAcceptance);
+            }
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void CreateDispatcherReviews(ICheckDriveDbContext context)
+    {
+        if (context.DispatcherReviews.Any()) return;
+
+        var checkPoints = context.CheckPoints
+            .Include(x => x.MechanicAcceptance)
+            .Where(x => x.Stage == CheckPointStage.MechanicAcceptance)
+            .Where(x => x.Status == CheckPointStatus.InProgress)
+            .ToList();
+
+        var dispatcherIds = context.Dispatchers.Select(x => x.Id).ToList();
+
+        var uniqueDispatcherReviews = new Dictionary<int, DispatcherReview>();
+
+        for (int i = 0; i < checkPoints.Count; i++)
+        {
+            var dispatcherReview = FakeDataGenerator.GetDispatcherReview(dispatcherIds).Generate();
+
+            dispatcherReview.CheckPointId = checkPoints[i].Id;
+            dispatcherReview.Date = checkPoints[i].MechanicAcceptance!.Date;
+
+            checkPoints[i].Stage = CheckPointStage.DispatcherReview;
+
+            if (dispatcherReview.FuelConsumptionAdjustment.HasValue || dispatcherReview.DistanceTravelledAdjustment.HasValue)
+            {
+                checkPoints[i].Stage = CheckPointStage.ManagerReview;
+            }
+
+            if (dispatcherReview.Status != ReviewStatus.Approved)
+            {
+                checkPoints[i].Status = CheckPointStatus.InterruptedByReviewerRejection;
+            }
+
+            checkPoints[i].Status = CheckPointStatus.Completed;
+
+            if (uniqueDispatcherReviews.TryAdd(dispatcherReview.CheckPointId, dispatcherReview))
+            {
+                context.DispatcherReviews.Add(dispatcherReview);
+            }
+        }
+
+        context.SaveChanges();
+    }
+
 }

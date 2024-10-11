@@ -43,31 +43,48 @@ public static class FakeDataGenerator
     public static Faker<CheckPoint> GetCheckPoints() => new Faker<CheckPoint>()
         .RuleFor(x => x.StartDate, f => f.Date.Past(5))
         .RuleFor(x => x.Stage, CheckPointStage.DoctorReview)
-        .RuleFor(x => x.Status, f => f.Random.Bool(0.75f) ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection);
+        .RuleFor(x => x.Status, f => f.Random.Bool(0.98f) ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection);
 
-    public static Faker<DoctorReview> GetDoctorReview(List<int> doctorIds,
+    public static Faker<DoctorReview> GetDoctorReview(
+        List<int> doctorIds,
         List<int> driverIds) => new Faker<DoctorReview>()
         .RuleFor(x => x.DoctorId, f => f.PickRandom(doctorIds))
         .RuleFor(x => x.DriverId, f => f.PickRandom(driverIds))
         .RuleFor(x => x.Date, f => f.Date.Past(3))
         .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
-        .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
+        .RuleFor(x => x.Status, f => f.Random.Bool(0.98f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
 
-    public static Faker<MechanicHandover> GetMechanichandover(List<int> mechanicIds,
+    public static Faker<MechanicHandover> GetMechanichandover(
+        List<int> mechanicIds,
         List<Car> cars) => new Faker<MechanicHandover>()
       .RuleFor(x => x.MechanicId, f => f.PickRandom(mechanicIds))
       .RuleFor(x => x.CarId, f => f.PickRandom(cars).Id)
       .RuleFor(x => x.InitialMileage, f => f.PickRandom(cars).Mileage + f.Random.Int(1,10))
       .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
-      .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
+      .RuleFor(x => x.Status, f => f.Random.Bool(0.98f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
 
-    public static Faker<OperatorReview> GetOperatorReviews(List<int> operatorIds,
+    public static Faker<OperatorReview> GetOperatorReviews(
+        List<int> operatorIds,
         List<int> oilMarkIds) => new Faker<OperatorReview>()
       .RuleFor(x => x.OperatorId, f => f.PickRandom(operatorIds))
       .RuleFor(x => x.OilMarkId, f => f.PickRandom(oilMarkIds))
       .RuleFor(x => x.InitialOilAmount, f => f.Random.Int(10,60))
       .RuleFor(x => x.OilRefillAmount, f => f.Random.Int(0,60))
       .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
-      .RuleFor(x => x.Status, f => f.Random.Bool(0.85f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
+      .RuleFor(x => x.Status, f => f.Random.Bool(0.98f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
+
+    public static Faker<MechanicAcceptance> GetMechanicAcceptance(List<int> mechanicIds) => new Faker<MechanicAcceptance>()
+     .RuleFor(x => x.MechanicId, f => f.PickRandom(mechanicIds))
+     .RuleFor(x => x.FinalMileage, f => f.Random.Int(10_000,100_000)) 
+     .RuleFor(x => x.RemainingFuelAmount, f => f.Random.Int(10, 60))
+     .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
+     .RuleFor(x => x.Status, f => f.Random.Bool(0.98f) ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer);
+
+    public static Faker<DispatcherReview> GetDispatcherReview(List<int> dispatcherIds) => new Faker<DispatcherReview>()
+      .RuleFor(x => x.DispatcherId, f => f.PickRandom(dispatcherIds))
+      .RuleFor(x => x.DistanceTravelledAdjustment, f => f.Random.Bool(0.98f) ? null : f.Random.Int(10_000, 100_000))
+      .RuleFor(x => x.FuelConsumptionAdjustment, f => f.Random.Bool(0.98f) ? null : f.Random.Int(10, 60))
+      .RuleFor(x => x.Notes, f => f.Lorem.Sentence(2, 4))
+      .RuleFor(x => x.Status, f => f.Random.Bool(0.98f) ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer);
 }
 
