@@ -24,7 +24,6 @@ public static class DatabaseSeeder
         CreateMechanics(context, userManager, options);
         CreateOperators(context, userManager, options);
         CreateDispatchers(context, userManager, options);
-
         CreateDefaultOilMarks(context);
         CreateCheckPoints(context, options);
         CreateDoctorReviews(context, options);
@@ -41,6 +40,7 @@ public static class DatabaseSeeder
         var oilMarks = new List<OilMark>
         {
             new OilMark { Name = "AI-80" },
+            new OilMark { Name = "AI-91" },
             new OilMark { Name = "AI-92" },
             new OilMark { Name = "AI-95" },
             new OilMark { Name = "AI-100" },
