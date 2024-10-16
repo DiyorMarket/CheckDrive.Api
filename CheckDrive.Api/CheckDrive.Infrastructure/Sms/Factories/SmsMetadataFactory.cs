@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CheckDrive.Infrastructure.Sms.Factories;
+
 internal class SmsMetadataFactory : ISmsMetadataFactory
 {
     private readonly Dictionary<SmsType, string> smsSubjects = new()

@@ -15,7 +15,7 @@ internal sealed class SmsService : ISmsService
     private readonly Dictionary<SmsType, string> templateNames = new()
     {
         { SmsType.NotificationMessage, "NotificationMessageTemplate.txt" },
-        { SmsType.ForgotPassword, "PasswordResetTemplate.txt" }
+        { SmsType.ForgotPassword, "ForgotPasswordTemplate.txt" }
     };
 
     public SmsService(IOptions<SmsConfigurations> options)
