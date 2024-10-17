@@ -4,9 +4,11 @@ namespace CheckDrive.Application.DTOs.MechanicAcceptance;
 
 public sealed record CreateMechanicAcceptanceReviewDto(
     int CheckPointId,
+    int DriverId,
     int ReviewerId,
     string? Notes,
     bool IsApprovedByReviewer,
+    decimal DebtAmountFromDriver,
     int FinalMileage,
     decimal RemainingFuelAmount)
     : CreateReviewDtoBase(
