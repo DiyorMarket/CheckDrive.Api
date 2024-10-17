@@ -1,5 +1,6 @@
 ﻿using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Models;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Infrastructure.Configurations;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
@@ -10,6 +11,12 @@ internal sealed class SmsService : ISmsService
 {
     private readonly SmsConfigurations _options;
     private readonly HttpClient _client;
+
+    private readonly Dictionary<SmsType, string> templateNames = new()
+    {
+        { SmsType.NotificationMessage, "NotificationMessageTemplate.txt" },
+        { SmsType.ForgotPassword, "ForgotPasswordTemplate.txt" }
+    };
 
     public SmsService(IOptions<SmsConfigurations> options)
     {
