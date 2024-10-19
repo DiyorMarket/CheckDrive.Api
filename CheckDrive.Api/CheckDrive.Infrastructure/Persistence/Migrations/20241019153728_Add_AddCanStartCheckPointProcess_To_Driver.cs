@@ -7,7 +7,7 @@
 namespace CheckDrive.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
-public partial class Add_CanStartToReview_To_Driver : Migration
+public partial class Add_AddCanStartCheckPointProcess_To_Driver : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,7 +48,7 @@ public partial class Add_CanStartToReview_To_Driver : Migration
             keyValue: "ee9613ef-226d-4fba-9ab3-9a07d902018b");
 
         migrationBuilder.AddColumn<bool>(
-            name: "CanStartToReview",
+            name: "CanStartCheckPointProcess",
             table: "Employee",
             type: "bit",
             nullable: true);
@@ -58,13 +58,13 @@ public partial class Add_CanStartToReview_To_Driver : Migration
             columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
             values: new object[,]
             {
-                { "03039f19-2a64-4b66-96f8-20fe0751f39d", null, "Driver", "DRIVER" },
-                { "55a92e9e-756b-461b-acc1-bff5a9f11668", null, "Mechanic", "MECHANIC" },
-                { "6d59e31b-348a-4212-815c-b8582fa107e6", null, "Administrator", "ADMINISTRATOR" },
-                { "964c5a44-d170-4824-b41d-3c7875416c6a", null, "Doctor", "DOCTOR" },
-                { "aa9df118-1c6e-4d98-8638-09315613799e", null, "Dispatcher", "DISPATCHER" },
-                { "cbb9f901-ee05-419e-8723-e8f7ae86b1ca", null, "Operator", "OPERATOR" },
-                { "cfde30c8-db21-4486-9efa-f965e8090e25", null, "Manager", "MANAGER" }
+                { "2545b628-cfb5-4357-b29b-ea8041104321", null, "Doctor", "DOCTOR" },
+                { "3e5f618d-326c-40ec-9738-bc8a1e56f285", null, "Administrator", "ADMINISTRATOR" },
+                { "9b1805b6-9bb9-4773-972d-b863ff786219", null, "Driver", "DRIVER" },
+                { "a2be3212-944b-4083-9a12-35ae76e982ee", null, "Mechanic", "MECHANIC" },
+                { "adedde3b-d787-4d3d-892d-95da8e334397", null, "Dispatcher", "DISPATCHER" },
+                { "e8555128-ad21-4719-a289-089f30174e74", null, "Manager", "MANAGER" },
+                { "f761f7c2-cd71-4c06-b869-c66778127bc6", null, "Operator", "OPERATOR" }
             });
     }
 
@@ -74,40 +74,40 @@ public partial class Add_CanStartToReview_To_Driver : Migration
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "03039f19-2a64-4b66-96f8-20fe0751f39d");
+            keyValue: "2545b628-cfb5-4357-b29b-ea8041104321");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "55a92e9e-756b-461b-acc1-bff5a9f11668");
+            keyValue: "3e5f618d-326c-40ec-9738-bc8a1e56f285");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "6d59e31b-348a-4212-815c-b8582fa107e6");
+            keyValue: "9b1805b6-9bb9-4773-972d-b863ff786219");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "964c5a44-d170-4824-b41d-3c7875416c6a");
+            keyValue: "a2be3212-944b-4083-9a12-35ae76e982ee");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "aa9df118-1c6e-4d98-8638-09315613799e");
+            keyValue: "adedde3b-d787-4d3d-892d-95da8e334397");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "cbb9f901-ee05-419e-8723-e8f7ae86b1ca");
+            keyValue: "e8555128-ad21-4719-a289-089f30174e74");
 
         migrationBuilder.DeleteData(
             table: "Role",
             keyColumn: "Id",
-            keyValue: "cfde30c8-db21-4486-9efa-f965e8090e25");
+            keyValue: "f761f7c2-cd71-4c06-b869-c66778127bc6");
 
         migrationBuilder.DropColumn(
-            name: "CanStartToReview",
+            name: "CanStartCheckPointProcess",
             table: "Employee");
 
         migrationBuilder.InsertData(

@@ -2,7 +2,7 @@
 
 public class Driver : Employee
 {
-    public bool CanStartToReview { get; set; }
+    public bool CanStartCheckPointProcess { get; set; }
 
     public virtual ICollection<DoctorReview> Reviews { get; set; }
     public Driver()
