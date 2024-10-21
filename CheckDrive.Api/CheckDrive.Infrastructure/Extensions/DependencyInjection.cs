@@ -16,13 +16,17 @@ namespace CheckDrive.Infrastructure.Extensions;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection RegisterInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterInfrastructure(
+        this IServiceCollection services, 
+        IConfiguration configuration,
+        RoleManager<IdentityRole> roleManager)
     {
         AddPersistence(services, configuration);
         AddConfigurations(services, configuration);
         AddEmail(services, configuration);
         AddServices(services);
         AddIdentity(services);
+        AddRoles(roleManager);
 
         return services;
     }
@@ -101,5 +105,29 @@ public static class DependencyInjection
         {
             options.TokenLifespan = TimeSpan.FromHours(12);
         });
+    }
+
+    private static void AddRoles(RoleManager<IdentityRole> roleManager)
+    {
+        string[] roleNames = {
+        Application.Constants.Roles.Administrator,
+        Application.Constants.Roles.Driver,
+        Application.Constants.Roles.Doctor,
+        Application.Constants.Roles.Dispatcher,
+        Application.Constants.Roles.Manager,
+        Application.Constants.Roles.Mechanic,
+        Application.Constants.Roles.Operator
+    };
+
+        foreach (var roleName in roleNames)
+        {
+            if (!roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+            {
+                roleManager.CreateAsync(new IdentityRole(roleName)
+                {
+                    NormalizedName = roleName.ToUpper()
+                }).GetAwaiter().GetResult();
+            }
+        }
     }
 }

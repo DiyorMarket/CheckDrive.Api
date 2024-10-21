@@ -78,55 +78,6 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
         });
 
         #endregion
-
-        #region Default Roles
-
-        builder.Entity<IdentityRole>().HasData(
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Administrator,
-                NormalizedName = Application.Constants.Roles.Administrator.ToUpper(),
-            },
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Driver,
-                NormalizedName = Application.Constants.Roles.Driver.ToUpper(),
-            },
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Doctor,
-                NormalizedName = Application.Constants.Roles.Doctor.ToUpper(),
-            },
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Dispatcher,
-                NormalizedName = Application.Constants.Roles.Dispatcher.ToUpper(),
-            },
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Manager,
-                NormalizedName = Application.Constants.Roles.Manager.ToUpper(),
-            },
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Mechanic,
-                NormalizedName = Application.Constants.Roles.Mechanic.ToUpper(),
-            },
-            new IdentityRole()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Name = Application.Constants.Roles.Operator,
-                NormalizedName = Application.Constants.Roles.Operator.ToUpper(),
-            }
-        );
-
-        #endregion
     }
 
     public IDbContextTransaction BeginTransaction()
