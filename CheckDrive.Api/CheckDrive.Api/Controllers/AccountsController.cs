@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.Constants;
 using CheckDrive.Application.DTOs.Account;
 using CheckDrive.Application.Interfaces;
+using CheckDrive.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,9 @@ public class AccountsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AccountDto>>> GetAsync()
+    public async Task<ActionResult<List<AccountDto>>> GetAsync(EmployeePosition? position)
     {
-        var accounts = await _service.GetAsync();
+        var accounts = await _service.GetAsync(position);
 
         return Ok(accounts);
     }

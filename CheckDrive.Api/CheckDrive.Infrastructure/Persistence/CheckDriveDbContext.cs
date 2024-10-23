@@ -16,6 +16,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public virtual DbSet<Mechanic> Mechanics { get; set; }
     public virtual DbSet<Operator> Operators { get; set; }
     public virtual DbSet<Dispatcher> Dispatchers { get; set; }
+    public virtual DbSet<Manager> Managers { get; set; }
     public virtual DbSet<Car> Cars { get; set; }
     public virtual DbSet<CheckPoint> CheckPoints { get; set; }
     public virtual DbSet<DoctorReview> DoctorReviews { get; set; }
@@ -23,6 +24,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public virtual DbSet<OperatorReview> OperatorReviews { get; set; }
     public virtual DbSet<MechanicAcceptance> MechanicAcceptances { get; set; }
     public virtual DbSet<DispatcherReview> DispatcherReviews { get; set; }
+    public virtual DbSet<ManagerReview> ManagerReviews { get; set; }
     public virtual DbSet<Debt> Debts { get; set; }
     public virtual DbSet<OilMark> OilMarks { get; set; }
 
