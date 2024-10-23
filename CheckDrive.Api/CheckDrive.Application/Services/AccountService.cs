@@ -24,13 +24,18 @@ internal sealed class AccountService : IAccountService
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public async Task<List<AccountDto>> GetAsync()
+    public async Task<List<AccountDto>> GetAsync(EmployeePosition? position)
     {
-        var accounts = await _context.Employees
+        var query = _context.Employees
             .AsNoTracking()
-            .Include(x => x.Account)
-            .ToListAsync();
+            .AsQueryable();
 
+        if (position.HasValue)
+        {
+            query = query.Where(x => x.Position == position.Value);
+        }
+
+        var accounts = await query.ToListAsync();
         var dtos = _mapper.Map<List<AccountDto>>(accounts);
 
         return dtos;
@@ -100,7 +105,7 @@ internal sealed class AccountService : IAccountService
         await _context.SaveChangesAsync();
     }
 
-    private async Task AssignToRoleAsync(IdentityUser user,EmployeePosition position)
+    private async Task AssignToRoleAsync(IdentityUser user, EmployeePosition position)
     {
         var role = position switch
         {
