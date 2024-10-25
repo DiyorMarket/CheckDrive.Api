@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.DoctorReview;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -13,11 +15,13 @@ internal sealed class DoctorReviewService : IDoctorReviewService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _reviewHub;
 
-    public DoctorReviewService(ICheckDriveDbContext context, IMapper mapper)
+    public DoctorReviewService(ICheckDriveDbContext context, IMapper mapper, IHubContext<ReviewHub, IReviewHub> reviewHub)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _reviewHub = reviewHub ?? throw new ArgumentNullException(nameof(reviewHub));
     }
 
     public async Task<DoctorReviewDto> CreateAsync(CreateDoctorReviewDto review)
@@ -31,9 +35,11 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var reviewEntity = CreateReviewEntity(review, checkPoint, doctor, driver);
 
         _context.DoctorReviews.Add(reviewEntity);
-        await _context.SaveChangesAsync();
+        // await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
+
+        await _reviewHub.Clients.User(dto.DriverId.ToString()).NotifyNewReviewAsync(dto);
 
         return dto;
     }

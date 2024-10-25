@@ -20,6 +20,10 @@ public static class DependencyInjection
         services.RegisterInfrastructure(configuration);
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
 
         AddControllers(services);
         AddSwagger(services);

@@ -1,11 +1,13 @@
 ﻿using AutoFixture;
 using AutoMapper;
 using CheckDrive.Application.DTOs.DoctorReview;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Services.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Moq.EntityFrameworkCore;
 
@@ -16,12 +18,14 @@ public class DoctorReviewServiceTests : ServiceTestBase
     private readonly Mock<ICheckDriveDbContext> _mockContext;
     private readonly Mock<IMapper> _mockMapper;
     private readonly DoctorReviewService _service;
+    private readonly Mock<IHubContext<ReviewHub, IReviewHub>> _mockHubContext;
 
     public DoctorReviewServiceTests()
     {
         _mockContext = new Mock<ICheckDriveDbContext>();
         _mockMapper = new Mock<IMapper>();
-        _service = new DoctorReviewService(_mockContext.Object, _mockMapper.Object);
+        _mockHubContext = new Mock<IHubContext<ReviewHub, IReviewHub>>();
+        _service = new DoctorReviewService(_mockContext.Object, _mockMapper.Object, _mockHubContext.Object);
     }
 
     [Fact]

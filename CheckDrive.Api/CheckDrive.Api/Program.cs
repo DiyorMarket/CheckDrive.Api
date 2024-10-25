@@ -1,5 +1,6 @@
 using CheckDrive.Api.Extensions;
 using CheckDrive.Api.Helpers;
+using CheckDrive.Application.Hubs;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
@@ -43,6 +44,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ReviewHub>("/review-hub");
 
 app.Run();
 
