@@ -10,7 +10,8 @@ internal sealed class AccountMappings : Profile
     public AccountMappings()
     {
         CreateMap<Employee, AccountDto>()
-            .ForCtorParam(nameof(AccountDto.Id), cfg => cfg.MapFrom(e => e.AccountId))
+            .ForCtorParam(nameof(AccountDto.Id), cfg => cfg.MapFrom(e => e.Id))
+            .ForCtorParam(nameof(AccountDto.AccountId), cfg => cfg.MapFrom(e => e.AccountId))
             .ForCtorParam(nameof(AccountDto.Username), cfg => cfg.MapFrom(e => e.Account.UserName))
             .ForCtorParam(nameof(AccountDto.PhoneNumber), cfg => cfg.MapFrom(e => e.Account.PhoneNumber))
             .ForCtorParam(nameof(AccountDto.Email), cfg => cfg.MapFrom(e => e.Account.Email))
