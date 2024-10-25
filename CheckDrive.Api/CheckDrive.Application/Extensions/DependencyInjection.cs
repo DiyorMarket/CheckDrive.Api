@@ -28,5 +28,6 @@ public static class DependencyInjection
         services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
         services.AddScoped<ICheckPointService, CheckPointService>();
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IDriverService, DriverService>();
     }
 }
