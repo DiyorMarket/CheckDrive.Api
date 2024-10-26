@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.MechanicHandover;
+using CheckDrive.Application.DTOs.Review;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -13,11 +16,13 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
-    public MechanicHandoverService(ICheckDriveDbContext context, IMapper mapper)
+    public MechanicHandoverService(ICheckDriveDbContext context, IMapper mapper, IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
     public async Task<MechanicHandoverReviewDto> CreateAsync(CreateMechanicHandoverReviewDto review)
@@ -29,7 +34,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         var car = await GetAndValidateCarAsync(review.CarId);
 
         UpdateCheckPoint(checkPoint, review);
-        UpdateCar(car, review);
+        // UpdateCar(car, review);
 
         var reviewEntity = CreateReviewEntity(review, mechanic, car, checkPoint);
 
@@ -37,6 +42,14 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<MechanicHandoverReviewDto>(createdReview);
+        var message = $"{mechanic.FirstName} {mechanic.LastName}dan {car.Color} {car.Model}ni boshlangich {review.InitialMileage} masofa bilan qabul qilishni tasdiqlaysizmi?";
+        var reviewConfirmation = new ReviewConfirmationDto(
+            checkPoint.Id,
+            ReviewType.MechanicHandover,
+            message);
+
+        await _hubContext.Clients.User(checkPoint.DoctorReview.DriverId.ToString())
+            .SendReviewConfirmationAsync(reviewConfirmation);
 
         return dto;
     }

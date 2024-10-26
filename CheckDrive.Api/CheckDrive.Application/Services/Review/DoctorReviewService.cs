@@ -35,7 +35,7 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var reviewEntity = CreateReviewEntity(review, checkPoint, doctor, driver);
 
         _context.DoctorReviews.Add(reviewEntity);
-        // await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
 
