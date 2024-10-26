@@ -12,6 +12,11 @@ public sealed class ReviewHub : Hub<IReviewHub>
             .NotifyNewReviewAsync(review);
     }
 
+    public async Task SendReviewConfirmationAsync(ReviewConfirmationDto reviewConfirmation)
+    {
+
+    }
+
     public override Task OnConnectedAsync()
     {
         var s = Context.UserIdentifier;
