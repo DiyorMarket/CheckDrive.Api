@@ -19,8 +19,16 @@ public class DriversController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<DriverDto>>> GetAvailableDriversAsync(CheckPointStage? stage)
     {
-        var drivers = await _driverService.GetAvailableDriversAsync(stage ?? CheckPointStage.DoctorReview);
+        var drivers = await _driverService.GetAvailableDriversAsync(stage);
 
         return Ok(drivers);
+    }
+
+    [HttpPost("reviews")]
+    public async Task<IActionResult> CreateReviewConfirmation(DriverReviewConfirmationDto confirmationDto)
+    {
+        await _driverService.CreateReviewConfirmation(confirmationDto);
+
+        return NoContent();
     }
 }

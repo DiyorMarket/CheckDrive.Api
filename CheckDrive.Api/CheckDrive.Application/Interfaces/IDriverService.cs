@@ -5,5 +5,6 @@ namespace CheckDrive.Application.Interfaces;
 
 public interface IDriverService
 {
-    Task<List<DriverDto>> GetAvailableDriversAsync(CheckPointStage stage);
+    Task<List<DriverDto>> GetAvailableDriversAsync(CheckPointStage? stage);
+    Task CreateReviewConfirmation(DriverReviewConfirmationDto confirmation);
 }
