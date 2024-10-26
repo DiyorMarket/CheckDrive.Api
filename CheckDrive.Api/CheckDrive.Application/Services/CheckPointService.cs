@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CheckDrive.Application.DTOs.Car;
 using CheckDrive.Application.DTOs.CheckPoint;
 using CheckDrive.Application.DTOs.Debt;
 using CheckDrive.Application.DTOs.DispatcherReview;
@@ -10,6 +11,7 @@ using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
+using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.Domain.QueryParameters;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +43,40 @@ internal sealed class CheckPointService : ICheckPointService
     public Task<CheckPointDto> GetCheckPointsByDriverIdAsync(int driverId)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<DriverCheckPointDto> GetCurrentCheckPointByDriverIdAsync(int driverId)
+    {
+        var checkPoint = await _context.CheckPoints
+            .AsNoTracking()
+            .Where(x => x.DoctorReview != null)
+            .Where(x => x.DoctorReview.DriverId == driverId)
+            .Where(x => x.StartDate.Date == DateTime.UtcNow.Date)
+            .Where(x => x.Status == CheckPointStatus.InProgress)
+            .Include(x => x.DoctorReview)
+            .ThenInclude(x => x.Doctor)
+            .Include(x => x.DoctorReview)
+            .ThenInclude(x => x.Driver)
+            .Include(x => x.MechanicHandover)
+            .ThenInclude(x => x.Mechanic)
+            .Include(x => x.MechanicHandover)
+            .ThenInclude(x => x.Car)
+            .Include(x => x.OperatorReview)
+            .ThenInclude(x => x.Operator)
+            .Include(x => x.MechanicAcceptance)
+            .ThenInclude(x => x.Mechanic)
+            .Include(x => x.DispatcherReview)
+            .ThenInclude(x => x.Dispatcher)
+            .FirstOrDefaultAsync();
+
+        if (checkPoint is null)
+        {
+            throw new EntityNotFoundException($"Driver with id: {driverId} does not have current active Check Point.");
+        }
+
+        var dto = MapToDto(checkPoint);
+
+        return dto;
     }
 
     private IQueryable<CheckPoint> GetQuery(CheckPointQueryParameters queryParameters)
@@ -88,9 +124,13 @@ internal sealed class CheckPointService : ICheckPointService
             query = query.Where(x => x.Stage == queryParameters.Stage.Value);
         }
 
-        if (queryParameters.DateFilter.HasValue)
+        if (queryParameters.Date.HasValue)
         {
-            query = FilterByDate(query, queryParameters.DateFilter.Value);
+            query = FilterByDate(query, queryParameters.Date.Value);
+        }
+        else
+        {
+            query = FilterByDate(query, DateFilter.Today);
         }
 
         return query;
@@ -160,5 +200,72 @@ internal sealed class CheckPointService : ICheckPointService
             Status: debtEntity.Status);
 
         return debtDto;
+    }
+
+    private DriverCheckPointDto MapToDto(CheckPoint checkPoint)
+    {
+        ArgumentNullException.ThrowIfNull(checkPoint);
+
+        var reviews = new List<DriverReviewDto>();
+        CarDto? car = null;
+
+        {
+            var doctorReview = checkPoint.DoctorReview;
+            var review = new DriverReviewDto(
+                doctorReview.Notes,
+                doctorReview.Doctor.FirstName + " " + doctorReview.Doctor.LastName,
+                doctorReview.Date,
+                ReviewType.DoctorReview,
+                doctorReview.Status);
+            reviews.Add(review);
+        }
+
+        if (checkPoint.MechanicHandover is not null)
+        {
+            var mechanicReview = checkPoint.MechanicHandover;
+            var review = new DriverReviewDto(
+                mechanicReview.Notes,
+                mechanicReview.Mechanic.FirstName + " " + mechanicReview.Mechanic.LastName,
+                mechanicReview.Date,
+                ReviewType.MechanicHandover,
+                mechanicReview.Status);
+            reviews.Add(review);
+            car = _mapper.Map<CarDto>(mechanicReview.Car);
+        }
+
+        if (checkPoint.OperatorReview is not null)
+        {
+            var operatorReview = checkPoint.OperatorReview;
+            var review = new DriverReviewDto(
+                operatorReview.Notes,
+                operatorReview.Operator.FirstName + " " + operatorReview.Operator.LastName,
+                operatorReview.Date,
+                ReviewType.OperatorReview,
+                operatorReview.Status);
+            reviews.Add(review);
+        }
+
+        if (checkPoint.MechanicAcceptance is not null)
+        {
+            var mechanicReview = checkPoint.MechanicAcceptance;
+            var review = new DriverReviewDto(
+                mechanicReview.Notes,
+                mechanicReview.Mechanic.FirstName + " " + mechanicReview.Mechanic.LastName,
+                mechanicReview.Date,
+                ReviewType.MechanicAcceptance,
+                mechanicReview.Status);
+            reviews.Add(review);
+        }
+
+        var checkPointDto = new DriverCheckPointDto(
+            checkPoint.Id,
+            checkPoint.StartDate,
+            checkPoint.Stage,
+            checkPoint.Status,
+            checkPoint.DoctorReview.Driver.FirstName + " " + checkPoint.DoctorReview.Driver.LastName,
+            car,
+            reviews);
+
+        return checkPointDto;
     }
 }
