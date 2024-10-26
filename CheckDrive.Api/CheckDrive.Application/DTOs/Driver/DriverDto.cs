@@ -1,3 +1,7 @@
 ﻿namespace CheckDrive.Application.DTOs.Driver;
 
-public record DriverDto(int Id, string AccountId, string FullName);
+public record DriverDto(
+    int Id,
+    string AccountId,
+    string FullName,
+    int? checkPointId);
