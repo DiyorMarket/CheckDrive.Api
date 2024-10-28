@@ -30,5 +30,36 @@ internal sealed class OilMarkConfiguration : IEntityTypeConfiguration<OilMark>
             .IsRequired();
 
         #endregion
+
+        #region Default Data
+
+        builder.HasData(
+            new OilMark
+            {
+                Id = 1,
+                Name = "80"
+            },
+            new OilMark
+            {
+                Id = 2,
+                Name = "85"
+            },
+            new OilMark
+            {
+                Id = 3,
+                Name = "90"
+            },
+            new OilMark
+            {
+                Id = 4,
+                Name = "95"
+            },
+            new OilMark
+            {
+                Id = 5,
+                Name = "100"
+            });
+
+        #endregion
     }
 }
