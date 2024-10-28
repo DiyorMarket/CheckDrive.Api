@@ -30,5 +30,6 @@ public static class DependencyInjection
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IDriverService, DriverService>();
         services.AddScoped<ICarService, CarService>();
+        services.AddScoped<IOilMarkService, OilMarkService>();
     }
 }
