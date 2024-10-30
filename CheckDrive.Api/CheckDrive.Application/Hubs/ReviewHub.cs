@@ -9,12 +9,7 @@ public sealed class ReviewHub : Hub<IReviewHub>
     {
         await Clients
             .User(review.DriverId.ToString())
-            .NotifyNewReviewAsync(review);
-    }
-
-    public async Task SendReviewConfirmationAsync(ReviewConfirmationDto reviewConfirmation)
-    {
-
+            .NotifyDoctorReview(review);
     }
 
     public override Task OnConnectedAsync()
