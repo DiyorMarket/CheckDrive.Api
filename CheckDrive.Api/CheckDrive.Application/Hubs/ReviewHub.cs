@@ -11,16 +11,4 @@ public sealed class ReviewHub : Hub<IReviewHub>
             .User(review.DriverId.ToString())
             .NotifyDoctorReview(review);
     }
-
-    public override Task OnConnectedAsync()
-    {
-        var s = Context.UserIdentifier;
-        return base.OnConnectedAsync();
-    }
-
-    public override Task OnDisconnectedAsync(Exception? exception)
-    {
-        var s = Context.UserIdentifier;
-        return base.OnDisconnectedAsync(exception);
-    }
 }
