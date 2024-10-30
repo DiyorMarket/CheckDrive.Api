@@ -31,6 +31,7 @@ public static class FakeDataGenerator
         .RuleFor(x => x.Number, f => f.Vehicle.Vin().Substring(0, 10))
         .RuleFor(x => x.ManufacturedYear, f => f.Date.Between(DateTime.Now.AddYears(-20), DateTime.Now.AddYears(-2)).Year)
         .RuleFor(x => x.Mileage, f => f.Random.Number(0, 100_000))
+        .RuleFor(x => x.CurrentMonthMileage, f => f.Random.Number(0, 1_000))
         .RuleFor(x => x.YearlyDistanceLimit, f => f.Random.Number(1_000, 5_000))
         .RuleFor(x => x.FuelCapacity, f => f.Random.Number(50, 70))
         .RuleFor(x => x.AverageFuelConsumption, f => f.Random.Number(10, 20))

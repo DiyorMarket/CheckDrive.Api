@@ -9,6 +9,7 @@ public sealed record CarDto(
     string Number,
     int ManufacturedYear,
     int Mileage,
+    int CurrentMonthMileage,
     int YearlyDistanceLimit,
     decimal AverageFuelConsumption,
     decimal FuelCapacity,
