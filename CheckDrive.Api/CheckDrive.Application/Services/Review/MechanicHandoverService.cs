@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.MechanicHandover;
-using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
@@ -18,7 +17,10 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     private readonly IMapper _mapper;
     private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
-    public MechanicHandoverService(ICheckDriveDbContext context, IMapper mapper, IHubContext<ReviewHub, IReviewHub> hubContext)
+    public MechanicHandoverService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -33,23 +35,22 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
         var car = await GetAndValidateCarAsync(review.CarId);
 
-        UpdateCheckPoint(checkPoint, review);
-        // UpdateCar(car, review);
+        if (!review.IsApprovedByReviewer)
+        {
+            checkPoint.Stage = CheckPointStage.OperatorReview;
+            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
+        }
 
-        var reviewEntity = CreateReviewEntity(review, mechanic, car, checkPoint);
+        var reviewEntity = CreateReview(review, checkPoint, mechanic, car);
 
-        var createdReview = _context.MechanicHandovers.Add(reviewEntity).Entity;
+        _context.MechanicHandovers.Add(reviewEntity);
         await _context.SaveChangesAsync();
 
-        var dto = _mapper.Map<MechanicHandoverReviewDto>(createdReview);
-        var message = $"{mechanic.FirstName} {mechanic.LastName}dan {car.Color} {car.Model}ni boshlangich {review.InitialMileage} masofa bilan qabul qilishni tasdiqlaysizmi?";
-        var reviewConfirmation = new ReviewConfirmationDto(
-            checkPoint.Id,
-            ReviewType.MechanicHandover,
-            message);
+        var dto = _mapper.Map<MechanicHandoverReviewDto>(reviewEntity);
 
-        await _hubContext.Clients.User(checkPoint.DoctorReview.DriverId.ToString())
-            .SendReviewConfirmationAsync(reviewConfirmation);
+        await _hubContext.Clients
+            .User(dto.DriverId.ToString())
+            .MechanicHandoverConfirmation(dto);
 
         return dto;
     }
@@ -83,7 +84,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
             throw new InvalidOperationException($"Cannot start car handover review when check point stage is not Doctor Review");
         }
 
-        if (checkPoint.DoctorReview.Status != ReviewStatus.Approved)
+        if (checkPoint.Status != CheckPointStatus.InProgress)
         {
             throw new InvalidOperationException($"Cannot start car handover review when Doctor review is not approved.");
         }
@@ -106,15 +107,20 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
             throw new UnavailableCarException($"Car with id: {carId} is not available for handover.");
         }
 
+        // TODO: Add logic for checking whether car's yearly/monthly limit is not exceeded
+
         return car;
     }
 
-    private static MechanicHandover CreateReviewEntity(
+    private static MechanicHandover CreateReview(
         CreateMechanicHandoverReviewDto review,
+        CheckPoint checkPoint,
         Mechanic mechanic,
-        Car car,
-        CheckPoint checkPoint)
+        Car car)
     {
+        ArgumentNullException.ThrowIfNull(review);
+        ArgumentNullException.ThrowIfNull(checkPoint);
+
         var entity = new MechanicHandover()
         {
             CheckPoint = checkPoint,
@@ -127,31 +133,5 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         };
 
         return entity;
-    }
-
-    private static void UpdateCar(Car car, CreateMechanicHandoverReviewDto review)
-    {
-        ArgumentNullException.ThrowIfNull(car);
-
-        if (review.InitialMileage < car.Mileage)
-        {
-            throw new InvalidMileageException(
-                $"Initial mileage ({review.InitialMileage}) cannot be less than current mileage of car: {car.Mileage}.");
-        }
-
-        car.Mileage = review.InitialMileage;
-        car.Status = CarStatus.Busy;
-    }
-
-    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateMechanicHandoverReviewDto review)
-    {
-        ArgumentNullException.ThrowIfNull(checkPoint);
-
-        checkPoint.Stage = CheckPointStage.MechanicHandover;
-
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
     }
 }

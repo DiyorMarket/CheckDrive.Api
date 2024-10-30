@@ -17,33 +17,14 @@ internal sealed class DriverService : IDriverService
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<List<DriverDto>> GetAvailableDriversAsync(CheckPointStage? stage)
+    public async Task<List<DriverDto>> GetAvailableDriversAsync()
     {
-        var query = _context.Drivers
-            .AsNoTracking()
-            .Include(x => x.Account)
-            .AsQueryable();
-
-        query = FilterByCheckPointStage(query, stage);
-
-        var drivers = await query
-            .Include(x => x.Reviews)
-            .Select(x => new
-            {
-                x.Id,
-                x.AccountId,
-                FullName = x.FirstName + " " + x.LastName,
-                x.Reviews
-            })
+        var drivers = await _context.Drivers
+            .Where(x => !x.Reviews.Any(x => x.Date.Date == DateTime.UtcNow.Date))
+            .Select(x => new DriverDto(x.Id, x.AccountId, x.FirstName + " " + x.LastName))
             .ToListAsync();
 
-        var driversWithCheckPoints = drivers.Select(x =>
-        {
-            int? checkPointId = x.Reviews.FirstOrDefault(x => x.Date.Date == DateTime.UtcNow.Date)?.CheckPointId;
-            return new DriverDto(x.Id, x.AccountId, x.FullName, checkPointId);
-        }).ToList();
-
-        return driversWithCheckPoints;
+        return drivers;
     }
 
     public async Task CreateReviewConfirmation(DriverReviewConfirmationDto confirmation)
@@ -56,9 +37,16 @@ internal sealed class DriverService : IDriverService
         {
             checkPoint.Status = CheckPointStatus.InterruptedByDriverRejection;
             await _context.SaveChangesAsync();
+
             return;
         }
 
+        await CreateReviewAsync(checkPoint, confirmation);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task CreateReviewAsync(CheckPoint checkPoint, DriverReviewConfirmationDto confirmation)
+    {
         if (confirmation.ReviewType == ReviewType.MechanicHandover)
         {
             await AcceptMechanicHandoverAsync(checkPoint);
@@ -73,24 +61,6 @@ internal sealed class DriverService : IDriverService
         {
             await AcceptMechanicAcceptanceAsync(checkPoint);
         }
-
-        await _context.SaveChangesAsync();
-    }
-
-    private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
-    {
-        var checkPoint = await _context.CheckPoints
-            .Include(x => x.MechanicHandover)
-            .Include(x => x.MechanicAcceptance)
-            .Include(x => x.OperatorReview)
-            .FirstOrDefaultAsync(x => x.Id == checkPointId);
-
-        if (checkPoint is null)
-        {
-            throw new EntityNotFoundException($"Check Point with id: {checkPointId} is not found.");
-        }
-
-        return checkPoint;
     }
 
     private async Task AcceptMechanicHandoverAsync(CheckPoint checkPoint)
@@ -100,16 +70,12 @@ internal sealed class DriverService : IDriverService
             throw new InvalidOperationException($"Cannot update car for Check Point without Mechanic Handover Review.");
         }
 
-        var car = await _context.Cars.FirstOrDefaultAsync(c => c.Id == checkPoint.MechanicHandover.CarId);
-
-        if (car is null)
-        {
-            throw new EntityNotFoundException($"Car with id: {checkPoint.MechanicHandover.CarId}");
-        }
+        var car = await GetAndValidateCarAsync(checkPoint.MechanicHandover.CarId);
 
         car.Mileage = checkPoint.MechanicHandover.InitialMileage;
+        car.Status = CarStatus.Busy;
+        checkPoint.Stage = CheckPointStage.MechanicHandover;
         checkPoint.MechanicHandover.Status = ReviewStatus.Approved;
-        checkPoint.Stage = CheckPointStage.OperatorReview;
     }
 
     private async Task AcceptOperatorReviewAsync(CheckPoint checkPoint)
@@ -120,9 +86,9 @@ internal sealed class DriverService : IDriverService
         }
 
         var car = await GetAndValidateCarAsync(checkPoint.MechanicHandover.CarId);
-        car.RemainingFuel += checkPoint.OperatorReview.OilRefillAmount;
 
-        checkPoint.Stage = CheckPointStage.MechanicAcceptance;
+        car.RemainingFuel = checkPoint.OperatorReview.InitialOilAmount + checkPoint.OperatorReview.OilRefillAmount;
+        checkPoint.Stage = CheckPointStage.OperatorReview;
         checkPoint.OperatorReview.Status = ReviewStatus.Approved;
     }
 
@@ -134,11 +100,48 @@ internal sealed class DriverService : IDriverService
         }
 
         var car = await GetAndValidateCarAsync(checkPoint.MechanicHandover.CarId);
+        var fuelConsumption = CalculateFuelConsumption(
+            checkPoint.MechanicHandover.InitialMileage,
+            checkPoint.MechanicAcceptance.FinalMileage,
+            car.AverageFuelConsumption);
+
+        if (fuelConsumption > car.RemainingFuel)
+        {
+            var debt = CreateDebt(
+                checkPoint,
+                fuelConsumption,
+                car.RemainingFuel,
+                checkPoint.MechanicAcceptance.RemainingFuelAmount);
+            _context.Debts.Add(debt);
+        }
+
         car.Mileage = checkPoint.MechanicAcceptance.FinalMileage;
         car.RemainingFuel = checkPoint.MechanicAcceptance.RemainingFuelAmount;
-
-        checkPoint.Stage = CheckPointStage.DispatcherReview;
+        car.CurrentMonthMileage += checkPoint.MechanicHandover.InitialMileage - checkPoint.MechanicAcceptance.FinalMileage;
+        checkPoint.Stage = CheckPointStage.MechanicAcceptance;
         checkPoint.MechanicAcceptance.Status = ReviewStatus.Approved;
+    }
+
+    private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
+    {
+        var checkPoint = await _context.CheckPoints
+            .Include(x => x.MechanicHandover)
+            .Include(x => x.OperatorReview)
+            .Include(x => x.MechanicAcceptance)
+            .FirstOrDefaultAsync(x => x.Id == checkPointId);
+
+        if (checkPoint is null)
+        {
+            throw new EntityNotFoundException($"Check Point with id: {checkPointId} is not found.");
+        }
+
+        if (checkPoint.Status != CheckPointStatus.InProgress)
+        {
+            throw new InvalidOperationException(
+                $"Driver can perform review confirmation only for In Progress Check Point. Current check point status: {checkPoint.Status}");
+        }
+
+        return checkPoint;
     }
 
     private async Task<Car> GetAndValidateCarAsync(int carId)
@@ -153,16 +156,27 @@ internal sealed class DriverService : IDriverService
         return car;
     }
 
-    private static IQueryable<Driver> FilterByCheckPointStage(IQueryable<Driver> query, CheckPointStage? stage)
+    private static decimal CalculateFuelConsumption(
+        int initialMileage,
+        int finalMileage,
+        decimal averageFuelConsumption)
     {
-        switch (stage)
+        var mileageAmount = finalMileage - initialMileage;
+        var fuelSpent = averageFuelConsumption * mileageAmount;
+
+        return fuelSpent;
+    }
+
+    private static Debt CreateDebt(CheckPoint checkPoint, decimal fuelSpent, decimal fuelInitialAmount, decimal fuelFinalAmount)
+    {
+        var debt = new Debt
         {
-            case null:
-                return query.Where(x => !x.Reviews.Any(x => x.Date.Date == DateTime.UtcNow.Date));
-            case CheckPointStage.DoctorReview:
-                return query.Where(x => x.Reviews.Any(r => r.Date.Date == DateTime.UtcNow.Date && r.Status == ReviewStatus.Approved));
-            default:
-                return query;
-        }
+            CheckPoint = checkPoint,
+            FuelAmount = fuelSpent - fuelInitialAmount - fuelFinalAmount,
+            PaidAmount = 0,
+            Status = DebtStatus.Unpaid
+        };
+
+        return debt;
     }
 }

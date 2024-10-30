@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.OperatorReview;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -13,11 +15,16 @@ internal sealed class OperatorReviewService : IOperatorReviewService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
-    public OperatorReviewService(ICheckDriveDbContext context, IMapper mapper)
+    public OperatorReviewService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
     public async Task<OperatorReviewDto> CreateAsync(CreateOperatorReviewDto review)
@@ -27,16 +34,30 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var @operator = await GetAndValidateOperatorAsync(review.ReviewerId);
         var oilMark = await GetAndValidateOilMarkAsync(review.OilMarkId);
+        var car = checkPoint.MechanicHandover!.Car;
 
-        RefillCar(checkPoint.MechanicHandover!.Car, review);
-        UpdateCheckPoint(checkPoint, review);
+        if (car.FuelCapacity < review.InitialOilAmount + review.OilRefillAmount)
+        {
+            throw new InvalidOperationException(
+                $"Oil refill amount ({review.InitialOilAmount + review.OilRefillAmount}) exceeds Car's fuel capacity ({car.FuelCapacity}).");
+        }
 
-        var reviewEntity = CreateReviewEntity(checkPoint, oilMark, @operator, review);
+        if (!review.IsApprovedByReviewer)
+        {
+            checkPoint.Stage = CheckPointStage.OperatorReview;
+            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
+        }
 
-        var createdReview = _context.OperatorReviews.Add(reviewEntity).Entity;
+        var reviewEntity = CreateReview(checkPoint, oilMark, @operator, review);
+
+        _context.OperatorReviews.Add(reviewEntity);
         await _context.SaveChangesAsync();
 
-        var dto = _mapper.Map<OperatorReviewDto>(createdReview);
+        var dto = _mapper.Map<OperatorReviewDto>(reviewEntity);
+
+        await _hubContext.Clients
+            .User(dto.DriverId.ToString())
+            .OperatorReviewConfirmation(dto);
 
         return dto;
     }
@@ -44,9 +65,10 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
-            .AsTracking()
+            .Include(x => x.DoctorReview)
+            .ThenInclude(x => x.Driver)
             .Include(x => x.MechanicHandover)
-            .ThenInclude(mh => mh!.Car)
+            .ThenInclude(x => x!.Car)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)
@@ -93,39 +115,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         return oilMark;
     }
 
-    private static void RefillCar(Car car, CreateOperatorReviewDto review)
-    {
-        ArgumentNullException.ThrowIfNull(car);
-
-        if (!review.IsApprovedByReviewer)
-        {
-            return;
-        }
-
-        var total = review.InitialOilAmount + review.OilRefillAmount;
-
-        if (car.FuelCapacity < total)
-        {
-            throw new FuelAmountExceedsCarCapacityException($"{total} exceeds car fuel capacity: {car.FuelCapacity}.");
-        }
-
-        car.RemainingFuel = total;
-    }
-
-    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateOperatorReviewDto review)
-    {
-        ArgumentNullException.ThrowIfNull(checkPoint);
-        ArgumentNullException.ThrowIfNull(review);
-
-        checkPoint.Stage = CheckPointStage.OperatorReview;
-
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
-    }
-
-    private static OperatorReview CreateReviewEntity(
+    private static OperatorReview CreateReview(
         CheckPoint checkPoint,
         OilMark oilMark,
         Operator @operator,

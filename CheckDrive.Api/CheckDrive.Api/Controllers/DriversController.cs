@@ -1,6 +1,5 @@
 ﻿using CheckDrive.Application.DTOs.Driver;
 using CheckDrive.Application.Interfaces;
-using CheckDrive.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
@@ -17,9 +16,9 @@ public class DriversController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<DriverDto>>> GetAvailableDriversAsync(CheckPointStage? stage)
+    public async Task<ActionResult<List<DriverDto>>> GetAvailableDriversAsync()
     {
-        var drivers = await _driverService.GetAvailableDriversAsync(stage);
+        var drivers = await _driverService.GetAvailableDriversAsync();
 
         return Ok(drivers);
     }

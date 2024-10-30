@@ -3,5 +3,4 @@
 public record DriverDto(
     int Id,
     string AccountId,
-    string FullName,
-    int? checkPointId);
+    string FullName);

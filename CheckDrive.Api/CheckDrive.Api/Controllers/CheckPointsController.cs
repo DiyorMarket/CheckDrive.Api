@@ -25,7 +25,7 @@ public class CheckPointsController : ControllerBase
     }
 
     [HttpGet("drivers/{driverId:int}/current")]
-    public async Task<ActionResult<DriverCheckPointDto>> GetCurrentCheckPointByDriverIdAsync(int driverId)
+    public async Task<ActionResult<CheckPointDto>> GetCurrentCheckPointByDriverIdAsync(int driverId)
     {
         var checkPoint = await _service.GetCurrentCheckPointByDriverIdAsync(driverId);
 

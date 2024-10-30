@@ -34,7 +34,8 @@ internal sealed class AuthService : IAuthService
             throw new InvalidLoginAttemptException("Invalid email or password");
         }
 
-        var roles = await _userManager.GetRolesAsync(employee.Account);
+        var user = await _userManager.FindByNameAsync(request.UserName);
+        var roles = await _userManager.GetRolesAsync(user);
         var token = _jwtTokenGenerator.GenerateToken(employee, roles);
 
         return token;

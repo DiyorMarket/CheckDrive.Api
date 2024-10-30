@@ -7,6 +7,6 @@ public class CheckPointQueryParameters : QueryParametersBase
 {
     public int? DriverId { get; set; }
     public CheckPointStage? Stage { get; set; }
-    public CheckPointStatus? Status { get; set; }
-    public DateFilter? Date { get; set; } = DateFilter.Today;
+    public CheckPointStatus? Status { get; set; } = CheckPointStatus.InProgress;
+    public DateFilter? Date { get; set; }
 }

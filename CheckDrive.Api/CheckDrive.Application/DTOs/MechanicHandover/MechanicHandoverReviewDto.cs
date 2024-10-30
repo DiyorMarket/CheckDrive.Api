@@ -1,4 +1,5 @@
-﻿using CheckDrive.Application.DTOs.Review;
+﻿using CheckDrive.Application.DTOs.Car;
+using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Application.DTOs.MechanicHandover;
@@ -12,7 +13,8 @@ public sealed record MechanicHandoverReviewDto(
     string? Notes,
     DateTime Date,
     ReviewStatus Status,
-    int InitialMileage)
+    int InitialMileage,
+    CarDto Car)
     : ReviewDtoBase(
         CheckPointId: CheckPointId,
         ReviewerId: ReviewerId,

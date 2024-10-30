@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Verbose()
+    .MinimumLevel.Information()
     .Enrich.FromLogContext()
     .WriteTo.Console(new CustomJsonFormatter())
     .WriteTo.File(new CustomJsonFormatter(), "logs/logs.txt", rollingInterval: RollingInterval.Day)
