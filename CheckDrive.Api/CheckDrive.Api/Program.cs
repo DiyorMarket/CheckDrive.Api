@@ -1,10 +1,11 @@
 using CheckDrive.Api.Extensions;
 using CheckDrive.Api.Helpers;
+using CheckDrive.Application.Hubs;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Verbose()
+    .MinimumLevel.Information()
     .Enrich.FromLogContext()
     .WriteTo.Console(new CustomJsonFormatter())
     .WriteTo.File(new CustomJsonFormatter(), "logs/logs.txt", rollingInterval: RollingInterval.Day)
@@ -43,6 +44,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ReviewHub>("/review-hub");
 
 app.Run();
 

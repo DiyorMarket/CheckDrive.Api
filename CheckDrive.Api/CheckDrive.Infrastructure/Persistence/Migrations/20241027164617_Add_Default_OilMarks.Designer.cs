@@ -4,6 +4,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    partial class CheckDriveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241027164617_Add_Default_OilMarks")]
+    partial class Add_Default_OilMarks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +41,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("CurrentMonthMileage")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("FuelCapacity")
                         .HasPrecision(18, 2)
@@ -519,43 +519,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3ad70054-4ee0-416d-929a-6d800fa98941",
+                            Id = "201cf469-52f4-4d2b-be9e-9709379e0c94",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "a6486ce6-0af2-488d-a609-76ac62ba6203",
+                            Id = "7d0cf0b4-9dfc-446c-8017-fd5f5c487f0f",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "0bbd5156-7c75-4b84-a7d9-5e21910bf14f",
+                            Id = "29e8e9e2-8ae6-4e93-bddf-6dc1f3c8afdb",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "765d20d4-f255-4553-bb5d-f9f87c4360f5",
+                            Id = "b2e38b16-742e-4b32-b9d1-f83a7e19e343",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "5a9d0f60-922f-405f-8abd-14c9dee446a1",
+                            Id = "474663af-e7f3-4551-906f-b1bc3af37f58",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "ccc36987-fb1e-4a20-9d0d-acdcc0204baa",
+                            Id = "dd228db7-3ee4-4a01-b84f-1e07b54c1aa4",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "b5ea687f-a694-4901-95f0-310000949351",
+                            Id = "6e4e5e62-47e9-48fd-91ca-fa2dcef1b604",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });

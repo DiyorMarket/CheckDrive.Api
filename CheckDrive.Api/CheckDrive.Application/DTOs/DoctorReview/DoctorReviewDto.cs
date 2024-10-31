@@ -21,4 +21,4 @@ public sealed record DoctorReviewDto(
         Date: Date,
         Notes: Notes,
         Status: Status,
-        Type: ReviewType.Doctor);
+        Type: ReviewType.DoctorReview);

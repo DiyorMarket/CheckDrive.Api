@@ -27,6 +27,7 @@ internal sealed class AccountService : IAccountService
     public async Task<List<AccountDto>> GetAsync(EmployeePosition? position)
     {
         var query = _context.Employees
+            .Include(x => x.Account)
             .AsNoTracking()
             .AsQueryable();
 

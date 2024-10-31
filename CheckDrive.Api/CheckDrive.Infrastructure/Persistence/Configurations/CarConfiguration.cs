@@ -39,7 +39,10 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
                .IsRequired();
 
         builder.Property(c => c.Mileage)
-               .IsRequired();
+            .IsRequired();
+
+        builder.Property(c => c.CurrentMonthMileage)
+            .IsRequired();
 
         builder.Property(c => c.YearlyDistanceLimit)
                .IsRequired();

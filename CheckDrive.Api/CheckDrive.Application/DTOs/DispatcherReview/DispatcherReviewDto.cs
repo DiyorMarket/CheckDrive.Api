@@ -23,4 +23,4 @@ public sealed record DispatcherReviewDto(
         Notes: Notes,
         Date: Date,
         Status: Status,
-        Type: ReviewType.Dispatcher);
+        Type: ReviewType.DispatcherReview);
