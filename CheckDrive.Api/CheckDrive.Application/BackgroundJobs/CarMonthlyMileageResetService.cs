@@ -11,7 +11,7 @@ internal sealed class CarMonthlyMileageResetService : BackgroundService
 
     public CarMonthlyMileageResetService(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
