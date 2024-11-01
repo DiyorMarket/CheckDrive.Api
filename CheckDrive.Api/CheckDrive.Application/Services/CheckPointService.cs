@@ -106,10 +106,6 @@ internal sealed class CheckPointService : ICheckPointService
         {
             query = FilterByDate(query, queryParameters.Date.Value);
         }
-        else
-        {
-            query = FilterByDate(query, DateFilter.Today);
-        }
 
         return query;
     }
