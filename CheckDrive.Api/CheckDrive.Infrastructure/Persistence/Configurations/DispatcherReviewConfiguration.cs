@@ -37,7 +37,7 @@ internal sealed class DispatcherReviewConfiguration : IEntityTypeConfiguration<D
             .IsRequired(false);
 
         builder
-            .Property(dr => dr.DistanceTravelledAdjustment)
+            .Property(dr => dr.FinalMileageAdjustment)
             .HasPrecision(18, 2)
             .IsRequired(false);
 

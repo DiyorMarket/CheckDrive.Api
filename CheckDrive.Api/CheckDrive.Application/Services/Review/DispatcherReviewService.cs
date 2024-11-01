@@ -92,7 +92,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
             Date = DateTime.UtcNow,
             Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer,
             FuelConsumptionAdjustment = review.FuelConsumptionAdjustment,
-            DistanceTravelledAdjustment = review.DistanceTravelledAdjustment,
+            FinalMileageAdjustment = review.DistanceTravelledAdjustment,
         };
 
         return entity;
