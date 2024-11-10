@@ -29,6 +29,8 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
             .Where(x => x.Status == CheckPointStatus.Completed || x.Status == CheckPointStatus.AutomaticallyClosed)
             .Include(x => x.DoctorReview)
             .ThenInclude(x => x.Doctor)
+            .Include(x => x.DoctorReview)
+            .ThenInclude(x => x.Driver)
             .Include(x => x.MechanicHandover)
             .ThenInclude(x => x.Mechanic)
             .Include(x => x.MechanicHandover)
@@ -54,6 +56,7 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
     public async Task<List<DoctorReviewDto>> GetDoctorHistoriesAsync(int doctorId)
     {
         var reviews = await _context.DoctorReviews
+            .Include(x => x.Driver)
             .Where(x => x.DoctorId == doctorId)
             .ToListAsync();
 
