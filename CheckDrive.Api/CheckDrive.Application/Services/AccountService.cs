@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.Constants;
 using CheckDrive.Application.DTOs.Account;
 using CheckDrive.Application.Interfaces;
@@ -6,18 +8,19 @@ using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services;
 
 internal sealed class AccountService : IAccountService
 {
     private readonly ICheckDriveDbContext _context;
-    private readonly UserManager<IdentityUser> _userManager;
     private readonly IMapper _mapper;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public AccountService(ICheckDriveDbContext context, IMapper mapper, UserManager<IdentityUser> userManager)
+    public AccountService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        UserManager<IdentityUser> userManager)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

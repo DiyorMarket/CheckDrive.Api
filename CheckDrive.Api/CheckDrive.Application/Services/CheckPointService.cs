@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.CheckPoint;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Entities;
@@ -6,7 +7,6 @@ using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.Domain.QueryParameters;
-using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services;
 

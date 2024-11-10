@@ -118,6 +118,7 @@ internal sealed class DriverService : IDriverService
         car.Mileage = checkPoint.MechanicAcceptance.FinalMileage;
         car.RemainingFuel = checkPoint.MechanicAcceptance.RemainingFuelAmount;
         car.CurrentMonthMileage += checkPoint.MechanicHandover.InitialMileage - checkPoint.MechanicAcceptance.FinalMileage;
+
         checkPoint.Stage = CheckPointStage.MechanicAcceptance;
         checkPoint.MechanicAcceptance.Status = ReviewStatus.Approved;
     }
