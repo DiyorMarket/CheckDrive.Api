@@ -39,6 +39,6 @@ public static class DependencyInjection
         services.AddScoped<IOilMarkService, OilMarkService>();
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
 
-        services.AddHostedService<CarMonthlyMileageResetService>();
+        services.AddHostedService<CarMileageResetService>();
     }
 }

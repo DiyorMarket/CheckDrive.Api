@@ -17,6 +17,7 @@ internal sealed class OilMarkService : IOilMarkService
     public OilMarkService(ICheckDriveDbContext context, IMapper mapper)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<OilMarkDto> CreateAsync(CreateOilMarkDto oilMark)
