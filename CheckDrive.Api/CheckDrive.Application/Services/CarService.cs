@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.Car;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using CheckDrive.Domain.Exceptions;
+using CheckDrive.Domain.Entities;
+using CheckDrive.Application.QueryParameters;
 
 namespace CheckDrive.Application.Services;
 
@@ -25,5 +28,91 @@ internal sealed class CarService : ICarService
         var dtos = _mapper.Map<List<CarDto>>(cars);
 
         return dtos;
+    }
+
+    public async Task<List<CarDto>> GetAllAsync(CarQueryParameters queryParameters)
+    {
+        ArgumentNullException.ThrowIfNull(queryParameters);
+
+        var query = _context.Cars
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(queryParameters.SearchText))
+        {
+            query = query.Where(x => x.Model.Contains(queryParameters.SearchText)
+                || x.Color.Contains(queryParameters.SearchText)
+                || x.Number.Contains(queryParameters.SearchText));
+        }
+
+        if (queryParameters.Status.HasValue)
+        {
+            query = query.Where(x => x.Status == queryParameters.Status);
+        }
+
+        var entities = await query.ToListAsync();
+        var dtos = _mapper.Map<List<CarDto>>(entities);
+
+        return dtos;
+    }
+
+    public async Task<CarDto> GetByIdAsync(int id)
+    {
+        var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (car is null)
+        {
+            throw new EntityNotFoundException($"Car with id: {id} is not found.");
+        }
+
+        var dto = _mapper.Map<CarDto>(car);
+
+        return dto;
+    }
+
+    public async Task<CarDto> CreateAsync(CreateCarDto car)
+    {
+        ArgumentNullException.ThrowIfNull(car);
+
+        var entity = _mapper.Map<Car>(car);
+
+        _context.Cars.Add(entity);
+        await _context.SaveChangesAsync();
+
+        var dto = _mapper.Map<CarDto>(entity);
+
+        return dto;
+    }
+
+    public async Task<CarDto> UpdateAsync(UpdateCarDto car)
+    {
+        ArgumentNullException.ThrowIfNull(car);
+
+        if (!await _context.Cars.AnyAsync(x => x.Id == car.Id))
+        {
+            throw new EntityNotFoundException($"Car with id: {car.Id} is not found.");
+        }
+
+        var entity = _mapper.Map<Car>(car);
+
+        _context.Cars.Update(entity);
+        await _context.SaveChangesAsync();
+
+        var dto = _mapper.Map<CarDto>(entity);
+
+        return dto;
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await _context.Cars.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (entity is null)
+        {
+            throw new EntityNotFoundException($"Car with id: {id} is not found.");
+        }
+
+        _context.Cars.Remove(entity);
+        await _context.SaveChangesAsync();
     }
 }
