@@ -72,7 +72,14 @@ internal sealed class DoctorReviewService : IDoctorReviewService
             throw new EntityNotFoundException($"Driver with id: {driverId} is not found.");
         }
 
-        // TODO: check whether driver does not have any active check point in progress
+        var hasActiveCheckPoint = await _context.CheckPoints
+            .Where(x => x.DoctorReview.DriverId == driverId)
+            .AnyAsync(x => x.Status == CheckPointStatus.InProgress);
+
+        if (hasActiveCheckPoint)
+        {
+            throw new InvalidOperationException($"Cannot start new Check Point for Driver with active Check Point.");
+        }
 
         return driver;
     }
@@ -104,10 +111,10 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var doctorReview = new DoctorReview
         {
             CheckPoint = checkPoint,
-            Doctor = doctor,
             Driver = driver,
-            Date = DateTime.UtcNow,
+            Doctor = doctor,
             Notes = review.Notes,
+            Date = DateTime.UtcNow,
             Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer
         };
 

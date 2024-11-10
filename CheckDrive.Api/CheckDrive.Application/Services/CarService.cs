@@ -6,6 +6,8 @@ using CheckDrive.Domain.Interfaces;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Application.QueryParameters;
+using CheckDrive.Domain.Enums;
+using AutoMapper.QueryableExtensions;
 
 namespace CheckDrive.Application.Services;
 
@@ -23,11 +25,11 @@ internal sealed class CarService : ICarService
     public async Task<List<CarDto>> GetAvailableCarsAsync()
     {
         var cars = await _context.Cars
+            .Where(x => x.Status == CarStatus.Free)
+            .ProjectTo<CarDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
-        var dtos = _mapper.Map<List<CarDto>>(cars);
-
-        return dtos;
+        return cars;
     }
 
     public async Task<List<CarDto>> GetAllAsync(CarQueryParameters queryParameters)
@@ -50,10 +52,11 @@ internal sealed class CarService : ICarService
             query = query.Where(x => x.Status == queryParameters.Status);
         }
 
-        var entities = await query.ToListAsync();
-        var dtos = _mapper.Map<List<CarDto>>(entities);
+        var cars = await query
+            .ProjectTo<CarDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
 
-        return dtos;
+        return cars;
     }
 
     public async Task<CarDto> GetByIdAsync(int id)
