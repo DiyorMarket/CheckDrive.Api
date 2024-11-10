@@ -27,9 +27,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var dispatcher = await GetAndValidateDispatcherAsync(review.ReviewerId);
 
-        UpdateCheckPoint(checkPoint, review);
-
-        var reviewEntity = CreateReviewEntity(checkPoint, dispatcher, review);
+        var reviewEntity = CreateReview(checkPoint, dispatcher, review);
 
         _context.DispatcherReviews.Add(reviewEntity);
         await _context.SaveChangesAsync();
@@ -80,9 +78,10 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         return dispatcher;
     }
 
-    private static DispatcherReview CreateReviewEntity(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)
+    private static DispatcherReview CreateReview(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(checkPoint);
+        ArgumentNullException.ThrowIfNull(dispatcher);
 
         var entity = new DispatcherReview
         {
@@ -92,7 +91,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
             Date = DateTime.UtcNow,
             Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer,
             FuelConsumptionAdjustment = review.FuelConsumptionAdjustment,
-            FinalMileageAdjustment = review.DistanceTravelledAdjustment,
+            FinalMileageAdjustment = review.FinalMileageAdjustment,
         };
 
         return entity;
@@ -104,18 +103,23 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
 
         checkPoint.Stage = CheckPointStage.DispatcherReview;
 
-        if (review.FuelConsumptionAdjustment.HasValue || review.DistanceTravelledAdjustment.HasValue)
-        {
-            checkPoint.Stage = CheckPointStage.ManagerReview;
-            return;
-        }
-
         if (!review.IsApprovedByReviewer)
         {
             checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
             return;
         }
 
+        if (review.FuelConsumptionAdjustment.HasValue || review.FinalMileageAdjustment.HasValue)
+        {
+            checkPoint.Status = CheckPointStatus.PendingManagerReview;
+            return;
+        }
+
         checkPoint.Status = CheckPointStatus.Completed;
+    }
+
+    private async Task UpdateCarAsync(CheckPoint checkPoint)
+    {
+        ArgumentNullException.ThrowIfNull(checkPoint);
     }
 }
