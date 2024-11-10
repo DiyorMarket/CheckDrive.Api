@@ -7,5 +7,5 @@ public enum CheckPointStatus
     InterruptedByReviewerRejection = 2,
     InterruptedByDriverRejection = 3,
     AutomaticallyClosed = 4,
-    PendingManagerReview = 5,
+    ClosedByManager = 5,
 }

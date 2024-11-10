@@ -31,4 +31,12 @@ public class CheckPointsController : ControllerBase
 
         return Ok(checkPoint);
     }
+
+    [HttpPut("{id:int}/cancel")]
+    public async Task<ActionResult<CheckPointDto>> CancelCheckPoint(int id)
+    {
+        await _service.CancelCheckPointAsync(id);
+
+        return NoContent();
+    }
 }

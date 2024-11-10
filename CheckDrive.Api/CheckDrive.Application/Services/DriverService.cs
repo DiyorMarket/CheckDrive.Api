@@ -20,7 +20,7 @@ internal sealed class DriverService : IDriverService
     public async Task<List<DriverDto>> GetAvailableDriversAsync()
     {
         var drivers = await _context.Drivers
-            .Where(x => !x.Reviews.Any(x => x.Date.Date == DateTime.UtcNow.Date))
+            .Where(x => !x.Reviews.Any(x => x.CheckPoint.Status == CheckPointStatus.InProgress))
             .Select(x => new DriverDto(x.Id, x.AccountId, x.FirstName + " " + x.LastName))
             .ToListAsync();
 
