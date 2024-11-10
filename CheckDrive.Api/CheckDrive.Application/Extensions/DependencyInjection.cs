@@ -1,11 +1,14 @@
-﻿using CheckDrive.Application.Interfaces.Review;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Services;
 using CheckDrive.Application.Services.Review;
-using Microsoft.Extensions.DependencyInjection;
 using CheckDrive.Application.Interfaces.Auth;
 using CheckDrive.Application.Services.Auth;
 using CheckDrive.Application.BackgroundJobs;
+using CheckDrive.Application.Validators.Car;
+using CheckDrive.Application.Mappings;
 
 namespace CheckDrive.Application.Extensions;
 
@@ -13,8 +16,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection RegisterApplication(this IServiceCollection services)
     {
+        services.AddAutoMapper(typeof(CarMappings).Assembly);
+        services.AddValidatorsFromAssemblyContaining<CreateCarValidator>();
+
         AddServices(services);
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         return services;
     }
