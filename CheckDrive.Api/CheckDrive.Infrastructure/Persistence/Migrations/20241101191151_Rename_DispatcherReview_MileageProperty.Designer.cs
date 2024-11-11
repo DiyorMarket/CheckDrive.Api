@@ -4,6 +4,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    partial class CheckDriveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241101191151_Rename_DispatcherReview_MileageProperty")]
+    partial class Rename_DispatcherReview_MileageProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,16 +42,7 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal>("CurrentMonthFuelConsumption")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("CurrentMonthMileage")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("CurrentYearFuelConsumption")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("CurrentYearMileage")
                         .HasColumnType("int");
 
                     b.Property<decimal>("FuelCapacity")
@@ -66,13 +60,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("MonthlyDistanceLimit")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("MonthlyFuelConsumptionLimit")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -89,10 +76,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("YearlyDistanceLimit")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("YearlyFuelConsumptionLimit")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -539,43 +522,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3b9cced9-80ba-4c29-b984-0ef814ed1e4a",
+                            Id = "295930c7-eeae-42bd-8312-9fa6856eb180",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "eae91b8a-62a8-4910-a956-f31b3287908f",
+                            Id = "ea9063eb-e9d0-4206-b1fc-486e4ce04973",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "e13e7081-caef-4e06-8356-845df18805c6",
+                            Id = "d4d28a23-e999-4a29-bd0b-f22031d92696",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "d5ef47fb-bd3b-4743-b135-67248f9952ad",
+                            Id = "920b29e9-28d2-46ae-a69d-517faf209963",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "08318c7a-b4a0-47da-b66f-a07910fb4341",
+                            Id = "1276ec46-c408-4f86-bfb4-6db86e269051",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "3c126479-5651-4026-816f-42ee1d22a878",
+                            Id = "0226a77d-77af-4611-b06b-0b10c1b28c01",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "472d6cd0-94dd-4294-9c92-b60cb4063398",
+                            Id = "ef58c0c1-87ad-4b37-8d22-ec3a94a316c7",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });

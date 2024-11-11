@@ -9,5 +9,7 @@ public sealed class CarMappings : Profile
     public CarMappings()
     {
         CreateMap<Car, CarDto>();
+        CreateMap<CreateCarDto, Car>();
+        CreateMap<UpdateCarDto, Car>();
     }
 }

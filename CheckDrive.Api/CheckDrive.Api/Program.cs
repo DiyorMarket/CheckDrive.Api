@@ -20,7 +20,7 @@ builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-if (!app.Environment.IsProduction())
+if (app.Environment.IsTesting())
 {
     app.UseDatabaseSeeder();
 }

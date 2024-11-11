@@ -5,7 +5,7 @@ namespace CheckDrive.Domain.Entities;
 public class DispatcherReview : ReviewBase
 {
     public decimal? FuelConsumptionAdjustment { get; set; }
-    public decimal? DistanceTravelledAdjustment { get; set; }
+    public decimal? FinalMileageAdjustment { get; set; }
 
     public int CheckPointId { get; set; }
     public required virtual CheckPoint CheckPoint { get; set; }

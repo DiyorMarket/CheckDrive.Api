@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers.Reviews;
 
-[Route("api/reviews/dispatcher/{dispatcherId:int}")]
+[Route("api/reviews/dispatchers/{dispatcherId:int}")]
 [ApiController]
 public class DispatcherReviewsController : ControllerBase
 {

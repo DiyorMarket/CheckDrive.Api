@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.CheckPoint;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Entities;
@@ -6,7 +7,6 @@ using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.Domain.QueryParameters;
-using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services;
 
@@ -49,6 +49,19 @@ internal sealed class CheckPointService : ICheckPointService
         var dto = _mapper.Map<CheckPointDto>(checkPoint);
 
         return dto;
+    }
+
+    public async Task CancelCheckPointAsync(int id)
+    {
+        var checkPoint = await GetAndValidateAsync(id);
+
+        if (checkPoint.Status == CheckPointStatus.Completed || checkPoint.Status == CheckPointStatus.AutomaticallyClosed)
+        {
+            throw new InvalidOperationException($"Cannot cancel closed Check Point.");
+        }
+
+        checkPoint.Status = CheckPointStatus.ClosedByManager;
+        await _context.SaveChangesAsync();
     }
 
     private IQueryable<CheckPoint> GetQuery(CheckPointQueryParameters? queryParameters = null)
@@ -106,10 +119,6 @@ internal sealed class CheckPointService : ICheckPointService
         {
             query = FilterByDate(query, queryParameters.Date.Value);
         }
-        else
-        {
-            query = FilterByDate(query, DateFilter.Today);
-        }
 
         return query;
     }
@@ -124,5 +133,17 @@ internal sealed class CheckPointService : ICheckPointService
             DateFilter.Month => query.Where(x => x.StartDate.Date > DateTime.UtcNow.AddMonths(-1).Date),
             _ => throw new ArgumentOutOfRangeException($"Date filter: {dateFilter} is not implemented yet."),
         };
+    }
+
+    private async Task<CheckPoint> GetAndValidateAsync(int id)
+    {
+        var checkPoint = await _context.CheckPoints.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (checkPoint is null)
+        {
+            throw new EntityNotFoundException($"Check Point with id: {id} is not found.");
+        }
+
+        return checkPoint;
     }
 }

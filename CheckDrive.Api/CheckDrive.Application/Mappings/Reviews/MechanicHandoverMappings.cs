@@ -10,8 +10,9 @@ internal sealed class MechanicHandoverMappings : Profile
     public MechanicHandoverMappings()
     {
         CreateMap<CreateMechanicHandoverReviewDto, MechanicHandover>()
+            .ForMember(x => x.MechanicId, cfg => cfg.MapFrom(e => e.ReviewerId))
             .ForMember(x => x.Date, cfg => cfg.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(x => x.Status, cfg => cfg.MapFrom(x => x.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer));
+            .ForMember(x => x.Status, cfg => cfg.MapFrom(e => e.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer));
 
         CreateMap<MechanicHandover, MechanicHandoverReviewDto>()
             .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.DriverId))

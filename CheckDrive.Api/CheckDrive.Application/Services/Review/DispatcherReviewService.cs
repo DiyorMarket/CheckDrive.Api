@@ -29,7 +29,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
 
         UpdateCheckPoint(checkPoint, review);
 
-        var reviewEntity = CreateReviewEntity(checkPoint, dispatcher, review);
+        var reviewEntity = CreateReview(checkPoint, dispatcher, review);
 
         _context.DispatcherReviews.Add(reviewEntity);
         await _context.SaveChangesAsync();
@@ -42,9 +42,6 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
-            .Include(x => x.MechanicAcceptance)
-            .Include(x => x.MechanicHandover)
-            .ThenInclude(mh => mh!.Car)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)
@@ -80,9 +77,26 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         return dispatcher;
     }
 
-    private static DispatcherReview CreateReviewEntity(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)
+    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateDispatcherReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(checkPoint);
+
+        checkPoint.Stage = CheckPointStage.DispatcherReview;
+
+        if (!review.IsApprovedByReviewer || review.FuelConsumptionAdjustment.HasValue || review.FinalMileageAdjustment.HasValue)
+        {
+            checkPoint.Status = CheckPointStatus.PendingManagerReview;
+        }
+        else
+        {
+            checkPoint.Status = CheckPointStatus.Completed;
+        }
+    }
+
+    private static DispatcherReview CreateReview(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)
+    {
+        ArgumentNullException.ThrowIfNull(checkPoint);
+        ArgumentNullException.ThrowIfNull(dispatcher);
 
         var entity = new DispatcherReview
         {
@@ -92,30 +106,9 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
             Date = DateTime.UtcNow,
             Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer,
             FuelConsumptionAdjustment = review.FuelConsumptionAdjustment,
-            DistanceTravelledAdjustment = review.DistanceTravelledAdjustment,
+            FinalMileageAdjustment = review.FinalMileageAdjustment,
         };
 
         return entity;
-    }
-
-    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateDispatcherReviewDto review)
-    {
-        ArgumentNullException.ThrowIfNull(checkPoint);
-
-        checkPoint.Stage = CheckPointStage.DispatcherReview;
-
-        if (review.FuelConsumptionAdjustment.HasValue || review.DistanceTravelledAdjustment.HasValue)
-        {
-            checkPoint.Stage = CheckPointStage.ManagerReview;
-            return;
-        }
-
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-            return;
-        }
-
-        checkPoint.Status = CheckPointStatus.Completed;
     }
 }

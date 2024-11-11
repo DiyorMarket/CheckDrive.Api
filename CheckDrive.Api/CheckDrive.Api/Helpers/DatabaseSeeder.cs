@@ -1,5 +1,4 @@
-﻿using Bogus;
-using CheckDrive.Domain.Entities;
+﻿using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.TestDataCreator;
 using CheckDrive.TestDataCreator.Configurations;
@@ -9,8 +8,6 @@ namespace CheckDrive.Api.Helpers;
 
 public static class DatabaseSeeder
 {
-    private static Faker _faker = new Faker();
-
     public static void SeedDatabase(
         ICheckDriveDbContext context,
         UserManager<IdentityUser> userManager,
@@ -289,6 +286,7 @@ public static class DatabaseSeeder
 
         context.SaveChanges();
     }
+
     //private static void CreateEmployees(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
     //{
     //    if (context.Users.Any())

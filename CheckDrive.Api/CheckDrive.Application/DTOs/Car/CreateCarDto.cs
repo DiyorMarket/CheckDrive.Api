@@ -2,8 +2,7 @@
 
 namespace CheckDrive.Application.DTOs.Car;
 
-public sealed record CarDto(
-    int Id,
+public record CreateCarDto(
     string Model,
     string Color,
     string Number,

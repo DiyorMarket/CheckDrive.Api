@@ -8,7 +8,7 @@ public sealed record CreateDispatcherReviewDto(
     string? Notes,
     bool IsApprovedByReviewer,
     decimal? FuelConsumptionAdjustment,
-    int? DistanceTravelledAdjustment)
+    int? FinalMileageAdjustment)
     : CreateReviewDtoBase(
         ReviewerId: ReviewerId,
         Notes: Notes,
