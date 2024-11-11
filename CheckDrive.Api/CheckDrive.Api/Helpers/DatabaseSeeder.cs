@@ -286,6 +286,7 @@ public static class DatabaseSeeder
 
         context.SaveChanges();
     }
+
     //private static void CreateEmployees(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
     //{
     //    if (context.Users.Any())
