@@ -11,6 +11,7 @@ public record class UpdateAccountDto(
     string? Email,
     string FirstName,
     string LastName,
+    string Patronymic,
     string Address,
     string Passport,
     DateTime Birthdate,

@@ -20,6 +20,13 @@ internal sealed class OilMarkConfiguration : IEntityTypeConfiguration<OilMark>
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
 
+        builder
+            .HasMany(o => o.Cars)
+            .WithOne(c => c.OilMark)
+            .HasForeignKey(c => c.OilMarkId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
         #endregion
 
         #region Properties

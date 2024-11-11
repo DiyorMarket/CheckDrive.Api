@@ -4,6 +4,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    partial class CheckDriveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241111082305_Update_Employee_Information")]
+    partial class Update_Employee_Information
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,9 +81,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<int>("OilMarkId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("RemainingFuel")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -98,8 +98,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OilMarkId");
 
                     b.ToTable("Car", (string)null);
                 });
@@ -553,43 +551,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "22df90e0-2e07-44dd-ba2d-f2a0e4648b7c",
+                            Id = "3ddeec02-bc72-405c-9bfd-b115381a085c",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "8d97cfc4-7536-402d-959a-36ad83092e1a",
+                            Id = "ed102746-30e5-4d4b-9857-21b936c047fe",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "325cd9eb-8890-4134-959a-14403c5d5040",
+                            Id = "13141f80-e84b-41bf-8ff3-9f5b346d7a72",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "d883bbaf-887f-49b5-83e0-f675e23ece8a",
+                            Id = "ce873cca-ef9c-4aad-8293-def8d78e9b13",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "48281941-4c52-47a8-87a4-fb3da9eb6324",
+                            Id = "850fcff0-20f9-4b8a-95af-ec22172becf2",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "3f1f67d2-ddb7-44a5-93eb-30f4f895c282",
+                            Id = "d9eaeb6f-0b64-42b7-9f03-9d2da9a23a39",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "15200af9-933a-4753-83a9-583eb314bb50",
+                            Id = "7faf915d-87d5-4733-a6e5-53511d986026",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });
@@ -813,17 +811,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasBaseType("CheckDrive.Domain.Entities.Employee");
 
                     b.HasDiscriminator().HasValue(4);
-                });
-
-            modelBuilder.Entity("CheckDrive.Domain.Entities.Car", b =>
-                {
-                    b.HasOne("CheckDrive.Domain.Entities.OilMark", "OilMark")
-                        .WithMany("Cars")
-                        .HasForeignKey("OilMarkId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("OilMark");
                 });
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.Debt", b =>
@@ -1086,8 +1073,6 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("CheckDrive.Domain.Entities.OilMark", b =>
                 {
-                    b.Navigation("Cars");
-
                     b.Navigation("Reviews");
                 });
 

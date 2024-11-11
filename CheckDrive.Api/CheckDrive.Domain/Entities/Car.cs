@@ -25,6 +25,11 @@ public class Car : EntityBase
     public decimal RemainingFuel { get; set; }
     public CarStatus Status { get; set; }
 
+    public Driver? AssignedDriver { get; set; }
+
+    public int OilMarkId { get; set; }
+    public OilMark OilMark { get; set; }
+
     public virtual ICollection<MechanicHandover> Handovers { get; set; }
 
     public Car()

@@ -18,6 +18,17 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
             .WithOne(ch => ch.Car)
             .HasForeignKey(ch => ch.CarId);
 
+        builder.HasOne(c => c.OilMark)
+            .WithMany(o => o.Cars)
+            .HasForeignKey(o => o.OilMarkId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(c => c.AssignedDriver)
+            .WithOne(d => d.AssignedCar)
+            .HasForeignKey<Driver>(c => c.AssignedCarId)
+            .IsRequired(false);
+
         #endregion
 
         #region Properties

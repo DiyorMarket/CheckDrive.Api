@@ -10,6 +10,7 @@ public record CreateAccountDto(
     string? Email,
     string FirstName,
     string LastName,
+    string Patronymic,
     string Address,
     string Passport,
     DateTime Birthdate,

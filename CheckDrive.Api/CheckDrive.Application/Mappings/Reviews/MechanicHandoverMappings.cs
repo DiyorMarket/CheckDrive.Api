@@ -14,10 +14,10 @@ internal sealed class MechanicHandoverMappings : Profile
             .ForMember(x => x.Date, cfg => cfg.MapFrom(_ => DateTime.UtcNow))
             .ForMember(x => x.Status, cfg => cfg.MapFrom(e => e.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer));
 
-        CreateMap<MechanicHandover, MechanicHandoverReviewDto>()
-            .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.DriverId))
-            .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverName), cfg => cfg.MapFrom(e => $"{e.CheckPoint.DoctorReview.Driver.FirstName} {e.CheckPoint.DoctorReview.Driver.LastName}"))
-            .ForCtorParam(nameof(MechanicHandoverReviewDto.ReviewerId), cfg => cfg.MapFrom(e => e.MechanicId))
-            .ForCtorParam(nameof(MechanicHandoverReviewDto.ReviewerName), cfg => cfg.MapFrom(e => $"{e.Mechanic.FirstName} {e.Mechanic.LastName}"));
+        //CreateMap<MechanicHandover, MechanicHandoverReviewDto>()
+        //    .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverId), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.DriverId))
+        //    .ForCtorParam(nameof(MechanicHandoverReviewDto.DriverName), cfg => cfg.MapFrom(e => $"{e.CheckPoint.DoctorReview.Driver.FirstName} {e.CheckPoint.DoctorReview.Driver.LastName}"))
+        //    .ForCtorParam(nameof(MechanicHandoverReviewDto.ReviewerId), cfg => cfg.MapFrom(e => e.MechanicId))
+        //    .ForCtorParam(nameof(MechanicHandoverReviewDto.ReviewerName), cfg => cfg.MapFrom(e => $"{e.Mechanic.FirstName} {e.Mechanic.LastName}"));
     }
 }

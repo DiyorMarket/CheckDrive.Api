@@ -10,6 +10,7 @@ public record class AccountDto(
     string? Email,
     string FirstName,
     string LastName,
+    string Patronymic,
     string Passport,
     string Address,
     DateTime Birthdate,
