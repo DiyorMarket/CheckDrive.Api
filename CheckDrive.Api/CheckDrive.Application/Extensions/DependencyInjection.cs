@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CheckDrive.Application.Interfaces.Auth;
 using CheckDrive.Application.Services.Auth;
 using CheckDrive.Application.BackgroundJobs;
+using CheckDrive.Application.Services.File;
 
 namespace CheckDrive.Application.Extensions;
 
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IDriverService, DriverService>();
         services.AddScoped<ICarService, CarService>();
         services.AddScoped<IOilMarkService, OilMarkService>();
+        services.AddScoped<IFileExportService, FileExportService>();
 
         services.AddHostedService<CarMonthlyMileageResetService>();
     }
