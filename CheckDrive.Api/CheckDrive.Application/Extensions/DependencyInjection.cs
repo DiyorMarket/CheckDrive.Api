@@ -33,7 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IDriverService, DriverService>();
         services.AddScoped<ICarService, CarService>();
         services.AddScoped<IOilMarkService, OilMarkService>();
-        services.AddScoped<IFileExportService, FileExportService>();
+        services.AddScoped<IFileService, FileService>();
         services.AddScoped<IFileCreateService, FileCreateService>();
 
         services.AddHostedService<CarMonthlyMileageResetService>();

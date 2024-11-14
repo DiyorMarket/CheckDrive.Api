@@ -13,13 +13,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace CheckDrive.Application.Services.File;
 
-public class FileExportService : IFileExportService
+public class FileService : IFileService
 {
     private readonly IFileCreateService _fileCreateService;
     private readonly IAccountService _accountService;
     private readonly ICarService _carService;
 
-    public FileExportService(IFileCreateService fileCreateService,
+    public FileService(IFileCreateService fileCreateService,
         IAccountService accountService,
         ICarService carService)
     {
@@ -28,7 +28,7 @@ public class FileExportService : IFileExportService
         _carService = carService;
     }
 
-    public async Task<MemoryStream> Export(EmployeePosition position, FileQueryParameters queryParameters)
+    public async Task<MemoryStream> ExportEmployees(EmployeePosition position, FileQueryParameters queryParameters)
     {
 
         var dataTable = await GetAccountsDataTable(position);

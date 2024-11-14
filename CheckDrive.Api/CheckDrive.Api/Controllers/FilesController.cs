@@ -9,17 +9,17 @@ namespace CheckDrive.Api.Controllers;
 [ApiController]
 public class FilesController : ControllerBase
 {
-    private readonly IFileExportService _fileExportService;
+    private readonly IFileService _fileService;
 
-    public FilesController(IFileExportService fileExportService)
+    public FilesController(IFileService fileExportService)
     {
-        _fileExportService = fileExportService;
+        _fileService = fileExportService;
     }
 
     [HttpPost("import/employees")]
     public async Task<IActionResult> ImportEmployees(IFormFile file)
     {
-        await _fileExportService.ImportEmployees(file);
+        await _fileService.ImportEmployees(file);
 
         return Ok();
     }
@@ -28,7 +28,7 @@ public class FilesController : ControllerBase
     public async Task<IActionResult> ExportEmployeesPdf([FromQuery] EmployeePosition position,
         [FromQuery] FileQueryParameters queryParameters)
     {
-        var stream = await _fileExportService.Export(position, queryParameters);
+        var stream = await _fileService.ExportEmployees(position, queryParameters);
 
         var contentType = queryParameters.FileType == FileType.Pdf
              ? "application/pdf"
@@ -44,7 +44,7 @@ public class FilesController : ControllerBase
     [HttpGet("export/cars")]
     public async Task<IActionResult> ExportCars([FromQuery] FileQueryParameters queryParameters)
     {
-        var stream = await _fileExportService.ExportCars(queryParameters);
+        var stream = await _fileService.ExportCars(queryParameters);
         
         var contentType = queryParameters.FileType == FileType.Pdf 
             ? "application/pdf" 
