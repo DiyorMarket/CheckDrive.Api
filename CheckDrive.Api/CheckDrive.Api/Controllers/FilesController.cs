@@ -1,6 +1,7 @@
 ﻿using CheckDrive.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using CheckDrive.Domain.Enums;
+using CheckDrive.Domain.QueryParameters;
 
 namespace CheckDrive.Api.Controllers;
 
@@ -15,46 +16,43 @@ public class FilesController : ControllerBase
         _fileExportService = fileExportService;
     }
 
-    [HttpGet("export/pdf/employees")]
-    public async Task<IActionResult> ExportEmployeesPdf(EmployeePosition position)
+    [HttpPost("import/employees")]
+    public async Task<IActionResult> ImportEmployees(IFormFile file)
     {
-        var stream = await _fileExportService.ExportPdf(position);
+        await _fileExportService.ImportEmployees(file);
 
-        var fileName = "Ishchilar ma'lumoti.pdf";
-        var contentType = "application/pdf";
+        return Ok();
+    }
+
+    [HttpGet("export/employees")]
+    public async Task<IActionResult> ExportEmployeesPdf([FromQuery] EmployeePosition position,
+        [FromQuery] FileQueryParameters queryParameters)
+    {
+        var stream = await _fileExportService.Export(position, queryParameters);
+
+        var contentType = queryParameters.FileType == FileType.Pdf
+             ? "application/pdf"
+             : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        var fileName = queryParameters.FileType == FileType.Pdf
+            ? "Ishchilar ma'lumoti.pdf"
+            : "Ishchilar ma'lumoti.xlsx";
 
         return File(stream, contentType, fileName);
     }
 
-    [HttpGet("export/pdf/cars")]
-    public async Task<IActionResult> ExportCarsPdf()
+    [HttpGet("export/cars")]
+    public async Task<IActionResult> ExportCars([FromQuery] FileQueryParameters queryParameters)
     {
-        var stream = await _fileExportService.ExportCarsPdf();
+        var stream = await _fileExportService.ExportCars(queryParameters);
         
-        var fileName = "Avtomobillar ma'lumoti.pdf";
-        var contentType = "application/pdf";
-
-        return File(stream, contentType, fileName);
-    }
-
-    [HttpGet("export/excel/employees")]
-    public async Task<IActionResult> ExportExcel(EmployeePosition position)
-    {
-        var stream = await _fileExportService.ExportExcel(position);
-
-        var fileName = "Ishchilar ma'lumoti.xlsx";
-        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-        return File(stream, contentType, fileName);
-    }
-
-    [HttpGet("export/excel/cars")]
-    public async Task<IActionResult> ExportCarsExcel()
-    {
-        var stream = await _fileExportService.ExportCarsExcel();
-
-        var fileName = "Avtomobillar ma'lumoti.xlsx";
-        var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        var contentType = queryParameters.FileType == FileType.Pdf 
+            ? "application/pdf" 
+            : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        
+        var fileName = queryParameters.FileType == FileType.Pdf 
+            ? "Avtomobillar ma'lumoti.pdf"
+            : "Avtomobillar ma'lumoti.xlsx";
 
         return File(stream, contentType, fileName);
     }

@@ -1,10 +1,11 @@
 ﻿using CheckDrive.Domain.Enums;
+using CheckDrive.Domain.QueryParameters;
+using Microsoft.AspNetCore.Http;
 
 namespace CheckDrive.Application.Interfaces;
 public interface IFileExportService
 {
-    Task<MemoryStream> ExportPdf(EmployeePosition position);
-    Task<MemoryStream> ExportExcel(EmployeePosition position);
-    Task<MemoryStream> ExportCarsExcel();
-    Task<MemoryStream> ExportCarsPdf();
+    Task<MemoryStream> Export(EmployeePosition position, FileQueryParameters queryParameters);
+    Task<MemoryStream> ExportCars(FileQueryParameters queryParameters);
+    Task ImportEmployees(IFormFile file);
 }
