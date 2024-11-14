@@ -4,101 +4,104 @@ using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
 using Syncfusion.Pdf.Grid;
 using System.Data;
+using CheckDrive.Application.Interfaces;
+using CheckDrive.Domain.Enums;
+using System.IO;
 
 namespace CheckDrive.Application.Services.File;
 
-public class FileExportService
+public class FileExportService : IFileExportService
 {
-    public MemoryStream CreatePdfWithGrid(string title, DataTable dataTable)
+    private readonly IFileCreateService _fileCreateService;
+    private readonly IAccountService _accountService;
+    private readonly ICarService _carService;
+
+    public FileExportService(IFileCreateService fileCreateService,
+        IAccountService accountService, 
+        ICarService carService)
     {
-        var document = new PdfDocument();
-        var page = document.Pages.Add();
+        _fileCreateService = fileCreateService;
+        _accountService = accountService;
+        _carService = carService;
+    }
 
-        PdfGraphics graphics = page.Graphics;
-
-        PdfFont titleFont = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
-        PdfFont contentFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12);
-
-        graphics.DrawString(title, titleFont, PdfBrushes.Black, new PointF(10, 10));
-
-        var grid = new PdfGrid();
-        grid.DataSource = dataTable;
-
-        var headerStyle = new PdfGridCellStyle
-        {
-            BackgroundBrush = new PdfSolidBrush(Color.LightGray),
-            TextBrush = PdfBrushes.Black,
-            Font = new PdfStandardFont(PdfFontFamily.Helvetica, 12, PdfFontStyle.Bold),
-            StringFormat = new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle),
-            Borders = { Left = new PdfPen(Color.Black, 1), Right = new PdfPen(Color.Black, 1), Top = new PdfPen(Color.Black, 1), Bottom = new PdfPen(Color.Black, 1) }
-        };
-
-        var cellStyle = new PdfGridCellStyle
-        {
-            BackgroundBrush = PdfBrushes.White,
-            TextBrush = PdfBrushes.Black,
-            Font = contentFont,
-            StringFormat = new PdfStringFormat(PdfTextAlignment.Center, PdfVerticalAlignment.Middle),
-            Borders = { Left = new PdfPen(Color.Black, 1), Right = new PdfPen(Color.Black, 1), Top = new PdfPen(Color.Black, 1), Bottom = new PdfPen(Color.Black, 1) }
-        };
-
-        foreach (PdfGridCell cell in grid.Headers[0].Cells)
-        {
-            cell.Style = headerStyle;
-        }
-
-        foreach (PdfGridRow row in grid.Rows)
-        {
-            foreach (PdfGridCell cell in row.Cells)
-            {
-                cell.Style = cellStyle;
-            }
-        }
-
-        grid.Draw(page, new PointF(10, 40));
-
-        var stream = new MemoryStream();
-        document.Save(stream);
-        stream.Position = 0;
+    public async Task<MemoryStream> ExportPdf(EmployeePosition position)
+    {
+        var dataTable = await GetAccountsDataTable(position);
+        var stream = _fileCreateService.CreatePdf(position.ToString(), dataTable);
 
         return stream;
     }
-    public MemoryStream ExportExcel(DataTable dataTable)
+
+    public async Task<MemoryStream> ExportCarsPdf()
     {
-        using var excelEngine = new ExcelEngine();
-
-        IApplication application = excelEngine.Excel;
-        application.DefaultVersion = ExcelVersion.Excel2016;
-
-        IWorkbook workbook = application.Workbooks.Create(1);
-        IWorksheet sheet = workbook.Worksheets[0];
-
-        sheet.ImportDataTable(dataTable, true, 1, 1, true);
-
-        int lastColumn = dataTable.Columns.Count;
-        IRange headerRow = sheet.Range[$"A1:{(char)('A' + lastColumn - 1)}1"];
-        headerRow.CellStyle.Color = Syncfusion.Drawing.Color.DarkGray;
-        headerRow.CellStyle.Font.Color = ExcelKnownColors.Black;
-
-        IListObject table = sheet.ListObjects.Create("Haydovchilar_maulmoti", sheet.UsedRange);
-        table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium14;
-
-        foreach (IRange row in sheet.UsedRange.Rows)
-        {
-            if (row.Row != 1)
-            {
-                row.CellStyle.Color = (row.Row % 2 == 0)
-                    ? Syncfusion.Drawing.Color.LightGray
-                    : Syncfusion.Drawing.Color.White;
-            }
-        }
-
-        sheet.UsedRange.AutofitColumns();
-
-        MemoryStream stream = new MemoryStream();
-        workbook.SaveAs(stream);
-        stream.Position = 0;
+        var dataTable = await GetCarsDataTable();
+        var stream = _fileCreateService.CreatePdf("Avtomobillar", dataTable);
 
         return stream;
+    }
+
+    public async Task<MemoryStream> ExportExcel(EmployeePosition position)
+    {
+        var dataTable = await GetAccountsDataTable(position);
+        var stream = _fileCreateService.CreateExcel(dataTable);
+
+        return stream;
+    }
+
+    public async Task<MemoryStream> ExportCarsExcel()
+    {
+        var dataTable = await GetCarsDataTable();
+        var stream = _fileCreateService.CreateExcel(dataTable);
+
+        return stream;
+    }
+
+    private async Task<DataTable> GetAccountsDataTable(EmployeePosition position)
+    {
+        var accounts = await _accountService.GetAsync(position);
+
+        var dataTable = new DataTable();
+
+        dataTable.Columns.Add("F.I.SH.", typeof(string));
+        dataTable.Columns.Add("Telefon raqami", typeof(string));
+        dataTable.Columns.Add("Passport", typeof(string));
+        dataTable.Columns.Add("Manizili", typeof(string));
+
+        foreach (var account in accounts)
+        {
+            dataTable.Rows.Add(
+                (account.FirstName + " " + account.LastName ?? " "),
+                account.PhoneNumber ?? "N/A",
+                account.Passport ?? "N/A",
+                account.Address ?? "N/A"
+            );
+        }
+
+        return dataTable;
+    }
+
+    private async Task<DataTable> GetCarsDataTable()
+    {
+        var cars = await _carService.GetAvailableCarsAsync();
+
+        var dataTable = new DataTable();
+
+        dataTable.Columns.Add("Modeli", typeof(string));
+        dataTable.Columns.Add("Raqami", typeof(string));
+        dataTable.Columns.Add("Rangi", typeof(string));
+        dataTable.Columns.Add("Bosib o'tgan masofasi", typeof(string));
+
+        foreach (var car in cars)
+        {
+            dataTable.Rows.Add(
+                car.Model,
+                car.Number,
+                car.Color ?? " ",
+                car.Mileage
+            );
+        }
+
+        return dataTable;
     }
 }
