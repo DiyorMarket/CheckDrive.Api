@@ -13,23 +13,23 @@ internal class FileCreateService : IFileCreateService
     {
         using var excelEngine = new ExcelEngine();
 
-        IApplication application = excelEngine.Excel;
+        var application = excelEngine.Excel;
         application.DefaultVersion = ExcelVersion.Excel2016;
 
-        IWorkbook workbook = application.Workbooks.Create(1);
-        IWorksheet sheet = workbook.Worksheets[0];
+        var workbook = application.Workbooks.Create(1);
+        var sheet = workbook.Worksheets[0];
 
         sheet.ImportDataTable(dataTable, true, 1, 1, true);
 
         int lastColumn = dataTable.Columns.Count;
-        IRange headerRow = sheet.Range[$"A1:{(char)('A' + lastColumn - 1)}1"];
+        var headerRow = sheet.Range[$"A1:{(char)('A' + lastColumn - 1)}1"];
         headerRow.CellStyle.Color = Syncfusion.Drawing.Color.DarkGray;
         headerRow.CellStyle.Font.Color = ExcelKnownColors.Black;
 
-        IListObject table = sheet.ListObjects.Create("Haydovchilar_maulmoti", sheet.UsedRange);
+        var table = sheet.ListObjects.Create("Haydovchilar_maulmoti", sheet.UsedRange);
         table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium14;
 
-        foreach (IRange row in sheet.UsedRange.Rows)
+        foreach (var row in sheet.UsedRange.Rows)
         {
             if (row.Row != 1)
             {
@@ -41,7 +41,7 @@ internal class FileCreateService : IFileCreateService
 
         sheet.UsedRange.AutofitColumns();
 
-        MemoryStream stream = new MemoryStream();
+        var stream = new MemoryStream();
         workbook.SaveAs(stream);
         stream.Position = 0;
 
@@ -53,10 +53,10 @@ internal class FileCreateService : IFileCreateService
         var document = new PdfDocument();
         var page = document.Pages.Add();
 
-        PdfGraphics graphics = page.Graphics;
+        var graphics = page.Graphics;
 
-        PdfFont titleFont = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
-        PdfFont contentFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12);
+        var titleFont = new PdfStandardFont(PdfFontFamily.Helvetica, 16, PdfFontStyle.Bold);
+        var contentFont = new PdfStandardFont(PdfFontFamily.Helvetica, 12);
 
         graphics.DrawString(title, titleFont, PdfBrushes.Black, new PointF(10, 10));
 
