@@ -52,7 +52,7 @@ public class FileService : IFileService
 
     public async Task ImportEmployees(IFormFile file)
     {
-        var accounts = await ReadExcelDataAsync(file);
+        var accounts = await FileReadService.ReadExcelDataAsync(file);
 
         foreach (var account in accounts)
         {
@@ -107,58 +107,5 @@ public class FileService : IFileService
             );
         }
         return dataTable;
-    }
-
-    private async Task<List<CreateAccountDto>> ReadExcelDataAsync(IFormFile file)
-    {
-        var accountList = new List<CreateAccountDto>();
-
-
-        using var memoryStream = new MemoryStream();
-        
-        await file.CopyToAsync(memoryStream);
-
-        memoryStream.Position = 0;
-
-        // Process the Excel file
-        using ExcelEngine excelEngine = new ExcelEngine();
-
-        IApplication app = excelEngine.Excel;
-        app.DefaultVersion = ExcelVersion.Xlsx;
-
-        // Open workbook from memory stream
-        IWorkbook workbook = app.Workbooks.Open(memoryStream, ExcelOpenType.Automatic);
-        IWorksheet worksheet = workbook.Worksheets[0];
-
-        // Loop through rows, assuming headers are in row 1
-        int rowCount = worksheet.UsedRange.LastRow;
-        for (int row = 2; row <= rowCount; row++)
-        {
-            var username = worksheet[$"A{row}"].Text;
-            var fullName = worksheet[$"B{row}"].Text;
-            var firstName = fullName.Split(' ')[0];
-            var lastName = fullName.Split(' ').Length > 1 ? fullName.Split(' ')[1] : "";
-
-            var account = new CreateAccountDto(
-                Username: username, 
-                Password: "defaultPassword", 
-                PasswordConfirm: "defaultPassword",
-                PhoneNumber: worksheet[$"C{row}"].Text,
-                Email: worksheet[$"H{row}"].Text,
-                FirstName: firstName,
-                LastName: lastName,
-                Address: worksheet[$"E{row}"].Text,
-                Passport: worksheet[$"D{row}"].Text,
-                Birthdate: DateTime.TryParse(worksheet[$"F{row}"].Text, out var birthdate) 
-                    ? birthdate 
-                    : DateTime.MinValue,
-                Position: Enum.TryParse<EmployeePosition>(worksheet[$"G{row}"].Text, out var position) 
-                    ? position 
-                    : throw new InvalidOperationException($"Invalid name of role {worksheet[$"G{row}"]}")
-            );
-            accountList.Add(account);
-        }
-
-        return accountList;
     }
 }
