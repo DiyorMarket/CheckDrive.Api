@@ -13,28 +13,6 @@ public partial class Initial_Create : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
-            name: "Car",
-            columns: table => new
-            {
-                Id = table.Column<int>(type: "int", nullable: false)
-                    .Annotation("SqlServer:Identity", "1, 1"),
-                Model = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                Color = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                Number = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                ManufacturedYear = table.Column<int>(type: "int", nullable: false),
-                Mileage = table.Column<int>(type: "int", nullable: false),
-                YearlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
-                AverageFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                FuelCapacity = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                RemainingFuel = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Car", x => x.Id);
-            });
-
-        migrationBuilder.CreateTable(
             name: "CheckPoint",
             columns: table => new
             {
@@ -111,7 +89,8 @@ public partial class Initial_Create : Migration
                 FuelAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 PaidAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                CheckPointId = table.Column<int>(type: "int", nullable: false)
+                CheckPointId = table.Column<int>(type: "int", nullable: false),
+                ManagerReviewId = table.Column<int>(type: "int", nullable: true)
             },
             constraints: table =>
             {
@@ -120,6 +99,41 @@ public partial class Initial_Create : Migration
                     name: "FK_Debt_CheckPoint_CheckPointId",
                     column: x => x.CheckPointId,
                     principalTable: "CheckPoint",
+                    principalColumn: "Id");
+            });
+
+        migrationBuilder.CreateTable(
+            name: "Car",
+            columns: table => new
+            {
+                Id = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                Model = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                Color = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                Number = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                ManufacturedYear = table.Column<int>(type: "int", nullable: false),
+                Mileage = table.Column<int>(type: "int", nullable: false),
+                CurrentMonthMileage = table.Column<int>(type: "int", nullable: false),
+                CurrentYearMileage = table.Column<int>(type: "int", nullable: false),
+                MonthlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
+                YearlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
+                CurrentMonthFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                CurrentYearFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                MonthlyFuelConsumptionLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                YearlyFuelConsumptionLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                AverageFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                FuelCapacity = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                RemainingFuel = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                OilMarkId = table.Column<int>(type: "int", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Car", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_Car_OilMark_OilMarkId",
+                    column: x => x.OilMarkId,
+                    principalTable: "OilMark",
                     principalColumn: "Id");
             });
 
@@ -140,31 +154,6 @@ public partial class Initial_Create : Migration
                     name: "FK_RoleClaim_Role_RoleId",
                     column: x => x.RoleId,
                     principalTable: "Role",
-                    principalColumn: "Id",
-                    onDelete: ReferentialAction.Cascade);
-            });
-
-        migrationBuilder.CreateTable(
-            name: "Employee",
-            columns: table => new
-            {
-                Id = table.Column<int>(type: "int", nullable: false)
-                    .Annotation("SqlServer:Identity", "1, 1"),
-                FirstName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                LastName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                Passport = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                Birthdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Position = table.Column<int>(type: "int", nullable: false),
-                AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Employee", x => x.Id);
-                table.ForeignKey(
-                    name: "FK_Employee_User_AccountId",
-                    column: x => x.AccountId,
-                    principalTable: "User",
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Cascade);
             });
@@ -255,13 +244,47 @@ public partial class Initial_Create : Migration
             });
 
         migrationBuilder.CreateTable(
+            name: "Employee",
+            columns: table => new
+            {
+                Id = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                FirstName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                LastName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                Patronymic = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                Passport = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
+                Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                Birthdate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                Position = table.Column<int>(type: "int", nullable: false, defaultValue: 7),
+                PositionDescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                AssignedCarId = table.Column<int>(type: "int", nullable: true),
+                IsDriverAvailableForReview = table.Column<bool>(type: "bit", nullable: true)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Employee", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_Employee_Car_AssignedCarId",
+                    column: x => x.AssignedCarId,
+                    principalTable: "Car",
+                    principalColumn: "Id");
+                table.ForeignKey(
+                    name: "FK_Employee_User_AccountId",
+                    column: x => x.AccountId,
+                    principalTable: "User",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
+            });
+
+        migrationBuilder.CreateTable(
             name: "DispatcherReview",
             columns: table => new
             {
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 FuelConsumptionAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                DistanceTravelledAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                FinalMileageAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 DispatcherId = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -312,6 +335,41 @@ public partial class Initial_Create : Migration
                 table.ForeignKey(
                     name: "FK_DoctorReview_Employee_DriverId",
                     column: x => x.DriverId,
+                    principalTable: "Employee",
+                    principalColumn: "Id");
+            });
+
+        migrationBuilder.CreateTable(
+            name: "ManagerReview",
+            columns: table => new
+            {
+                Id = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                DebtAmountAdjusment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                FuelConsumptionAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                CheckPointId = table.Column<int>(type: "int", nullable: false),
+                ManagerId = table.Column<int>(type: "int", nullable: false),
+                DebtId = table.Column<int>(type: "int", nullable: true),
+                Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                Status = table.Column<int>(type: "int", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_ManagerReview", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_ManagerReview_CheckPoint_CheckPointId",
+                    column: x => x.CheckPointId,
+                    principalTable: "CheckPoint",
+                    principalColumn: "Id");
+                table.ForeignKey(
+                    name: "FK_ManagerReview_Debt_ManagerId",
+                    column: x => x.ManagerId,
+                    principalTable: "Debt",
+                    principalColumn: "Id");
+                table.ForeignKey(
+                    name: "FK_ManagerReview_Employee_ManagerId",
+                    column: x => x.ManagerId,
                     principalTable: "Employee",
                     principalColumn: "Id");
             });
@@ -416,18 +474,35 @@ public partial class Initial_Create : Migration
             });
 
         migrationBuilder.InsertData(
+            table: "OilMark",
+            columns: new[] { "Id", "Name" },
+            values: new object[,]
+            {
+                { 1, "80" },
+                { 2, "85" },
+                { 3, "90" },
+                { 4, "95" },
+                { 5, "100" }
+            });
+
+        migrationBuilder.InsertData(
             table: "Role",
             columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
             values: new object[,]
             {
-                { "46a46741-5b52-444e-a5f9-169556a44c5b", null, "Administrator", "ADMINISTRATOR" },
-                { "52e9693c-ccc2-453b-bb73-6f1987c60664", null, "Driver", "DRIVER" },
-                { "87ed0262-1d37-4824-ae87-f1a8119c9d50", null, "Manager", "MANAGER" },
-                { "8da8eab2-4243-44e1-bfae-0d7a86135bea", null, "Dispatcher", "DISPATCHER" },
-                { "bcaf852e-2688-44c1-aa77-4b2d65231832", null, "Mechanic", "MECHANIC" },
-                { "d864ade1-ac59-4ab3-ba59-a6c12f3250e3", null, "Doctor", "DOCTOR" },
-                { "d907a396-369a-4fde-8f7d-3918e185f554", null, "Operator", "OPERATOR" }
+                { "2bdbb3ad-886f-49a0-a5f0-2023c975f93c", null, "Administrator", "ADMINISTRATOR" },
+                { "49e83980-05d8-4be4-a74d-abc2e11e6aed", null, "Operator", "OPERATOR" },
+                { "70583108-618b-4308-b004-519d83379f6c", null, "Dispatcher", "DISPATCHER" },
+                { "c559df5f-57dc-494b-a14e-5c9d2a3816ba", null, "Doctor", "DOCTOR" },
+                { "e4b3ca5f-f8d1-4fae-9683-a49a423e1f1b", null, "Manager", "MANAGER" },
+                { "ed2af201-9f95-4b05-a7db-ba18d139279d", null, "Driver", "DRIVER" },
+                { "f40933b8-3822-46b4-b6e4-9c674c03a6eb", null, "Mechanic", "MECHANIC" }
             });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Car_OilMarkId",
+            table: "Car",
+            column: "OilMarkId");
 
         migrationBuilder.CreateIndex(
             name: "IX_Debt_CheckPointId",
@@ -466,6 +541,25 @@ public partial class Initial_Create : Migration
             name: "IX_Employee_AccountId",
             table: "Employee",
             column: "AccountId",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_Employee_AssignedCarId",
+            table: "Employee",
+            column: "AssignedCarId",
+            unique: true,
+            filter: "[AssignedCarId] IS NOT NULL");
+
+        migrationBuilder.CreateIndex(
+            name: "IX_ManagerReview_CheckPointId",
+            table: "ManagerReview",
+            column: "CheckPointId",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "IX_ManagerReview_ManagerId",
+            table: "ManagerReview",
+            column: "ManagerId",
             unique: true);
 
         migrationBuilder.CreateIndex(
@@ -555,13 +649,13 @@ public partial class Initial_Create : Migration
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(
-            name: "Debt");
-
-        migrationBuilder.DropTable(
             name: "DispatcherReview");
 
         migrationBuilder.DropTable(
             name: "DoctorReview");
+
+        migrationBuilder.DropTable(
+            name: "ManagerReview");
 
         migrationBuilder.DropTable(
             name: "MechanicAcceptance");
@@ -588,21 +682,24 @@ public partial class Initial_Create : Migration
             name: "UserToken");
 
         migrationBuilder.DropTable(
-            name: "Car");
-
-        migrationBuilder.DropTable(
-            name: "CheckPoint");
+            name: "Debt");
 
         migrationBuilder.DropTable(
             name: "Employee");
 
         migrationBuilder.DropTable(
-            name: "OilMark");
-
-        migrationBuilder.DropTable(
             name: "Role");
 
         migrationBuilder.DropTable(
+            name: "CheckPoint");
+
+        migrationBuilder.DropTable(
+            name: "Car");
+
+        migrationBuilder.DropTable(
             name: "User");
+
+        migrationBuilder.DropTable(
+            name: "OilMark");
     }
 }

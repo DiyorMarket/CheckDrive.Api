@@ -553,43 +553,43 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "22df90e0-2e07-44dd-ba2d-f2a0e4648b7c",
+                            Id = "2bdbb3ad-886f-49a0-a5f0-2023c975f93c",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "8d97cfc4-7536-402d-959a-36ad83092e1a",
+                            Id = "ed2af201-9f95-4b05-a7db-ba18d139279d",
                             Name = "Driver",
                             NormalizedName = "DRIVER"
                         },
                         new
                         {
-                            Id = "325cd9eb-8890-4134-959a-14403c5d5040",
+                            Id = "c559df5f-57dc-494b-a14e-5c9d2a3816ba",
                             Name = "Doctor",
                             NormalizedName = "DOCTOR"
                         },
                         new
                         {
-                            Id = "d883bbaf-887f-49b5-83e0-f675e23ece8a",
+                            Id = "70583108-618b-4308-b004-519d83379f6c",
                             Name = "Dispatcher",
                             NormalizedName = "DISPATCHER"
                         },
                         new
                         {
-                            Id = "48281941-4c52-47a8-87a4-fb3da9eb6324",
+                            Id = "e4b3ca5f-f8d1-4fae-9683-a49a423e1f1b",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "3f1f67d2-ddb7-44a5-93eb-30f4f895c282",
+                            Id = "f40933b8-3822-46b4-b6e4-9c674c03a6eb",
                             Name = "Mechanic",
                             NormalizedName = "MECHANIC"
                         },
                         new
                         {
-                            Id = "15200af9-933a-4753-83a9-583eb314bb50",
+                            Id = "49e83980-05d8-4be4-a74d-abc2e11e6aed",
                             Name = "Operator",
                             NormalizedName = "OPERATOR"
                         });
@@ -786,6 +786,9 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
 
                     b.Property<int?>("AssignedCarId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDriverAvailableForReview")
+                        .HasColumnType("bit");
 
                     b.HasIndex("AssignedCarId")
                         .IsUnique()
