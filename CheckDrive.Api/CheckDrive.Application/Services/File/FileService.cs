@@ -1,14 +1,7 @@
-﻿using Syncfusion.XlsIO;
-using Syncfusion.Drawing;
-using Syncfusion.Pdf;
-using Syncfusion.Pdf.Graphics;
-using Syncfusion.Pdf.Grid;
-using System.Data;
+﻿using System.Data;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Enums;
-using System.IO;
 using CheckDrive.Domain.QueryParameters;
-using CheckDrive.Application.DTOs.Account;
 using Microsoft.AspNetCore.Http;
 
 namespace CheckDrive.Application.Services.File;
