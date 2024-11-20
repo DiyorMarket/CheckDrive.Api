@@ -40,5 +40,6 @@ public static class DependencyInjection
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
 
         services.AddHostedService<CarMileageResetService>();
+        services.AddHostedService<ResetDriverStatusService>();
     }
 }
