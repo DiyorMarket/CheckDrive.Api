@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CheckDrive.Infrastructure.Helpers;
 using CheckDrive.Application.Interfaces.Auth;
+using CheckDrive.Infrastructure.Email.Factories;
 
 namespace CheckDrive.Infrastructure.Extensions;
 
@@ -81,6 +82,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
+        services.AddScoped<IEmailMetadataFactory, EmailMetadataFactory>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
     }
 

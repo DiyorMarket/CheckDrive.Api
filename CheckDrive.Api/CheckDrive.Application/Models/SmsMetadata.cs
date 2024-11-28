@@ -1,8 +1,14 @@
-﻿namespace CheckDrive.Application.Models;
+﻿using CheckDrive.Domain.Enums;
+using System.Runtime.InteropServices.JavaScript;
 
-public class SmsMetadata(string userName, string phoneNumber, string message)
+namespace CheckDrive.Application.Models;
+
+public class SmsMetadata()
 {
-    public string UserName { get; init; } = userName;
-    public string PhoneNumber { get; init; } = phoneNumber;
-    public string Message { get; init; } = message;
+    public string UserName { get; init; }
+    public string PhoneNumber { get; init; }
+    public string? Subject { get; init; }
+    public string? Code { get; init; }
+    public SmsType SmsType { get; init; }
+    public string Message { get; init; }
 }
