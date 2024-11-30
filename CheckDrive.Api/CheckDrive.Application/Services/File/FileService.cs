@@ -27,7 +27,7 @@ public class FileService : IFileService
         var dataTable = await GetAccountsDataTable(position);
 
         var stream = queryParameters.FileType == FileType.Pdf
-            ? _fileCreateService.CreatePdf(position.ToString(), dataTable)
+            ? _fileCreateService.CreatePdf(dataTable)
             : _fileCreateService.CreateExcel(dataTable);
         return stream;
     }
@@ -37,7 +37,7 @@ public class FileService : IFileService
         var dataTable = await GetCarsDataTable();
 
         var stream = queryParameters.FileType == FileType.Pdf
-            ? _fileCreateService.CreatePdf("Avtomobillar", dataTable)
+            ? _fileCreateService.CreatePdf(dataTable)
             : _fileCreateService.CreateExcel(dataTable);
 
         return stream;
