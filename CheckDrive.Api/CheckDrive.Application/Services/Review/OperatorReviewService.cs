@@ -27,37 +27,30 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
+    /// <summary>
+    /// Creates new Operator review. If the review already exists, then existing one is updated.
+    /// </summary>
+    /// <param name="review">Review to create or update if it already exists.</param>
+    /// <returns>Newly created or updated review.</returns>
     public async Task<OperatorReviewDto> CreateAsync(CreateOperatorReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(review);
 
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
-        var @operator = await GetAndValidateOperatorAsync(review.ReviewerId);
+        var @operator = await GetAndValidateOperatorAsync(review.OperatorId);
         var oilMark = await GetAndValidateOilMarkAsync(review.OilMarkId);
-        var car = checkPoint.MechanicHandover!.Car;
 
-        if (car.FuelCapacity < review.InitialOilAmount + review.OilRefillAmount)
-        {
-            throw new InvalidOperationException(
-                $"Oil refill amount ({review.InitialOilAmount + review.OilRefillAmount}) exceeds Car's fuel capacity ({car.FuelCapacity}).");
-        }
+        ValidateOilAmount(checkPoint, review);
+        var reviewEntity = await CreateReviewAsync(checkPoint, oilMark, @operator, review);
 
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Stage = CheckPointStage.OperatorReview;
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
-
-        var reviewEntity = CreateReview(checkPoint, oilMark, @operator, review);
-
-        _context.OperatorReviews.Add(reviewEntity);
+        _context.OperatorReviews.Update(reviewEntity);
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<OperatorReviewDto>(reviewEntity);
 
         await _hubContext.Clients
-            .User(dto.DriverId.ToString())
-            .OperatorReviewConfirmation(dto);
+            .User(checkPoint.DoctorReview.DriverId.ToString())
+            .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
@@ -76,14 +69,9 @@ internal sealed class OperatorReviewService : IOperatorReviewService
             throw new EntityNotFoundException($"Check point with id: {checkPointId} is not found.");
         }
 
-        if (checkPoint.Stage != CheckPointStage.MechanicHandover)
+        if (checkPoint.Stage != CheckPointStage.MechanicHandover || checkPoint.Status != CheckPointStatus.InProgress)
         {
-            throw new InvalidOperationException($"Cannot start car operator review when check point stage is not Mechanic Handover Review");
-        }
-
-        if (checkPoint.Status != CheckPointStatus.InProgress)
-        {
-            throw new InvalidOperationException($"Cannot start Operator Review while Mechanic Review is not completed.");
+            throw new InvalidOperationException($"Check Point's stage or status is invalid to perform Operator review.");
         }
 
         return checkPoint;
@@ -92,6 +80,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     private async Task<Operator> GetAndValidateOperatorAsync(int operatorId)
     {
         var @operator = await _context.Operators
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == operatorId);
 
         if (@operator is null)
@@ -105,6 +94,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     private async Task<OilMark> GetAndValidateOilMarkAsync(int oilMarkId)
     {
         var oilMark = await _context.OilMarks
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == oilMarkId);
 
         if (oilMark is null)
@@ -115,7 +105,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         return oilMark;
     }
 
-    private static OperatorReview CreateReview(
+    private async Task<OperatorReview> CreateReviewAsync(
         CheckPoint checkPoint,
         OilMark oilMark,
         Operator @operator,
@@ -123,16 +113,42 @@ internal sealed class OperatorReviewService : IOperatorReviewService
     {
         var entity = new OperatorReview()
         {
-            CheckPoint = checkPoint,
-            OilMark = oilMark,
-            Operator = @operator,
-            InitialOilAmount = review.InitialOilAmount,
-            OilRefillAmount = review.OilRefillAmount,
             Notes = review.Notes,
             Date = DateTime.UtcNow,
-            Status = review.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer
+            InitialOilAmount = review.InitialOilAmount,
+            OilRefillAmount = review.OilRefillAmount,
+            Status = ReviewStatus.Pending,
+            CheckPoint = checkPoint,
+            OilMark = oilMark,
+            Operator = @operator
         };
 
+        var existingReview = await _context.OperatorReviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CheckPointId == review.CheckPointId);
+
+        if (existingReview is not null)
+        {
+            entity.Id = existingReview.Id;
+        }
+
         return entity;
+    }
+
+    private static void ValidateOilAmount(CheckPoint checkPoint, CreateOperatorReviewDto review)
+    {
+        if (checkPoint.MechanicHandover is null || checkPoint.MechanicHandover.Car is null)
+        {
+            throw new InvalidOperationException("Cannot validate oil amount without Mechanic Handover.");
+        }
+
+        var car = checkPoint.MechanicHandover.Car;
+        var totalFuelAmount = review.InitialOilAmount + review.OilRefillAmount;
+
+        if (car.FuelCapacity < totalFuelAmount)
+        {
+            throw new InvalidOperationException(
+                $"Oil refill amount ({review.InitialOilAmount + review.OilRefillAmount}) exceeds Car's fuel capacity ({car.FuelCapacity}).");
+        }
     }
 }

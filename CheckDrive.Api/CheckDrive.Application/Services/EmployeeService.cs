@@ -2,22 +2,24 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.Constants;
-using CheckDrive.Application.DTOs.Account;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using CheckDrive.Application.QueryParameters;
+using AutoMapper.QueryableExtensions;
+using CheckDrive.Application.DTOs.Employee;
 
 namespace CheckDrive.Application.Services;
 
-internal sealed class AccountService : IAccountService
+internal sealed class EmployeeService : IEmployeeService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
     private readonly UserManager<IdentityUser> _userManager;
 
-    public AccountService(
+    public EmployeeService(
         ICheckDriveDbContext context,
         IMapper mapper,
         UserManager<IdentityUser> userManager)
@@ -27,25 +29,19 @@ internal sealed class AccountService : IAccountService
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public async Task<List<AccountDto>> GetAsync(EmployeePosition? position)
+    public async Task<List<EmployeeDto>> GetAsync(EmployeeQueryParameters queryParameters)
     {
-        var query = _context.Employees
-            .Include(x => x.Account)
+        var query = GetQuery(queryParameters);
+
+        var employees = await query
             .AsNoTracking()
-            .AsQueryable();
+            .ProjectTo<EmployeeDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
 
-        if (position.HasValue)
-        {
-            query = query.Where(x => x.Position == position.Value);
-        }
-
-        var accounts = await query.ToListAsync();
-        var dtos = _mapper.Map<List<AccountDto>>(accounts);
-
-        return dtos;
+        return employees;
     }
 
-    public async Task<AccountDto> GetByIdAsync(string id)
+    public async Task<EmployeeDto> GetByIdAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
 
@@ -59,12 +55,12 @@ internal sealed class AccountService : IAccountService
             throw new EntityNotFoundException($"Account with id: {id} is not found.");
         }
 
-        var dto = _mapper.Map<AccountDto>(account);
+        var dto = _mapper.Map<EmployeeDto>(account);
 
         return dto;
     }
 
-    public async Task<AccountDto> CreateAsync(CreateAccountDto account)
+    public async Task<EmployeeDto> CreateAsync(CreateEmployeeDto account)
     {
         ArgumentNullException.ThrowIfNull(account);
 
@@ -85,13 +81,13 @@ internal sealed class AccountService : IAccountService
         await _context.SaveChangesAsync();
 
         employee.Account = user;
-        var dto = _mapper.Map<AccountDto>(employee);
+        var dto = _mapper.Map<EmployeeDto>(employee);
 
         return dto;
     }
 
     // Update Employee & Accunt
-    public Task<AccountDto> UpdateAsync(UpdateAccountDto account)
+    public Task<EmployeeDto> UpdateAsync(UpdateEmployeeDto account)
     {
         throw new NotImplementedException();
     }
@@ -128,5 +124,31 @@ internal sealed class AccountService : IAccountService
         {
             throw new InvalidOperationException("Could not create user account.");
         }
+    }
+
+    private IQueryable<Employee> GetQuery(EmployeeQueryParameters queryParameters)
+    {
+        var query = _context.Employees
+            .Include(x => x.Account)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(queryParameters.SearchText))
+        {
+            query = query.Where(x => x.FirstName.Contains(queryParameters.SearchText)
+                || x.LastName.Contains(queryParameters.SearchText)
+                || x.Patronymic.Contains(queryParameters.SearchText)
+                || x.Passport != null && x.Passport.Contains(queryParameters.SearchText)
+                || x.Address != null && x.Address.Contains(queryParameters.SearchText)
+                || x.Account.UserName != null && x.Account.UserName.Contains(queryParameters.SearchText));
+        }
+
+        if (queryParameters.Position.HasValue)
+        {
+            query = query.Where(x => x.Position == queryParameters.Position.Value);
+        }
+
+        query = query.OrderBy(x => x.FirstName).ThenBy(x => x.LastName);
+
+        return query;
     }
 }

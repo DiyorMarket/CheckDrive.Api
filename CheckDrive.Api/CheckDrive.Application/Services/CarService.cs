@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.Car;
 using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.QueryParameters;
+using AutoMapper.QueryableExtensions;
+using CheckDrive.Application.DTOs.Ride;
 using CheckDrive.Domain.Interfaces;
+using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Entities;
-using CheckDrive.Application.QueryParameters;
-using CheckDrive.Domain.Enums;
-using AutoMapper.QueryableExtensions;
 
 namespace CheckDrive.Application.Services;
 
@@ -42,9 +43,7 @@ internal sealed class CarService : ICarService
 
         if (!string.IsNullOrEmpty(queryParameters.SearchText))
         {
-            query = query.Where(x => x.Model.Contains(queryParameters.SearchText)
-                || x.Color.Contains(queryParameters.SearchText)
-                || x.Number.Contains(queryParameters.SearchText));
+            query = query.Where(x => x.Model.Contains(queryParameters.SearchText) || x.Number.Contains(queryParameters.SearchText));
         }
 
         if (queryParameters.Status.HasValue)
@@ -117,5 +116,83 @@ internal sealed class CarService : ICarService
 
         _context.Cars.Remove(entity);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task CompleteRide(RideDetailsDto rideDetails)
+    {
+        ArgumentNullException.ThrowIfNull(rideDetails);
+
+        var car = await GetAndValidateCarAsync(rideDetails);
+
+        var travelledDistance = rideDetails.FinalMileage - car.Mileage;
+
+        if (car.RemainingFuel < rideDetails.FuelConsumptionAmount)
+        {
+            var debtAmount = car.RemainingFuel + rideDetails.RemainingFuelAmount - rideDetails.FuelConsumptionAmount;
+            var checkPoint = await GetAndValidateCheckPointAsync(rideDetails.CheckPointId);
+            var debt = new Debt
+            {
+                FuelAmount = debtAmount,
+                CheckPoint = checkPoint,
+                Status = DebtStatus.Unpaid,
+            };
+
+            _context.Debts.Add(debt);
+        }
+
+        car.RemainingFuel = rideDetails.RemainingFuelAmount;
+
+        if (IsCarExceededLimits(car))
+        {
+            car.Status = CarStatus.LimitReached;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task<Car> GetAndValidateCarAsync(RideDetailsDto rideDetails)
+    {
+        var car = await _context.Cars
+            .FirstOrDefaultAsync(x => x.Id == rideDetails.CarId);
+
+        if (car is null)
+        {
+            throw new EntityNotFoundException($"Car with id: {rideDetails.CarId} is not found.");
+        }
+
+        if (car.Mileage > rideDetails.FinalMileage)
+        {
+            throw new InvalidOperationException($"Final mileage ({rideDetails.FinalMileage}) cannot be less than current mileage ({car.Mileage}).");
+        }
+
+        return car;
+    }
+
+    private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
+    {
+        var checkPoint = await _context.CheckPoints
+            .FirstOrDefaultAsync(x => x.Id == checkPointId);
+
+        if (checkPoint is null)
+        {
+            throw new EntityNotFoundException($"Check Point with id: {checkPointId} is not found.");
+        }
+
+        return checkPoint;
+    }
+
+    private static bool IsCarExceededLimits(Car car)
+        => IsCarExceededMonthlyLimit(car) || IsCarExceededYearlyLimit(car);
+
+    private static bool IsCarExceededMonthlyLimit(Car car)
+    {
+
+        return false;
+    }
+
+    private static bool IsCarExceededYearlyLimit(Car car)
+    {
+
+        return false;
     }
 }
