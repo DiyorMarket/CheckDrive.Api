@@ -1,15 +1,8 @@
-﻿using CheckDrive.Application.DTOs.Review;
-
-namespace CheckDrive.Application.DTOs.MechanicHandover;
+﻿namespace CheckDrive.Application.DTOs.MechanicHandover;
 
 public sealed record CreateMechanicHandoverReviewDto(
     int CheckPointId,
     int CarId,
-    int ReviewerId,
+    int MechanicId,
     string? Notes,
-    bool IsApprovedByReviewer,
-    int InitialMileage)
-    : CreateReviewDtoBase(
-        ReviewerId: ReviewerId,
-        Notes: Notes,
-        IsApprovedByReviewer: IsApprovedByReviewer);
+    int InitialMileage);

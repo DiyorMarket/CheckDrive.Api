@@ -1,9 +1,11 @@
 ﻿namespace CheckDrive.Application.DTOs.DispatcherReview;
 
-public sealed record CreateDispatcherReviewDto(
+public sealed record DispatcherReviewHistoryDto(
     int CheckPointId,
-    int DispatcherId,
+    int DriverId,
+    string DriverName,
     string? Notes,
+    DateTime Date,
     int FinalMileage,
     decimal FuelConsumptionAmount,
     decimal RemainingFuelAmount);

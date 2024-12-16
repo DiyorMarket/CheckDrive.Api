@@ -1,9 +1,12 @@
 ﻿namespace CheckDrive.Application.DTOs.OperatorReview;
 
-public sealed record CreateOperatorReviewDto(
+public sealed record OperatorReviewHistory(
     int CheckPointId,
-    int OperatorId,
+    int DriverId,
+    string DriverName,
     int OilMarkId,
+    string OilMarkName,
     string? Notes,
+    DateTime Date,
     decimal InitialOilAmount,
     decimal OilRefillAmount);

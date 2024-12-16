@@ -1,13 +1,7 @@
-﻿using CheckDrive.Application.DTOs.Review;
-
-namespace CheckDrive.Application.DTOs.DoctorReview;
+﻿namespace CheckDrive.Application.DTOs.DoctorReview;
 
 public sealed record CreateDoctorReviewDto(
     int DriverId,
-    int ReviewerId,
+    int DoctorId,
     string? Notes,
-    bool IsApprovedByReviewer)
-    : CreateReviewDtoBase(
-        ReviewerId: ReviewerId,
-        Notes: Notes,
-        IsApprovedByReviewer: IsApprovedByReviewer);
+    bool IsHealthy);

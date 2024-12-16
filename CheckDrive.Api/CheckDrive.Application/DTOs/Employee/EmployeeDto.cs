@@ -1,18 +1,17 @@
 ﻿using CheckDrive.Domain.Enums;
 
-namespace CheckDrive.Application.DTOs.Account;
+namespace CheckDrive.Application.DTOs.Employee;
 
-public record class UpdateAccountDto(
-    string Id,
+public record class EmployeeDto(
+    int Id,
+    string AccountId,
     string Username,
-    string Password,
-    string PasswordConfirm,
     string PhoneNumber,
     string? Email,
     string FirstName,
     string LastName,
     string Patronymic,
-    string Address,
     string Passport,
+    string Address,
     DateTime Birthdate,
     EmployeePosition Position);

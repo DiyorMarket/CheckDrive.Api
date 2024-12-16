@@ -1,8 +1,8 @@
 ﻿using CheckDrive.Domain.Enums;
 
-namespace CheckDrive.Application.DTOs.Account;
+namespace CheckDrive.Application.DTOs.Employee;
 
-public record CreateAccountDto(
+public record CreateEmployeeDto(
     string Username,
     string Password,
     string PasswordConfirm,
