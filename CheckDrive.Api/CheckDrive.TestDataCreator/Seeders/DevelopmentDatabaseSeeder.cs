@@ -8,8 +8,13 @@ namespace CheckDrive.TestDataCreator.Seeders;
 
 internal sealed class DevelopmentDatabaseSeeder : IDatabaseSeeder
 {
+    private static readonly List<string> _oilMarks = [
+        "80", "90", "95", "98", "100", "110"
+    ];
+
     public void SeedDatabase(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
     {
+        CreateOilMarks(context);
         CreateCars(context, options);
         CreateDrivers(context, userManager, options);
         CreateDoctors(context, userManager, options);
@@ -17,6 +22,22 @@ internal sealed class DevelopmentDatabaseSeeder : IDatabaseSeeder
         CreateOperators(context, userManager, options);
         CreateDispatchers(context, userManager, options);
         CreateManagers(context, userManager, options);
+    }
+
+    private static void CreateOilMarks(ICheckDriveDbContext context)
+    {
+        if (context.OilMarks.Any()) return;
+
+        foreach (var oilMarkName in _oilMarks)
+        {
+            var oilMark = new OilMark
+            {
+                Name = oilMarkName
+            };
+            context.OilMarks.Add(oilMark);
+        }
+
+        context.SaveChanges();
     }
 
     private static void CreateCars(ICheckDriveDbContext context, DataSeedOptions options)
@@ -45,11 +66,13 @@ internal sealed class DevelopmentDatabaseSeeder : IDatabaseSeeder
 
         var role = context.Roles.First(x => x.Name == "driver");
         var uniqueDriversByName = new Dictionary<string, Driver>();
+        var carIds = context.Cars.Select(x => x.Id).ToList();
 
         for (int i = 0; i < options.DriversCount; i++)
         {
             var account = FakeDataGenerator.GetAccount().Generate();
             var driver = FakeDataGenerator.GetEmployee<Driver>().Generate();
+            driver.AssignedCarId = carIds[i];
 
             if (uniqueDriversByName.TryAdd(driver.FirstName + driver.LastName, driver))
             {
