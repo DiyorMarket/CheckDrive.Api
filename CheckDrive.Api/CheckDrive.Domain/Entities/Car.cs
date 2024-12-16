@@ -3,37 +3,28 @@ using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Domain.Entities;
 
-// TODO: Add proper validation for the car with new properties introduced,
-// such as monthly, yearly distance and fuel consumption limits
 public class Car : EntityBase
 {
-    public string Model { get; set; }
-    public string Color { get; set; }
-    public string Number { get; set; }
+    public required string Model { get; set; }
+    public required string Number { get; set; }
     public int ManufacturedYear { get; set; }
     public int Mileage { get; set; }
-    public int CurrentMonthMileage { get; set; }
-    public int CurrentYearMileage { get; set; }
-    public int MonthlyDistanceLimit { get; set; }
-    public int YearlyDistanceLimit { get; set; }
-    public decimal CurrentMonthFuelConsumption { get; set; }
-    public decimal CurrentYearFuelConsumption { get; set; }
-    public decimal MonthlyFuelConsumptionLimit { get; set; }
-    public decimal YearlyFuelConsumptionLimit { get; set; }
-    public decimal AverageFuelConsumption { get; set; }
     public decimal FuelCapacity { get; set; }
+    public decimal AverageFuelConsumption { get; set; }
     public decimal RemainingFuel { get; set; }
     public CarStatus Status { get; set; }
 
-    public Driver? AssignedDriver { get; set; }
+    public required CarLimits Limits { get; set; }
+    public required CarUsageSummary UsageSummary { get; set; }
 
-    public int OilMarkId { get; set; }
-    public OilMark OilMark { get; set; }
+    public int? OilMarkId { get; set; }
+    public virtual OilMark? OilMark { get; set; }
 
     public virtual ICollection<MechanicHandover> Handovers { get; set; }
+    public virtual ICollection<Driver> AssignedDrivers { get; set; }
 
     public Car()
     {
-        Handovers = new HashSet<MechanicHandover>();
+        Handovers = [];
     }
 }

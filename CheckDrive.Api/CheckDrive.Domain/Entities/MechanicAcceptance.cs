@@ -1,11 +1,13 @@
 ﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Domain.Entities;
 
 public class MechanicAcceptance : ReviewBase
 {
     public int FinalMileage { get; set; }
-    public decimal RemainingFuelAmount { get; set; }
+    public bool IsCarInGoodCondition { get; set; }
+    public ReviewStatus Status { get; set; }
 
     public int CheckPointId { get; set; }
     public required virtual CheckPoint CheckPoint { get; set; }
