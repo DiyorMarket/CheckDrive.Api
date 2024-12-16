@@ -20,9 +20,9 @@ public class OperatorReviewsController : ControllerBase
         [FromRoute] int operatorId,
         [FromBody] CreateOperatorReviewDto review)
     {
-        if (review.ReviewerId != operatorId)
+        if (review.OperatorId != operatorId)
         {
-            return BadRequest($"Route id: {operatorId} does not match with body id: {review.ReviewerId}.");
+            return BadRequest($"Route id: {operatorId} does not match with body id: {review.OperatorId}.");
         }
 
         var createdReview = await _reviewService.CreateAsync(review);

@@ -17,7 +17,7 @@ public class OilMarksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<OilMarkDto>>> GetAsync(OilMarkQueryParameters queryParameters)
+    public async Task<ActionResult<List<OilMarkDto>>> GetAsync([FromQuery] OilMarkQueryParameters queryParameters)
     {
         var oilMarks = await _oilMarkService.GetAllAsync(queryParameters);
 

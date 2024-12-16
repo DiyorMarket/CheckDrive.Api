@@ -22,7 +22,7 @@ public class CarsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CarDto>>> GetAllAsync(CarQueryParameters queryParameters)
+    public async Task<ActionResult<List<CarDto>>> GetAllAsync([FromQuery] CarQueryParameters queryParameters)
     {
         var cars = await _carService.GetAllAsync(queryParameters);
 
@@ -46,7 +46,7 @@ public class CarsController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<ActionResult> Upload(IFormFile file)
+    public IActionResult Upload(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("File not provided or empty");

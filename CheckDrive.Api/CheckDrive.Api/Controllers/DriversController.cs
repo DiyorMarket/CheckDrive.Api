@@ -1,5 +1,6 @@
 ﻿using CheckDrive.Application.DTOs.Driver;
 using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.QueryParameters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
@@ -16,9 +17,9 @@ public class DriversController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<DriverDto>>> GetAvailableDriversAsync()
+    public async Task<ActionResult<List<DriverDto>>> GetAvailableDriversAsync([FromQuery] DriverQueryParameters queryParameters)
     {
-        var drivers = await _driverService.GetAvailableDriversAsync();
+        var drivers = await _driverService.GetAsync(queryParameters);
 
         return Ok(drivers);
     }

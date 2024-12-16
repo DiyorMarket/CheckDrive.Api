@@ -4,6 +4,7 @@ using CheckDrive.Application.DTOs.DoctorReview;
 using CheckDrive.Application.DTOs.OperatorReview;
 using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Application.Interfaces.Review;
+using CheckDrive.Application.DTOs.DispatcherReview;
 
 namespace CheckDrive.Api.Controllers.Reviews;
 
@@ -43,9 +44,17 @@ public class ReviewHistoriesController : ControllerBase
     }
 
     [HttpGet("operators/{operatorId:int}")]
-    public async Task<ActionResult<List<OperatorReviewDto>>> GetOperatorHistoriesAsync(int operatorId)
+    public async Task<ActionResult<List<OperatorReviewHistory>>> GetOperatorHistoriesAsync(int operatorId)
     {
         var reviews = await _historyService.GetOperatorHistoriesAsync(operatorId);
+
+        return Ok(reviews);
+    }
+
+    [HttpGet("dispatchers/{dispatcherId:int}")]
+    public async Task<ActionResult<List<DispatcherReviewHistoryDto>>> GetDispatcherHistoriesAsync(int dispatcherId)
+    {
+        var reviews = await _historyService.GetDispatcherHistoriesAsync(dispatcherId);
 
         return Ok(reviews);
     }

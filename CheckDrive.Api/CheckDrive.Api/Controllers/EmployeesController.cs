@@ -1,33 +1,33 @@
 ﻿using CheckDrive.Application.Constants;
-using CheckDrive.Application.DTOs.Account;
+using CheckDrive.Application.DTOs.Employee;
 using CheckDrive.Application.Interfaces;
-using CheckDrive.Domain.Enums;
+using CheckDrive.Application.QueryParameters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
 
-[Route("api/accounts")]
+[Route("api/employees")]
 [ApiController]
-public class AccountsController : ControllerBase
+public class EmployeesController : ControllerBase
 {
-    private readonly IAccountService _service;
+    private readonly IEmployeeService _service;
 
-    public AccountsController(IAccountService service)
+    public EmployeesController(IEmployeeService service)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<AccountDto>>> GetAsync(EmployeePosition? position)
+    public async Task<ActionResult<List<EmployeeDto>>> GetAsync([FromQuery] EmployeeQueryParameters queryParameters)
     {
-        var accounts = await _service.GetAsync(position);
+        var accounts = await _service.GetAsync(queryParameters);
 
         return Ok(accounts);
     }
 
-    [HttpGet("{id}", Name = nameof(GetAccountByIdAsync))]
-    public async Task<ActionResult<AccountDto>> GetAccountByIdAsync(string id)
+    [HttpGet("{id}", Name = nameof(GetEmployeeByIdAsync))]
+    public async Task<ActionResult<EmployeeDto>> GetEmployeeByIdAsync(string id)
     {
         var account = await _service.GetByIdAsync(id);
 
@@ -36,15 +36,15 @@ public class AccountsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = $"{Roles.Manager},{Roles.Administrator}")]
-    public async Task<ActionResult<AccountDto>> CreateAsync([FromBody] CreateAccountDto account)
+    public async Task<ActionResult<EmployeeDto>> CreateAsync([FromBody] CreateEmployeeDto account)
     {
         var createdAccount = await _service.CreateAsync(account);
 
-        return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = createdAccount.Id }, createdAccount);
+        return CreatedAtAction(nameof(GetEmployeeByIdAsync), new { id = createdAccount.Id }, createdAccount);
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<AccountDto>> UpdateAsync([FromRoute] string id, [FromBody] UpdateAccountDto account)
+    public async Task<ActionResult<EmployeeDto>> UpdateAsync([FromRoute] string id, [FromBody] UpdateEmployeeDto account)
     {
         if (id != account.Id)
         {
