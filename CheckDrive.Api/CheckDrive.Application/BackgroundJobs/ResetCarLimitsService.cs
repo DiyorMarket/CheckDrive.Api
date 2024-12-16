@@ -1,15 +1,16 @@
-﻿using CheckDrive.Domain.Interfaces;
+﻿using CheckDrive.Application.Constants;
+using CheckDrive.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace CheckDrive.Application.BackgroundJobs;
 
-internal sealed class CarMileageResetService : BackgroundService
+internal sealed class ResetCarLimitsService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public CarMileageResetService(IServiceProvider serviceProvider)
+    public ResetCarLimitsService(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
@@ -18,49 +19,47 @@ internal sealed class CarMileageResetService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow.AddHours(TimeConstants.TashkentTimeUtc);
 
-            // Check if it's the first day of the month at midnight UTC
-            if (now.Day == 1 && now.Hour == 0)
+            if (now.Day == 1)
             {
-                await ResetCarMonthlyMileage(stoppingToken);
-
-                // Check if it's the first month of the year
-                if (now.Month == 1)
-                {
-                    await ResetCarYearlyMileage(stoppingToken);
-                }
+                await ResetMonthlyLimits(stoppingToken);
             }
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+            if (now.Month == 1)
+            {
+                await ResetYearlyLimits(stoppingToken);
+            }
+
+            await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
         }
     }
 
-    private async Task ResetCarMonthlyMileage(CancellationToken stoppingToken)
+    private async Task ResetMonthlyLimits(CancellationToken stoppingToken)
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ICheckDriveDbContext>();
 
         await context.Cars.ExecuteUpdateAsync(
-            x => x.SetProperty(x => x.CurrentMonthMileage, 0),
+            x => x.SetProperty(x => x.UsageSummary.CurrentMonthDistance, 0),
             stoppingToken);
 
         await context.Cars.ExecuteUpdateAsync(
-            x => x.SetProperty(x => x.CurrentMonthFuelConsumption, 0),
+            x => x.SetProperty(x => x.UsageSummary.CurrentMonthFuelConsumption, 0),
             stoppingToken);
     }
 
-    private async Task ResetCarYearlyMileage(CancellationToken stoppingToken)
+    private async Task ResetYearlyLimits(CancellationToken stoppingToken)
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ICheckDriveDbContext>();
 
         await context.Cars.ExecuteUpdateAsync(
-            x => x.SetProperty(x => x.CurrentYearMileage, 0),
+            x => x.SetProperty(x => x.UsageSummary.CurrentYearDistance, 0),
             stoppingToken);
 
         await context.Cars.ExecuteUpdateAsync(
-            x => x.SetProperty(x => x.CurrentYearFuelConsumption, 0),
+            x => x.SetProperty(x => x.UsageSummary.CurrentYearFuelConsumption, 0),
             stoppingToken);
     }
 }
