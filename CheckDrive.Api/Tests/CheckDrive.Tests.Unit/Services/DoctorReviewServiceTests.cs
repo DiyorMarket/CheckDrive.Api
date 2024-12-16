@@ -36,7 +36,7 @@ public class DoctorReviewServiceTests : ServiceTestBase
         var driver = _fixture.Create<Driver>();
         var createDto = _fixture.Build<CreateDoctorReviewDto>()
             .With(d => d.DriverId, driver.Id)
-            .With(d => d.ReviewerId, doctor.Id)
+            .With(d => d.DoctorId, doctor.Id)
             .Create();
 
         _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor> { doctor });
@@ -72,7 +72,7 @@ public class DoctorReviewServiceTests : ServiceTestBase
         // Arrange
         var doctor = _fixture.Create<Doctor>();
         var createDto = _fixture.Build<CreateDoctorReviewDto>()
-            .With(d => d.ReviewerId, doctor.Id)
+            .With(d => d.DoctorId, doctor.Id)
             .Create();
 
         _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor> { doctor });
@@ -97,8 +97,7 @@ public class DoctorReviewServiceTests : ServiceTestBase
         var driver = _fixture.Create<Driver>();
         var createDto = _fixture.Build<CreateDoctorReviewDto>()
             .With(d => d.DriverId, driver.Id)
-            .With(d => d.ReviewerId, doctor.Id)
-            .With(d => d.IsApprovedByReviewer, false)
+            .With(d => d.DoctorId, doctor.Id)
             .Create();
 
         _mockContext.Setup(c => c.Doctors).ReturnsDbSet(new List<Doctor> { doctor });
@@ -113,7 +112,6 @@ public class DoctorReviewServiceTests : ServiceTestBase
 
         // Assert
         Assert.NotNull(capturedReview);
-        Assert.Equal(CheckPointStatus.InterruptedByReviewerRejection, capturedReview.CheckPoint.Status);
-        Assert.Equal(ReviewStatus.RejectedByReviewer, capturedReview.Status);
+        Assert.Equal(CheckPointStatus.Completed, capturedReview.CheckPoint.Status);
     }
 }
