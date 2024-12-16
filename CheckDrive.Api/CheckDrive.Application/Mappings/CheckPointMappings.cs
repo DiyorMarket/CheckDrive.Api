@@ -8,6 +8,8 @@ internal sealed class CheckPointMappings : Profile
 {
     public CheckPointMappings()
     {
-        CreateMap<CheckPoint, CheckPointDto>();
+        CreateMap<CheckPoint, CheckPointDto>()
+            .ForCtorParam(nameof(CheckPointDto.Driver), cfg => cfg.MapFrom(e => e.DoctorReview.Driver))
+            .ForCtorParam(nameof(CheckPointDto.Car), cfg => cfg.MapFrom(e => e.MechanicHandover.Car));
     }
 }

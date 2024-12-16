@@ -2,7 +2,7 @@
 using CheckDrive.Application.DTOs.Driver;
 using CheckDrive.Domain.Entities;
 
-namespace CheckDrive.Application.Services;
+namespace CheckDrive.Application.Mappings;
 
 public sealed class EmployeeMappings : Profile
 {
