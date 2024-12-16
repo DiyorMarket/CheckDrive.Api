@@ -19,7 +19,6 @@ public partial class Initial_Create : Migration
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                 Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                 Stage = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
             },
@@ -87,10 +86,9 @@ public partial class Initial_Create : Migration
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 FuelAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                PaidAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                PaidAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false, defaultValue: 0m),
                 Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                CheckPointId = table.Column<int>(type: "int", nullable: false),
-                ManagerReviewId = table.Column<int>(type: "int", nullable: true)
+                CheckPointId = table.Column<int>(type: "int", nullable: false)
             },
             constraints: table =>
             {
@@ -109,23 +107,22 @@ public partial class Initial_Create : Migration
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 Model = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                Color = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                 Number = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                 ManufacturedYear = table.Column<int>(type: "int", nullable: false),
                 Mileage = table.Column<int>(type: "int", nullable: false),
-                CurrentMonthMileage = table.Column<int>(type: "int", nullable: false),
-                CurrentYearMileage = table.Column<int>(type: "int", nullable: false),
-                MonthlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
-                YearlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
-                CurrentMonthFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                CurrentYearFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                MonthlyFuelConsumptionLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                YearlyFuelConsumptionLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                AverageFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 FuelCapacity = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                AverageFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 RemainingFuel = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                OilMarkId = table.Column<int>(type: "int", nullable: false)
+                OilMarkId = table.Column<int>(type: "int", nullable: false),
+                Limits_MonthlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
+                Limits_MonthlyFuelConsumptionLimit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                Limits_YearlyDistanceLimit = table.Column<int>(type: "int", nullable: false),
+                Limits_YearlyFuelConsumptionLimit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                UsageSummary_CurrentMonthDistance = table.Column<int>(type: "int", nullable: false),
+                UsageSummary_CurrentMonthFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                UsageSummary_CurrentYearDistance = table.Column<int>(type: "int", nullable: false),
+                UsageSummary_CurrentYearFuelConsumption = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
             },
             constraints: table =>
             {
@@ -258,8 +255,8 @@ public partial class Initial_Create : Migration
                 Position = table.Column<int>(type: "int", nullable: false, defaultValue: 7),
                 PositionDescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                 AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                AssignedCarId = table.Column<int>(type: "int", nullable: true),
-                IsDriverAvailableForReview = table.Column<bool>(type: "bit", nullable: true)
+                Status = table.Column<int>(type: "int", nullable: true, defaultValue: 0),
+                AssignedCarId = table.Column<int>(type: "int", nullable: true)
             },
             constraints: table =>
             {
@@ -283,13 +280,13 @@ public partial class Initial_Create : Migration
             {
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
-                FuelConsumptionAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                FinalMileageAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                FinalMileage = table.Column<int>(type: "int", nullable: false),
+                FuelConsumptionAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                RemainingFuelAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 DispatcherId = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false)
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {
@@ -312,12 +309,12 @@ public partial class Initial_Create : Migration
             {
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
+                IsHealthy = table.Column<bool>(type: "bit", nullable: false),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 DriverId = table.Column<int>(type: "int", nullable: false),
                 DoctorId = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false)
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {
@@ -345,14 +342,14 @@ public partial class Initial_Create : Migration
             {
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
-                DebtAmountAdjusment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                FuelConsumptionAdjustment = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                FinalMileage = table.Column<int>(type: "int", nullable: false),
+                DebtAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                FuelConsumptionAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                RemainingFuelAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 ManagerId = table.Column<int>(type: "int", nullable: false),
-                DebtId = table.Column<int>(type: "int", nullable: true),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false)
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {
@@ -361,11 +358,6 @@ public partial class Initial_Create : Migration
                     name: "FK_ManagerReview_CheckPoint_CheckPointId",
                     column: x => x.CheckPointId,
                     principalTable: "CheckPoint",
-                    principalColumn: "Id");
-                table.ForeignKey(
-                    name: "FK_ManagerReview_Debt_ManagerId",
-                    column: x => x.ManagerId,
-                    principalTable: "Debt",
                     principalColumn: "Id");
                 table.ForeignKey(
                     name: "FK_ManagerReview_Employee_ManagerId",
@@ -381,12 +373,12 @@ public partial class Initial_Create : Migration
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 FinalMileage = table.Column<int>(type: "int", nullable: false),
-                RemainingFuelAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                IsCarInGoodCondition = table.Column<bool>(type: "bit", nullable: false),
+                Status = table.Column<int>(type: "int", nullable: false),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 MechanicId = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false)
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {
@@ -411,12 +403,12 @@ public partial class Initial_Create : Migration
                 Id = table.Column<int>(type: "int", nullable: false)
                     .Annotation("SqlServer:Identity", "1, 1"),
                 InitialMileage = table.Column<int>(type: "int", nullable: false),
+                Status = table.Column<int>(type: "int", nullable: false),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 CarId = table.Column<int>(type: "int", nullable: false),
                 MechanicId = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false)
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {
@@ -446,12 +438,12 @@ public partial class Initial_Create : Migration
                     .Annotation("SqlServer:Identity", "1, 1"),
                 InitialOilAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                 OilRefillAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                Status = table.Column<int>(type: "int", nullable: false),
                 CheckPointId = table.Column<int>(type: "int", nullable: false),
                 OilMarkId = table.Column<int>(type: "int", nullable: false),
                 OperatorId = table.Column<int>(type: "int", nullable: false),
                 Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                Status = table.Column<int>(type: "int", nullable: false)
+                Date = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {
@@ -471,18 +463,6 @@ public partial class Initial_Create : Migration
                     column: x => x.OilMarkId,
                     principalTable: "OilMark",
                     principalColumn: "Id");
-            });
-
-        migrationBuilder.InsertData(
-            table: "OilMark",
-            columns: new[] { "Id", "Name" },
-            values: new object[,]
-            {
-                { 1, "80" },
-                { 2, "85" },
-                { 3, "90" },
-                { 4, "95" },
-                { 5, "100" }
             });
 
         migrationBuilder.InsertData(
@@ -546,9 +526,7 @@ public partial class Initial_Create : Migration
         migrationBuilder.CreateIndex(
             name: "IX_Employee_AssignedCarId",
             table: "Employee",
-            column: "AssignedCarId",
-            unique: true,
-            filter: "[AssignedCarId] IS NOT NULL");
+            column: "AssignedCarId");
 
         migrationBuilder.CreateIndex(
             name: "IX_ManagerReview_CheckPointId",
@@ -559,8 +537,7 @@ public partial class Initial_Create : Migration
         migrationBuilder.CreateIndex(
             name: "IX_ManagerReview_ManagerId",
             table: "ManagerReview",
-            column: "ManagerId",
-            unique: true);
+            column: "ManagerId");
 
         migrationBuilder.CreateIndex(
             name: "IX_MechanicAcceptance_CheckPointId",
@@ -649,6 +626,9 @@ public partial class Initial_Create : Migration
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(
+            name: "Debt");
+
+        migrationBuilder.DropTable(
             name: "DispatcherReview");
 
         migrationBuilder.DropTable(
@@ -682,16 +662,13 @@ public partial class Initial_Create : Migration
             name: "UserToken");
 
         migrationBuilder.DropTable(
-            name: "Debt");
+            name: "CheckPoint");
 
         migrationBuilder.DropTable(
             name: "Employee");
 
         migrationBuilder.DropTable(
             name: "Role");
-
-        migrationBuilder.DropTable(
-            name: "CheckPoint");
 
         migrationBuilder.DropTable(
             name: "Car");

@@ -32,14 +32,18 @@ internal sealed class DispatcherReviewConfiguration : IEntityTypeConfiguration<D
         #region Properties
 
         builder
-            .Property(dr => dr.FuelConsumptionAdjustment)
-            .HasPrecision(18, 2)
-            .IsRequired(false);
+            .Property(dr => dr.FinalMileage)
+            .IsRequired();
 
         builder
-            .Property(dr => dr.FinalMileageAdjustment)
+            .Property(dr => dr.FuelConsumptionAmount)
             .HasPrecision(18, 2)
-            .IsRequired(false);
+            .IsRequired();
+
+        builder
+            .Property(dr => dr.RemainingFuelAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
 
         #endregion
     }

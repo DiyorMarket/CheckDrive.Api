@@ -10,6 +10,8 @@ namespace CheckDrive.Infrastructure.Persistence;
 
 public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
 {
+    public virtual DbSet<Car> Cars { get; set; }
+    public virtual DbSet<OilMark> OilMarks { get; set; }
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Driver> Drivers { get; set; }
     public virtual DbSet<Doctor> Doctors { get; set; }
@@ -17,7 +19,6 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public virtual DbSet<Operator> Operators { get; set; }
     public virtual DbSet<Dispatcher> Dispatchers { get; set; }
     public virtual DbSet<Manager> Managers { get; set; }
-    public virtual DbSet<Car> Cars { get; set; }
     public virtual DbSet<CheckPoint> CheckPoints { get; set; }
     public virtual DbSet<DoctorReview> DoctorReviews { get; set; }
     public virtual DbSet<MechanicHandover> MechanicHandovers { get; set; }
@@ -26,7 +27,6 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public virtual DbSet<DispatcherReview> DispatcherReviews { get; set; }
     public virtual DbSet<ManagerReview> ManagerReviews { get; set; }
     public virtual DbSet<Debt> Debts { get; set; }
-    public virtual DbSet<OilMark> OilMarks { get; set; }
 
     public CheckDriveDbContext(DbContextOptions<CheckDriveDbContext> options)
         : base(options)

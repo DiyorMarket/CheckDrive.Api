@@ -41,10 +41,6 @@
     <ProjectReference Include="..\CheckDrive.Application\CheckDrive.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Persistence\Migrations\" />
-  </ItemGroup>
-
   <PropertyGroup>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>

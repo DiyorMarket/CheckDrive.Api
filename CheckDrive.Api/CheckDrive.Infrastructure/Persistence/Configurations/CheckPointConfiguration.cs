@@ -61,15 +61,6 @@ internal sealed class CheckPointConfiguration : IEntityTypeConfiguration<CheckPo
         #region Properties
 
         builder
-            .Property(cp => cp.StartDate)
-            .IsRequired();
-
-        builder
-            .Property(cp => cp.Notes)
-            .HasMaxLength(Constants.MAX_STRING_LENGTH)
-            .IsRequired(false);
-
-        builder
             .Property(cp => cp.Status)
             .HasDefaultValue(CheckPointStatus.InProgress)
             .IsRequired();
