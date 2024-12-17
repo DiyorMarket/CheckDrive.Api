@@ -20,10 +20,7 @@ builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsTesting())
-{
-    app.UseDatabaseSeeder();
-}
+app.UseDatabaseSeeder();
 
 app.UseErrorHandler();
 

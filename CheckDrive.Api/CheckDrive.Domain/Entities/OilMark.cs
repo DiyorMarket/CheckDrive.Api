@@ -7,6 +7,7 @@ public class OilMark : EntityBase
     public string Name { get; set; }
 
     public virtual ICollection<OperatorReview> Reviews { get; set; }
+    public virtual ICollection<Car> Cars { get; set; }
 
     public OilMark()
     {

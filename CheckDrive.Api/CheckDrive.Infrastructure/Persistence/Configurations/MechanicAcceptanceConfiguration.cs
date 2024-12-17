@@ -35,8 +35,8 @@ internal sealed class MechanicAcceptanceConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         builder
-            .Property(ma => ma.RemainingFuelAmount)
-            .HasPrecision(18, 2);
+            .Property(ma => ma.IsCarInGoodCondition)
+            .IsRequired();
 
         #endregion
     }

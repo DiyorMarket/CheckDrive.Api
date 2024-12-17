@@ -27,26 +27,28 @@ internal sealed class ManagerReviewConfigurations : IEntityTypeConfiguration<Man
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
 
-        builder
-            .HasOne(mr => mr.Debt)
-            .WithOne(d => d.ManagerReview)
-            .HasForeignKey<ManagerReview>(mr => mr.ManagerId)
-            .OnDelete(DeleteBehavior.NoAction)
-            .IsRequired();
-
         #endregion
 
         #region Properties
 
         builder
-            .Property(mr => mr.DebtAmountAdjusment)
-            .HasPrecision(18, 2)
-            .IsRequired(false);
+            .Property(mr => mr.FinalMileage)
+            .IsRequired();
 
         builder
-            .Property(mr => mr.FuelConsumptionAdjustment)
+            .Property(mr => mr.DebtAmount)
             .HasPrecision(18, 2)
-            .IsRequired(false);
+            .IsRequired();
+
+        builder
+            .Property(mr => mr.FuelConsumptionAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder
+            .Property(mr => mr.RemainingFuelAmount)
+            .HasPrecision(18, 2)
+            .IsRequired();
 
         #endregion
     }

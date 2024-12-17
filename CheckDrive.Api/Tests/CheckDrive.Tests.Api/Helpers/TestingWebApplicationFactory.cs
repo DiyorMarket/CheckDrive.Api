@@ -1,5 +1,4 @@
 ﻿using CheckDrive.Infrastructure.Persistence;
-using CheckDrive.Tests.Api.ResponseValidators;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,16 +8,11 @@ public class TestingWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly DatabaseFixture _databaseFixture;
 
-    private readonly ResponseValidator _responseValidator;
-    public ResponseValidator ResponseValidator => _responseValidator;
-
     public CheckDriveDbContext Context => _databaseFixture.Context;
 
     public TestingWebApplicationFactory(DatabaseFixture databaseFixture)
     {
         _databaseFixture = databaseFixture;
-
-        _responseValidator = new ResponseValidator(_databaseFixture.Context);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

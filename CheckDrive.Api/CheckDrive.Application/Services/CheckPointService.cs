@@ -55,7 +55,7 @@ internal sealed class CheckPointService : ICheckPointService
     {
         var checkPoint = await GetAndValidateAsync(id);
 
-        if (checkPoint.Status == CheckPointStatus.Completed || checkPoint.Status == CheckPointStatus.AutomaticallyClosed)
+        if (checkPoint.Status == CheckPointStatus.Completed || checkPoint.Status == CheckPointStatus.ClosedByManager)
         {
             throw new InvalidOperationException($"Cannot cancel closed Check Point.");
         }
@@ -78,10 +78,16 @@ internal sealed class CheckPointService : ICheckPointService
             .ThenInclude(x => x.Car)
             .Include(x => x.OperatorReview)
             .ThenInclude(x => x.Operator)
+            .Include(x => x.OperatorReview)
+            .ThenInclude(x => x.OilMark)
             .Include(x => x.MechanicAcceptance)
             .ThenInclude(x => x.Mechanic)
             .Include(x => x.DispatcherReview)
             .ThenInclude(x => x.Dispatcher)
+            .Include(x => x.ManagerReview)
+            .ThenInclude(x => x.Manager)
+            .Include(x => x.Debt)
+            .AsSplitQuery()
             .AsQueryable();
 
         if (queryParameters is null)
@@ -92,7 +98,6 @@ internal sealed class CheckPointService : ICheckPointService
         if (!string.IsNullOrWhiteSpace(queryParameters.Search))
         {
             query = query.Where(x =>
-                (x.Notes != null && x.Notes.Contains(queryParameters.Search)) ||
                 (x.DoctorReview.Notes != null && x.DoctorReview.Notes.Contains(queryParameters.Search)) ||
                 (x.MechanicHandover != null && x.MechanicHandover.Notes != null && x.MechanicHandover.Notes.Contains(queryParameters.Search)) ||
                 (x.OperatorReview != null && x.OperatorReview.Notes != null && x.OperatorReview.Notes.Contains(queryParameters.Search)) ||

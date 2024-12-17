@@ -1,15 +1,9 @@
-﻿using CheckDrive.Application.DTOs.Review;
-
-namespace CheckDrive.Application.DTOs.DispatcherReview;
+﻿namespace CheckDrive.Application.DTOs.DispatcherReview;
 
 public sealed record CreateDispatcherReviewDto(
     int CheckPointId,
-    int ReviewerId,
+    int DispatcherId,
     string? Notes,
-    bool IsApprovedByReviewer,
-    decimal? FuelConsumptionAdjustment,
-    int? FinalMileageAdjustment)
-    : CreateReviewDtoBase(
-        ReviewerId: ReviewerId,
-        Notes: Notes,
-        IsApprovedByReviewer: IsApprovedByReviewer);
+    int FinalMileage,
+    decimal FuelConsumptionAmount,
+    decimal RemainingFuelAmount);

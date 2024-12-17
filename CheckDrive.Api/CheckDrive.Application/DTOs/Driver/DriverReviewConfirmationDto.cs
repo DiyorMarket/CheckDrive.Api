@@ -5,5 +5,5 @@ namespace CheckDrive.Application.DTOs.Driver;
 public sealed record DriverReviewConfirmationDto(
     int CheckPointId,
     ReviewType ReviewType,
-    bool IsAcceptedByDriver,
+    bool IsAccepted,
     string? Notes);

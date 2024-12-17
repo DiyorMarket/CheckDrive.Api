@@ -1,6 +1,9 @@
-﻿using CheckDrive.Application.DTOs.Debt;
+﻿using CheckDrive.Application.DTOs.Car;
+using CheckDrive.Application.DTOs.Debt;
 using CheckDrive.Application.DTOs.DispatcherReview;
 using CheckDrive.Application.DTOs.DoctorReview;
+using CheckDrive.Application.DTOs.Driver;
+using CheckDrive.Application.DTOs.ManagerReview;
 using CheckDrive.Application.DTOs.MechanicAcceptance;
 using CheckDrive.Application.DTOs.MechanicHandover;
 using CheckDrive.Application.DTOs.OperatorReview;
@@ -18,4 +21,7 @@ public sealed record CheckPointDto(
     OperatorReviewDto? OperatorReview,
     MechanicAcceptanceReviewDto? MechanicAcceptance,
     DispatcherReviewDto? DispatcherReview,
-    DebtDto? Debt);
+    ManagerReviewDto? ManagerReview,
+    DebtDto? Debt,
+    DriverDto Driver,
+    CarDto Car);

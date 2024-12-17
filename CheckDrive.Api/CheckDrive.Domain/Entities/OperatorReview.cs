@@ -1,4 +1,5 @@
 ﻿using CheckDrive.Domain.Common;
+using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Domain.Entities;
 
@@ -6,6 +7,7 @@ public class OperatorReview : ReviewBase
 {
     public decimal InitialOilAmount { get; set; }
     public decimal OilRefillAmount { get; set; }
+    public ReviewStatus Status { get; set; }
 
     public int CheckPointId { get; set; }
     public required virtual CheckPoint CheckPoint { get; set; }

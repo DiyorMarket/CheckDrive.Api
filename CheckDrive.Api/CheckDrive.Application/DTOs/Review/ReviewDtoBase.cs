@@ -10,5 +10,4 @@ public abstract record ReviewDtoBase(
     string DriverName,
     string? Notes,
     DateTime Date,
-    ReviewStatus Status,
     ReviewType Type);

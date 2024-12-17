@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using CheckDrive.Application.DTOs.CheckPoint;
+using CheckDrive.Application.DTOs.DispatcherReview;
 using CheckDrive.Application.DTOs.DoctorReview;
 using CheckDrive.Application.DTOs.OperatorReview;
 using CheckDrive.Application.DTOs.Review;
@@ -26,7 +28,7 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
         var checkPoints = await _context.CheckPoints
             .AsNoTracking()
             .Where(x => x.DoctorReview.DriverId == driverId)
-            .Where(x => x.Status == CheckPointStatus.Completed || x.Status == CheckPointStatus.AutomaticallyClosed)
+            .Where(x => x.Status == CheckPointStatus.Completed || x.Status == CheckPointStatus.ClosedByManager)
             .Include(x => x.DoctorReview)
             .ThenInclude(x => x.Doctor)
             .Include(x => x.DoctorReview)
@@ -78,8 +80,7 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
                 x.CheckPoint.DoctorReview.DriverId,
                 x.CheckPoint.DoctorReview.Driver.FirstName + " " + x.CheckPoint.DoctorReview.Driver.LastName,
                 x.Notes,
-                x.Date,
-                x.Status))
+                x.Date))
             .ToListAsync();
         var acceptances = await _context.MechanicAcceptances
             .Include(x => x.CheckPoint)
@@ -90,8 +91,7 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
                 x.CheckPoint.DoctorReview.DriverId,
                 x.CheckPoint.DoctorReview.Driver.FirstName + " " + x.CheckPoint.DoctorReview.Driver.LastName,
                 x.Notes,
-                x.Date,
-                x.Status))
+                x.Date))
             .ToListAsync();
 
         List<MechanicReviewHistoryDto> allReviews = [.. handovers, .. acceptances];
@@ -100,7 +100,7 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
         return orderedReviews;
     }
 
-    public async Task<List<OperatorReviewDto>> GetOperatorHistoriesAsync(int operatorId)
+    public async Task<List<OperatorReviewHistory>> GetOperatorHistoriesAsync(int operatorId)
     {
         var reviews = await _context.OperatorReviews
             .AsNoTracking()
@@ -111,19 +111,22 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
             .ThenInclude(x => x.DoctorReview)
             .ThenInclude(x => x.Driver)
             .AsSplitQuery()
-            .Select(x => new OperatorReviewDto(
-                x.CheckPointId,
-                x.OperatorId,
-                x.Operator.FirstName + " " + x.Operator.LastName,
-                x.CheckPoint.DoctorReview.DriverId,
-                x.CheckPoint.DoctorReview.Driver.FirstName + " " + x.CheckPoint.DoctorReview.Driver.LastName,
-                x.OilMarkId,
-                x.OilMark.Name,
-                x.Notes,
-                x.Date,
-                x.Status,
-                x.InitialOilAmount,
-                x.OilRefillAmount))
+            .ProjectTo<OperatorReviewHistory>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return reviews;
+    }
+
+    public async Task<List<DispatcherReviewHistoryDto>> GetDispatcherHistoriesAsync(int dispatcherId)
+    {
+        var reviews = await _context.DispatcherReviews
+            .AsNoTracking()
+            .Where(x => x.DispatcherId == dispatcherId)
+            .Include(x => x.CheckPoint)
+            .ThenInclude(x => x.DoctorReview)
+            .ThenInclude(x => x.Driver)
+            .AsSplitQuery()
+            .ProjectTo<DispatcherReviewHistoryDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
         return reviews;

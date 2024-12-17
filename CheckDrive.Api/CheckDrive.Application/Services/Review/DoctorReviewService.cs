@@ -31,22 +31,41 @@ internal sealed class DoctorReviewService : IDoctorReviewService
     {
         ArgumentNullException.ThrowIfNull(review);
 
-        var doctor = await GetAndValidateDoctorAsync(review.ReviewerId);
+        var doctor = await GetAndValidateDoctorAsync(review.DoctorId);
         var driver = await GetAndValidateDriverAsync(review.DriverId);
 
-        var checkPoint = CreateCheckPoint(review);
-        var reviewEntity = CreateReview(review, checkPoint, doctor, driver);
+        var reviewEntity = CreateReview(review, doctor, driver);
+        var checkPoint = CreateCheckPoint(reviewEntity);
+        driver.Status = review.IsHealthy ? DriverStatus.OnRide : DriverStatus.NotHealthy;
 
-        _context.DoctorReviews.Add(reviewEntity);
+        _context.CheckPoints.Add(checkPoint);
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
 
         await _reviewHub.Clients
-            .User(dto.DriverId.ToString())
-            .NotifyDoctorReview(dto);
+            .User(review.DriverId.ToString())
+            .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
+    }
+
+    private async Task<Driver> GetAndValidateDriverAsync(int driverId)
+    {
+        var driver = await _context.Drivers
+            .FirstOrDefaultAsync(x => x.Id == driverId);
+
+        if (driver is null)
+        {
+            throw new EntityNotFoundException($"Driver with id: {driverId} is not found.");
+        }
+
+        if (driver.Status != DriverStatus.Available)
+        {
+            throw new InvalidOperationException($"Cannot start new Check Point for Driver with active Check Point.");
+        }
+
+        return driver;
     }
 
     private async Task<Doctor> GetAndValidateDoctorAsync(int doctorId)
@@ -62,29 +81,16 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         return doctor;
     }
 
-    private async Task<Driver> GetAndValidateDriverAsync(int driverId)
+    private DoctorReview CreateReview(CreateDoctorReviewDto review, Doctor doctor, Driver driver)
     {
-        var driver = await _context.Drivers
-            .FirstOrDefaultAsync(x => x.Id == driverId);
+        var entity = _mapper.Map<DoctorReview>(review);
+        entity.Doctor = doctor;
+        entity.Driver = driver;
 
-        if (driver is null)
-        {
-            throw new EntityNotFoundException($"Driver with id: {driverId} is not found.");
-        }
-
-        var hasActiveCheckPoint = await _context.CheckPoints
-            .Where(x => x.DoctorReview.DriverId == driverId)
-            .AnyAsync(x => x.Status == CheckPointStatus.InProgress);
-
-        if (hasActiveCheckPoint)
-        {
-            throw new InvalidOperationException($"Cannot start new Check Point for Driver with active Check Point.");
-        }
-
-        return driver;
+        return entity;
     }
 
-    private static CheckPoint CreateCheckPoint(CreateDoctorReviewDto review)
+    private static CheckPoint CreateCheckPoint(DoctorReview review)
     {
         ArgumentNullException.ThrowIfNull(review);
 
@@ -92,32 +98,10 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         {
             StartDate = DateTime.UtcNow,
             Stage = CheckPointStage.DoctorReview,
-            Status = review.IsApprovedByReviewer ? CheckPointStatus.InProgress : CheckPointStatus.InterruptedByReviewerRejection,
-            DoctorReview = null!,
+            Status = review.IsHealthy ? CheckPointStatus.InProgress : CheckPointStatus.Completed,
+            DoctorReview = review,
         };
 
         return checkPoint;
-    }
-
-    private static DoctorReview CreateReview(
-        CreateDoctorReviewDto review,
-        CheckPoint checkPoint,
-        Doctor doctor,
-        Driver driver)
-    {
-        ArgumentNullException.ThrowIfNull(review);
-        ArgumentNullException.ThrowIfNull(checkPoint);
-
-        var doctorReview = new DoctorReview
-        {
-            CheckPoint = checkPoint,
-            Driver = driver,
-            Doctor = doctor,
-            Notes = review.Notes,
-            Date = DateTime.UtcNow,
-            Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer
-        };
-
-        return doctorReview;
     }
 }

@@ -32,24 +32,19 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         ArgumentNullException.ThrowIfNull(review);
 
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
-        var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
+        var mechanic = await GetAndValidateMechanicAsync(review.MechanicId);
 
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Stage = CheckPointStage.MechanicAcceptance;
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
+        ValidateMileage(checkPoint, review);
+        var reviewEntity = await CreateReviewAsync(checkPoint, mechanic, review);
 
-        var reviewEntity = CreateReview(checkPoint, mechanic, review);
-
-        _context.MechanicAcceptances.Add(reviewEntity);
+        _context.MechanicAcceptances.Update(reviewEntity);
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<MechanicAcceptanceReviewDto>(reviewEntity);
 
         await _hubContext.Clients
-            .User(dto.DriverId.ToString())
-            .MechanicAcceptanceConfirmation(dto);
+            .User(checkPoint.DoctorReview.DriverId.ToString())
+            .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
@@ -61,6 +56,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
             .Include(x => x.MechanicHandover)
             .ThenInclude(x => x.Car)
             .Include(x => x.OperatorReview)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)
@@ -87,6 +83,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
     private async Task<Mechanic> GetAndValidateMechanicAsync(int mechanicId)
     {
         var mechanic = await _context.Mechanics
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
         if (mechanic is null)
@@ -97,22 +94,47 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         return mechanic;
     }
 
-    private static MechanicAcceptance CreateReview(
+    private async Task<MechanicAcceptance> CreateReviewAsync(
         CheckPoint checkPoint,
         Mechanic mechanic,
         CreateMechanicAcceptanceReviewDto review)
     {
         var entity = new MechanicAcceptance
         {
-            CheckPoint = checkPoint,
-            Mechanic = mechanic,
-            FinalMileage = review.FinalMileage,
-            RemainingFuelAmount = review.RemainingFuelAmount,
             Notes = review.Notes,
             Date = DateTime.UtcNow,
-            Status = review.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer,
+            FinalMileage = review.FinalMileage,
+            IsCarInGoodCondition = review.IsCarInGoodCondition,
+            Status = ReviewStatus.Pending,
+            CheckPoint = checkPoint,
+            Mechanic = mechanic
         };
 
+        var existingReview = await _context.MechanicAcceptances
+            .FirstOrDefaultAsync(x => x.CheckPointId == review.CheckPointId);
+        if (existingReview is not null)
+        {
+            entity.Id = existingReview.Id;
+        }
+
         return entity;
+    }
+
+    private static void ValidateMileage(CheckPoint checkPoint, CreateMechanicAcceptanceReviewDto review)
+    {
+        ArgumentNullException.ThrowIfNull(checkPoint);
+        ArgumentNullException.ThrowIfNull(review);
+
+        if (checkPoint.MechanicHandover is null)
+        {
+            throw new InvalidOperationException($"Cannot validate mileage for Check Point without Mechanic Handover");
+        }
+
+        var car = checkPoint.MechanicHandover.Car;
+
+        if (review.FinalMileage < car.Mileage)
+        {
+            throw new InvalidMileageException($"Final mileage ({review.FinalMileage}) cannot be less than car's current mileage ({car.Mileage})");
+        }
     }
 }

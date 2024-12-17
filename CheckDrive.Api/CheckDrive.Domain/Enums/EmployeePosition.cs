@@ -9,4 +9,5 @@ public enum EmployeePosition
     Operator = 4,
     Dispatcher = 5,
     Manager = 6,
+    Custom = 7
 }

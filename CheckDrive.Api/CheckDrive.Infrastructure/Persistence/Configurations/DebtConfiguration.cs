@@ -33,6 +33,7 @@ internal sealed class DebtConfiguration : IEntityTypeConfiguration<Debt>
         builder
             .Property(d => d.PaidAmount)
             .HasPrecision(18, 2)
+            .HasDefaultValue(0)
             .IsRequired();
 
         builder

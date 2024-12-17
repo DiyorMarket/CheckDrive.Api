@@ -2,10 +2,10 @@
 
 namespace CheckDrive.Application.DTOs.Car;
 
-public sealed record CarDto(
+public record CarDto(
     int Id,
+    int? OilMarkId,
     string Model,
-    string Color,
     string Number,
     int ManufacturedYear,
     int Mileage,

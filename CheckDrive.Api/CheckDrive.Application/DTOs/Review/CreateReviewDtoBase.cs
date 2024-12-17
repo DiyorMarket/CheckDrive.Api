@@ -2,5 +2,4 @@
 
 public abstract record CreateReviewDtoBase(
     int ReviewerId,
-    string? Notes,
-    bool IsApprovedByReviewer);
+    string? Notes);
