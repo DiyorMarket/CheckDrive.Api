@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using CheckDrive.Domain.Entities;
 
 namespace CheckDrive.Application.Interfaces.Auth;
 
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(IdentityUser user, IList<string> roles);
+    string GenerateToken(Employee employee, IList<string> roles);
 }

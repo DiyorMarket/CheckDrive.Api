@@ -15,5 +15,6 @@ public class CheckPoint : EntityBase
     public virtual OperatorReview? OperatorReview { get; set; }
     public virtual MechanicAcceptance? MechanicAcceptance { get; set; }
     public virtual DispatcherReview? DispatcherReview { get; set; }
+    public virtual ManagerReview? ManagerReview { get; set; }
     public virtual Debt? Debt { get; set; }
 }

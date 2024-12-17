@@ -24,6 +24,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.9.0" />
     <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="27.1.50" />
   </ItemGroup>
 
@@ -31,6 +32,10 @@
     <ProjectReference Include="..\CheckDrive.Application\CheckDrive.Application.csproj" />
     <ProjectReference Include="..\CheckDrive.Infrastructure\CheckDrive.Infrastructure.csproj" />
     <ProjectReference Include="..\CheckDrive.TestDataCreator\CheckDrive.TestDataCreator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="logs\" />
   </ItemGroup>
 
 </Project>

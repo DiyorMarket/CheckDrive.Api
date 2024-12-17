@@ -1,6 +1,5 @@
 ﻿using CheckDrive.Api.Helpers;
 using CheckDrive.Api.Middlewares;
-using CheckDrive.Application.Constants;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.TestDataCreator.Configurations;
 using Microsoft.AspNetCore.Identity;
@@ -28,4 +27,7 @@ public static class StartupExtensions
 
         return app;
     }
+
+    public static bool IsTesting(this IHostEnvironment environment)
+        => environment.IsEnvironment("Testing");
 }

@@ -9,7 +9,6 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text;
-using CheckDrive.Api.Filters;
 
 namespace CheckDrive.Api.Extensions;
 
@@ -21,6 +20,10 @@ public static class DependencyInjection
         services.RegisterInfrastructure(configuration);
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
 
         AddControllers(services);
         AddSwagger(services);
@@ -56,14 +59,18 @@ public static class DependencyInjection
             .AddSwaggerGen(setup =>
             {
                 setup.SwaggerDoc("v1", new OpenApiInfo { Title = "Check-Drive API", Version = "v1" });
-
-                setup.SchemaFilter<EnumSchemaFilter>();
-            });
+            })
+            .AddSwaggerGenNewtonsoftSupport();
     }
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
     {
         var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
+
+        if (jwtOptions is null)
+        {
+            throw new InvalidOperationException("Could not load JWT configurations.");
+        }
 
         services
             .AddAuthentication(options =>
@@ -84,7 +91,7 @@ public static class DependencyInjection
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtOptions!.SecretKey))
+                        Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
                 };
 
                 options.Events = new JwtBearerEvents

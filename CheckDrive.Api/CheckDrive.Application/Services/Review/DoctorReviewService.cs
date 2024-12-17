@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.DoctorReview;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -13,11 +15,16 @@ internal sealed class DoctorReviewService : IDoctorReviewService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _reviewHub;
 
-    public DoctorReviewService(ICheckDriveDbContext context, IMapper mapper)
+    public DoctorReviewService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        IHubContext<ReviewHub, IReviewHub> reviewHub)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _reviewHub = reviewHub ?? throw new ArgumentNullException(nameof(reviewHub));
     }
 
     public async Task<DoctorReviewDto> CreateAsync(CreateDoctorReviewDto review)
@@ -28,12 +35,16 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var driver = await GetAndValidateDriverAsync(review.DriverId);
 
         var checkPoint = CreateCheckPoint(review);
-        var reviewEntity = CreateReviewEntity(review, checkPoint, doctor, driver);
+        var reviewEntity = CreateReview(review, checkPoint, doctor, driver);
 
         _context.DoctorReviews.Add(reviewEntity);
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
+
+        await _reviewHub.Clients
+            .User(dto.DriverId.ToString())
+            .NotifyDoctorReview(dto);
 
         return dto;
     }
@@ -61,6 +72,15 @@ internal sealed class DoctorReviewService : IDoctorReviewService
             throw new EntityNotFoundException($"Driver with id: {driverId} is not found.");
         }
 
+        var hasActiveCheckPoint = await _context.CheckPoints
+            .Where(x => x.DoctorReview.DriverId == driverId)
+            .AnyAsync(x => x.Status == CheckPointStatus.InProgress);
+
+        if (hasActiveCheckPoint)
+        {
+            throw new InvalidOperationException($"Cannot start new Check Point for Driver with active Check Point.");
+        }
+
         return driver;
     }
 
@@ -79,7 +99,11 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         return checkPoint;
     }
 
-    private static DoctorReview CreateReviewEntity(CreateDoctorReviewDto review, CheckPoint checkPoint, Doctor doctor, Driver driver)
+    private static DoctorReview CreateReview(
+        CreateDoctorReviewDto review,
+        CheckPoint checkPoint,
+        Doctor doctor,
+        Driver driver)
     {
         ArgumentNullException.ThrowIfNull(review);
         ArgumentNullException.ThrowIfNull(checkPoint);
@@ -87,10 +111,10 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var doctorReview = new DoctorReview
         {
             CheckPoint = checkPoint,
-            Doctor = doctor,
             Driver = driver,
-            Date = DateTime.UtcNow,
+            Doctor = doctor,
             Notes = review.Notes,
+            Date = DateTime.UtcNow,
             Status = review.IsApprovedByReviewer ? ReviewStatus.Approved : ReviewStatus.RejectedByReviewer
         };
 

@@ -14,8 +14,7 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
 
         #region Relationships
 
-        builder
-            .HasMany(c => c.Handovers)
+        builder.HasMany(c => c.Handovers)
             .WithOne(ch => ch.Car)
             .HasForeignKey(ch => ch.CarId);
 
@@ -24,41 +23,58 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
         #region Properties
 
         builder.Property(c => c.Model)
-               .HasMaxLength(Constants.MAX_STRING_LENGTH)
-               .IsRequired();
+            .HasMaxLength(Constants.MAX_STRING_LENGTH)
+            .IsRequired();
 
         builder.Property(c => c.Color)
-               .HasMaxLength(Constants.MAX_STRING_LENGTH)
-               .IsRequired();
+            .HasMaxLength(Constants.MAX_STRING_LENGTH)
+            .IsRequired();
 
         builder.Property(c => c.Number)
-               .HasMaxLength(Constants.CAR_NUMBER_LENGTH)
-               .IsRequired();
+            .HasMaxLength(Constants.CAR_NUMBER_LENGTH)
+            .IsRequired();
 
         builder.Property(c => c.ManufacturedYear)
-               .IsRequired();
+            .IsRequired();
 
         builder.Property(c => c.Mileage)
-               .IsRequired();
+            .IsRequired();
+
+        builder.Property(c => c.CurrentMonthMileage)
+            .IsRequired();
+
+        builder.Property(c => c.CurrentYearMileage)
+            .IsRequired();
+
+        builder.Property(c => c.MonthlyDistanceLimit)
+            .IsRequired();
 
         builder.Property(c => c.YearlyDistanceLimit)
-               .IsRequired();
+            .IsRequired();
+
+        builder.Property(c => c.MonthlyFuelConsumptionLimit)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder.Property(c => c.YearlyFuelConsumptionLimit)
+            .HasPrecision(18, 2)
+            .IsRequired();
 
         builder.Property(c => c.AverageFuelConsumption)
-               .HasPrecision(18, 2)
-               .IsRequired();
+            .HasPrecision(18, 2)
+            .IsRequired();
 
         builder.Property(c => c.FuelCapacity)
-               .HasPrecision(18, 2)
-               .IsRequired();
+            .HasPrecision(18, 2)
+            .IsRequired();
 
         builder.Property(c => c.RemainingFuel)
-               .HasPrecision(18, 2)
-               .IsRequired();
+            .HasPrecision(18, 2)
+            .IsRequired();
 
         builder.Property(c => c.Status)
-               .HasDefaultValue(CarStatus.Free)
-               .IsRequired();
+            .HasDefaultValue(CarStatus.Free)
+            .IsRequired();
 
         #endregion
     }

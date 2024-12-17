@@ -2,7 +2,7 @@
 using CheckDrive.Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CheckDrive.Api.Controllers.Auth;
+namespace CheckDrive.Api.Controllers;
 
 [Route("api/auth")]
 [ApiController]

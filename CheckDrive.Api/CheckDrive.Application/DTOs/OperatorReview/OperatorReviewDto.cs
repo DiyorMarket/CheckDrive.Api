@@ -25,4 +25,4 @@ public sealed record OperatorReviewDto(
         Notes: Notes,
         Date: Date,
         Status: Status,
-        Type: ReviewType.Operator);
+        Type: ReviewType.OperatorReview);

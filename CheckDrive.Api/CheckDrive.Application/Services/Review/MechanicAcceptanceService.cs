@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.MechanicAcceptance;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
@@ -13,11 +15,16 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
-    public MechanicAcceptanceService(ICheckDriveDbContext context, IMapper mapper)
+    public MechanicAcceptanceService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
     public async Task<MechanicAcceptanceReviewDto> CreateAsync(CreateMechanicAcceptanceReviewDto review)
@@ -27,37 +34,33 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
 
-        using var transaction = _context.BeginTransaction();
-
-        try
+        if (!review.IsApprovedByReviewer)
         {
-            UpdateCheckPoint(checkPoint, review);
-            UpdateCar(checkPoint, review);
-
-            var reviewEntity = CreateReviewEntity(checkPoint, mechanic, review);
-
-            var createdReview = _context.MechanicAcceptances.Add(reviewEntity).Entity;
-            await _context.SaveChangesAsync();
-
-            await transaction.CommitAsync();
-
-            var dto = _mapper.Map<MechanicAcceptanceReviewDto>(createdReview);
-
-            return dto;
+            checkPoint.Stage = CheckPointStage.MechanicAcceptance;
+            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
         }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
+
+        var reviewEntity = CreateReview(checkPoint, mechanic, review);
+
+        _context.MechanicAcceptances.Add(reviewEntity);
+        await _context.SaveChangesAsync();
+
+        var dto = _mapper.Map<MechanicAcceptanceReviewDto>(reviewEntity);
+
+        await _hubContext.Clients
+            .User(dto.DriverId.ToString())
+            .MechanicAcceptanceConfirmation(dto);
+
+        return dto;
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
-            .Include(x => x.OperatorReview)
+            .Include(x => x.DoctorReview)
             .Include(x => x.MechanicHandover)
-            .ThenInclude(mh => mh!.Car)
+            .ThenInclude(x => x.Car)
+            .Include(x => x.OperatorReview)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)
@@ -94,7 +97,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         return mechanic;
     }
 
-    private static MechanicAcceptance CreateReviewEntity(
+    private static MechanicAcceptance CreateReview(
         CheckPoint checkPoint,
         Mechanic mechanic,
         CreateMechanicAcceptanceReviewDto review)
@@ -111,72 +114,5 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         };
 
         return entity;
-    }
-
-    private static void UpdateCheckPoint(CheckPoint checkPoint, CreateMechanicAcceptanceReviewDto review)
-    {
-        ArgumentNullException.ThrowIfNull(checkPoint);
-
-        checkPoint.Stage = CheckPointStage.MechanicAcceptance;
-
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
-    }
-
-    private void UpdateCar(CheckPoint checkPoint, CreateMechanicAcceptanceReviewDto review)
-    {
-        if (checkPoint.MechanicHandover is null)
-        {
-            throw new InvalidOperationException($"Mechanic Handover in Check Point cannot be null.");
-        }
-
-        var car = checkPoint.MechanicHandover.Car;
-
-        if (car.FuelCapacity < review.RemainingFuelAmount)
-        {
-            throw new FuelAmountExceedsCarCapacityException($"Remaining amount: {review.RemainingFuelAmount} exceeds Capacity: {car.FuelCapacity}.");
-        }
-        var fuelSpent = CalculateFuelConsumption(checkPoint.MechanicHandover.InitialMileage, review.FinalMileage, car.AverageFuelConsumption);
-
-        if (fuelSpent > car.RemainingFuel)
-        {
-            var debt = CreateDebt(checkPoint, fuelSpent, car.RemainingFuel, review.RemainingFuelAmount);
-            _context.Debts.Add(debt);
-        }
-        car.RemainingFuel = review.RemainingFuelAmount;
-
-        if (review.FinalMileage < car.Mileage)
-        {
-            throw new InvalidMileageException(
-                $"Final mileage ({review.FinalMileage}) cannot be less than the current milea of a car ({car.Mileage}).");
-        }
-        car.Mileage = review.FinalMileage;
-        car.Status = CarStatus.Free;
-    }
-
-    private static decimal CalculateFuelConsumption(
-        int initialMileage,
-        int finalMileage,
-        decimal averageFuelConsumption)
-    {
-        var mileageAmount = finalMileage - initialMileage;
-        var fuelSpent = averageFuelConsumption * mileageAmount;
-
-        return fuelSpent;
-    }
-
-    private static Debt CreateDebt(CheckPoint checkPoint, decimal fuelSpent, decimal fuelInitialAmount, decimal fuelFinalAmount)
-    {
-        var debt = new Debt
-        {
-            CheckPoint = checkPoint,
-            FuelAmount = fuelSpent - fuelInitialAmount - fuelFinalAmount,
-            PaidAmount = 0,
-            Status = DebtStatus.Unpaid
-        };
-
-        return debt;
     }
 }

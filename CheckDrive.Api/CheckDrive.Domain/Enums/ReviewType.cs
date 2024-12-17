@@ -2,9 +2,9 @@
 
 public enum ReviewType
 {
-    Doctor,
+    DoctorReview,
     MechanicHandover,
-    Operator,
+    OperatorReview,
     MechanicAcceptance,
-    Dispatcher
+    DispatcherReview
 }

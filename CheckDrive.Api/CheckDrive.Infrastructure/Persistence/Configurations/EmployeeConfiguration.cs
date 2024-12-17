@@ -31,7 +31,8 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .HasValue<Doctor>(EmployeePosition.Doctor)
             .HasValue<Mechanic>(EmployeePosition.Mechanic)
             .HasValue<Operator>(EmployeePosition.Operator)
-            .HasValue<Dispatcher>(EmployeePosition.Dispatcher);
+            .HasValue<Dispatcher>(EmployeePosition.Dispatcher)
+            .HasValue<Manager>(EmployeePosition.Manager);
 
         builder
             .Property(e => e.FirstName)
