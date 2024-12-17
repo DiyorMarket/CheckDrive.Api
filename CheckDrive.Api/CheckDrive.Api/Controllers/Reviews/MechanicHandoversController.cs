@@ -20,9 +20,9 @@ public class MechanicHandoversController : ControllerBase
         [FromRoute] int mechanicId,
         [FromBody] CreateMechanicHandoverReviewDto review)
     {
-        if (review.ReviewerId != mechanicId)
+        if (review.MechanicId != mechanicId)
         {
-            return BadRequest($"Route id: {mechanicId} does not match with body id: {review.ReviewerId}.");
+            return BadRequest($"Route id: {mechanicId} does not match with body id: {review.MechanicId}.");
         }
 
         var createdReview = await _reviewService.CreateAsync(review);

@@ -20,6 +20,13 @@ internal sealed class OilMarkConfiguration : IEntityTypeConfiguration<OilMark>
             .OnDelete(DeleteBehavior.NoAction)
             .IsRequired();
 
+        builder
+            .HasMany(o => o.Cars)
+            .WithOne(c => c.OilMark)
+            .HasForeignKey(c => c.OilMarkId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
         #endregion
 
         #region Properties
@@ -28,37 +35,6 @@ internal sealed class OilMarkConfiguration : IEntityTypeConfiguration<OilMark>
             .Property(o => o.Name)
             .HasMaxLength(Constants.DEFAULT_STRING_LENGTH)
             .IsRequired();
-
-        #endregion
-
-        #region Default Data
-
-        builder.HasData(
-            new OilMark
-            {
-                Id = 1,
-                Name = "80"
-            },
-            new OilMark
-            {
-                Id = 2,
-                Name = "85"
-            },
-            new OilMark
-            {
-                Id = 3,
-                Name = "90"
-            },
-            new OilMark
-            {
-                Id = 4,
-                Name = "95"
-            },
-            new OilMark
-            {
-                Id = 5,
-                Name = "100"
-            });
 
         #endregion
     }

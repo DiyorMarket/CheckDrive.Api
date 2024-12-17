@@ -18,15 +18,23 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
             .WithOne(ch => ch.Car)
             .HasForeignKey(ch => ch.CarId);
 
+        builder.HasOne(c => c.OilMark)
+            .WithMany(o => o.Cars)
+            .HasForeignKey(o => o.OilMarkId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasMany(c => c.AssignedDrivers)
+            .WithOne(d => d.AssignedCar)
+            .HasForeignKey(d => d.AssignedCarId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
+
         #endregion
 
         #region Properties
 
         builder.Property(c => c.Model)
-            .HasMaxLength(Constants.MAX_STRING_LENGTH)
-            .IsRequired();
-
-        builder.Property(c => c.Color)
             .HasMaxLength(Constants.MAX_STRING_LENGTH)
             .IsRequired();
 
@@ -40,31 +48,12 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
         builder.Property(c => c.Mileage)
             .IsRequired();
 
-        builder.Property(c => c.CurrentMonthMileage)
-            .IsRequired();
-
-        builder.Property(c => c.CurrentYearMileage)
-            .IsRequired();
-
-        builder.Property(c => c.MonthlyDistanceLimit)
-            .IsRequired();
-
-        builder.Property(c => c.YearlyDistanceLimit)
-            .IsRequired();
-
-        builder.Property(c => c.MonthlyFuelConsumptionLimit)
-            .HasPrecision(18, 2)
-            .IsRequired();
-
-        builder.Property(c => c.YearlyFuelConsumptionLimit)
-            .HasPrecision(18, 2)
-            .IsRequired();
-
-        builder.Property(c => c.AverageFuelConsumption)
-            .HasPrecision(18, 2)
-            .IsRequired();
-
         builder.Property(c => c.FuelCapacity)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder
+            .Property(c => c.AverageFuelConsumption)
             .HasPrecision(18, 2)
             .IsRequired();
 
@@ -74,6 +63,14 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
 
         builder.Property(c => c.Status)
             .HasDefaultValue(CarStatus.Free)
+            .IsRequired();
+
+        builder
+            .ComplexProperty(c => c.Limits)
+            .IsRequired();
+
+        builder
+            .ComplexProperty(c => c.UsageSummary)
             .IsRequired();
 
         #endregion

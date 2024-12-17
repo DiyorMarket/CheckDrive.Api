@@ -1,4 +1,5 @@
 ﻿using CheckDrive.Application.DTOs.Car;
+using CheckDrive.Application.DTOs.Ride;
 using CheckDrive.Application.QueryParameters;
 
 namespace CheckDrive.Application.Interfaces;
@@ -11,4 +12,5 @@ public interface ICarService
     Task<CarDto> CreateAsync(CreateCarDto car);
     Task<CarDto> UpdateAsync(UpdateCarDto car);
     Task DeleteAsync(int id);
+    Task CompleteRide(RideDetailsDto rideDetails);
 }

@@ -5,5 +5,5 @@ public enum DebtStatus
     Paid,
     Unpaid,
     PartiallyPaid,
-    ClosedByManager
+    PendingManagerApproval
 }

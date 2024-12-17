@@ -32,13 +32,15 @@ public static class DependencyInjection
         services.AddScoped<IOperatorReviewService, OperatorReviewService>();
         services.AddScoped<IMechanicAcceptanceService, MechanicAcceptanceService>();
         services.AddScoped<IDispatcherReviewService, DispatcherReviewService>();
+        services.AddScoped<IManagerReviewService, ManagerReviewService>();
         services.AddScoped<ICheckPointService, CheckPointService>();
-        services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IDriverService, DriverService>();
         services.AddScoped<ICarService, CarService>();
         services.AddScoped<IOilMarkService, OilMarkService>();
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
 
-        services.AddHostedService<CarMileageResetService>();
+        services.AddHostedService<ResetCarLimitsService>();
+        services.AddHostedService<ResetDriverStatusService>();
     }
 }

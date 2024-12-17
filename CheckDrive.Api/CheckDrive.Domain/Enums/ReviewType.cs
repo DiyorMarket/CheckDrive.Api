@@ -6,5 +6,6 @@ public enum ReviewType
     MechanicHandover,
     OperatorReview,
     MechanicAcceptance,
-    DispatcherReview
+    DispatcherReview,
+    ManagerReview,
 }

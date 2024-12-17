@@ -1,16 +1,9 @@
-﻿using CheckDrive.Application.DTOs.Review;
-
-namespace CheckDrive.Application.DTOs.OperatorReview;
+﻿namespace CheckDrive.Application.DTOs.OperatorReview;
 
 public sealed record CreateOperatorReviewDto(
     int CheckPointId,
-    int ReviewerId,
+    int OperatorId,
     int OilMarkId,
     string? Notes,
-    bool IsApprovedByReviewer,
     decimal InitialOilAmount,
-    decimal OilRefillAmount)
-    : CreateReviewDtoBase(
-        ReviewerId: ReviewerId,
-        Notes: Notes,
-        IsApprovedByReviewer: IsApprovedByReviewer);
+    decimal OilRefillAmount);

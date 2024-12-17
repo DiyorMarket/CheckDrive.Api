@@ -6,5 +6,4 @@ public sealed record DriverReviewDto(
     string? Notes,
     string ReviewerName,
     DateTime Date,
-    ReviewType Type,
-    ReviewStatus Status);
+    ReviewType Type);

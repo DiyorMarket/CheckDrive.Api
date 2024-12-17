@@ -2,6 +2,7 @@
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
+using CheckDrive.TestDataCreator.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +19,7 @@ public static class DependencyInjection
     {
         services.RegisterApplication();
         services.RegisterInfrastructure(configuration);
+        services.RegisterTestDataCreator();
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
         services.AddSignalR(options =>

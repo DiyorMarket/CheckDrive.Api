@@ -27,30 +27,30 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
+    /// <summary>
+    /// Creates new Mechanic Handover review. If review already exists, then existing one is updated.
+    /// </summary>
+    /// <param name="review">Review to create or update if it already exists.</param>
+    /// <returns>Newly created or updated review.</returns>
     public async Task<MechanicHandoverReviewDto> CreateAsync(CreateMechanicHandoverReviewDto review)
     {
         ArgumentNullException.ThrowIfNull(review);
 
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
-        var mechanic = await GetAndValidateMechanicAsync(review.ReviewerId);
+        var mechanic = await GetAndValidateMechanicAsync(review.MechanicId);
         var car = await GetAndValidateCarAsync(review.CarId);
 
-        if (!review.IsApprovedByReviewer)
-        {
-            checkPoint.Stage = CheckPointStage.MechanicHandover;
-            checkPoint.Status = CheckPointStatus.InterruptedByReviewerRejection;
-        }
+        ValidateMileage(car, review);
+        var reviewEntity = await CreateReviewAsync(review, checkPoint, mechanic, car);
 
-        var reviewEntity = CreateReview(review, checkPoint, mechanic, car);
-
-        _context.MechanicHandovers.Add(reviewEntity);
+        _context.MechanicHandovers.Update(reviewEntity);
         await _context.SaveChangesAsync();
 
         var dto = _mapper.Map<MechanicHandoverReviewDto>(reviewEntity);
 
         await _hubContext.Clients
-            .User(dto.DriverId.ToString())
-            .MechanicHandoverConfirmation(dto);
+            .User(checkPoint.DoctorReview.DriverId.ToString())
+            .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
@@ -58,21 +58,18 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
+            .Include(x => x.DoctorReview)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint == null)
         {
-            throw new InvalidOperationException($"Cannot start mechanic review without Doctor Review.");
+            throw new EntityNotFoundException($"Check point with id: {checkPointId} is not found.");
         }
 
-        if (checkPoint.Stage != CheckPointStage.DoctorReview)
+        if (checkPoint.Stage != CheckPointStage.DoctorReview || checkPoint.Status != CheckPointStatus.InProgress)
         {
-            throw new InvalidOperationException($"Cannot start car handover review when check point stage is not Doctor Review");
-        }
-
-        if (checkPoint.Status != CheckPointStatus.InProgress)
-        {
-            throw new InvalidOperationException($"Cannot start car handover review when Doctor Review is not approved.");
+            throw new InvalidOperationException($"Check Point's stage or status is invalid to perform Mechanid Handover.");
         }
 
         return checkPoint;
@@ -81,6 +78,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     private async Task<Mechanic> GetAndValidateMechanicAsync(int mechanicId)
     {
         var mechanic = await _context.Mechanics
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
         if (mechanic is null)
@@ -94,6 +92,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
     private async Task<Car> GetAndValidateCarAsync(int carId)
     {
         var car = await _context.Cars
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == carId);
 
         if (car is null)
@@ -106,15 +105,10 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
             throw new CarUnavailableException($"Car with id: {carId} is not available for handover.");
         }
 
-        if (car.Mileage >= car.YearlyDistanceLimit)
-        {
-            throw new CarUnavailableException($"Car with id: {carId} has reached distance limit and is not available for ride.");
-        }
-
         return car;
     }
 
-    private static MechanicHandover CreateReview(
+    private async Task<MechanicHandover> CreateReviewAsync(
         CreateMechanicHandoverReviewDto review,
         CheckPoint checkPoint,
         Mechanic mechanic,
@@ -125,15 +119,34 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
 
         var entity = new MechanicHandover()
         {
-            InitialMileage = review.InitialMileage,
-            CheckPoint = checkPoint,
-            Car = car,
-            Mechanic = mechanic,
             Notes = review.Notes,
             Date = DateTime.UtcNow,
-            Status = review.IsApprovedByReviewer ? ReviewStatus.PendingDriverApproval : ReviewStatus.RejectedByReviewer
+            InitialMileage = review.InitialMileage,
+            Status = ReviewStatus.Pending,
+            CheckPoint = checkPoint,
+            Car = car,
+            Mechanic = mechanic
         };
 
+        var existingReview = await _context.MechanicHandovers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.CheckPointId == review.CheckPointId);
+        if (existingReview is not null)
+        {
+            entity.Id = existingReview.Id;
+        }
+
         return entity;
+    }
+
+    private static void ValidateMileage(Car car, CreateMechanicHandoverReviewDto review)
+    {
+        ArgumentNullException.ThrowIfNull(car);
+        ArgumentNullException.ThrowIfNull(review);
+
+        if (review.InitialMileage < car.Mileage)
+        {
+            throw new InvalidMileageException($"Initial mileage ({review.InitialMileage}) cannot be less than car's current mileage ({car.Mileage})");
+        }
     }
 }

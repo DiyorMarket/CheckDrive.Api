@@ -1,7 +1,7 @@
-﻿using CheckDrive.Api.Helpers;
-using CheckDrive.Api.Middlewares;
+﻿using CheckDrive.Api.Middlewares;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.TestDataCreator.Configurations;
+using CheckDrive.TestDataCreator.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -23,7 +23,10 @@ public static class StartupExtensions
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
         var options = scope.ServiceProvider.GetRequiredService<IOptions<DataSeedOptions>>();
 
-        DatabaseSeeder.SeedDatabase(context, userManager, options.Value);
+        var seederFactory = scope.ServiceProvider.GetRequiredService<IDatabaseSeederFactory>();
+        var seeder = seederFactory.CreateSeeder(app.Environment.EnvironmentName);
+
+        seeder.SeedDatabase(context, userManager, options.Value);
 
         return app;
     }

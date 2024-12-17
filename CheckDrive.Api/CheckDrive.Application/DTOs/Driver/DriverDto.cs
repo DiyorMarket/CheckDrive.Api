@@ -1,6 +1,9 @@
-﻿namespace CheckDrive.Application.DTOs.Driver;
+﻿using CheckDrive.Domain.Enums;
 
-public record DriverDto(
+namespace CheckDrive.Application.DTOs.Driver;
+
+public sealed record DriverDto(
     int Id,
-    string AccountId,
-    string FullName);
+    int? AssignedCarId,
+    string FullName,
+    DriverStatus Status);

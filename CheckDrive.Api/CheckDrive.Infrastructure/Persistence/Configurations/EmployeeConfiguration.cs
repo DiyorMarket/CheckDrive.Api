@@ -45,18 +45,33 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .IsRequired();
 
         builder
-            .Property(e => e.Passport)
-            .HasMaxLength(20)
+            .Property(e => e.Patronymic)
+            .HasMaxLength(Constants.DEFAULT_STRING_LENGTH)
             .IsRequired();
+
+        builder
+            .Property(e => e.Passport)
+            .HasMaxLength(Constants.PASSPORT_LENGTH)
+            .IsRequired(false);
 
         builder
             .Property(e => e.Address)
             .HasMaxLength(Constants.MAX_STRING_LENGTH)
-            .IsRequired();
+            .IsRequired(false);
 
         builder
             .Property(e => e.Birthdate)
-            .IsRequired();
+            .IsRequired(false);
+
+        builder
+            .Property(e => e.Position)
+            .IsRequired()
+            .HasDefaultValue(EmployeePosition.Custom);
+
+        builder
+            .Property(e => e.PositionDescription)
+            .HasMaxLength(Constants.DEFAULT_STRING_LENGTH)
+            .IsRequired(false);
 
         #endregion
     }

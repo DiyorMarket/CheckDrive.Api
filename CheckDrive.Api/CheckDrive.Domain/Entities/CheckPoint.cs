@@ -6,7 +6,6 @@ namespace CheckDrive.Domain.Entities;
 public class CheckPoint : EntityBase
 {
     public DateTime StartDate { get; set; }
-    public string? Notes { get; set; }
     public CheckPointStatus Status { get; set; }
     public CheckPointStage Stage { get; set; }
 
