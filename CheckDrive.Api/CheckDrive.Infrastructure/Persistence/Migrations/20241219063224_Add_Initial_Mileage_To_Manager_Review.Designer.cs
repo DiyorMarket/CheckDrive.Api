@@ -5,6 +5,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,9 +13,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    partial class CheckDriveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241219063224_Add_Initial_Mileage_To_Manager_Review")]
+    partial class Add_Initial_Mileage_To_Manager_Review
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
