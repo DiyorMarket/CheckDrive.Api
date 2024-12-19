@@ -6,6 +6,8 @@ using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
+using CheckDrive.Application.Hubs;
 
 namespace CheckDrive.Application.Services.Review;
 
@@ -13,11 +15,16 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
-    public DispatcherReviewService(ICheckDriveDbContext context, IMapper mapper)
+    public DispatcherReviewService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
     public async Task<DispatcherReviewDto> CreateAsync(CreateDispatcherReviewDto review)
@@ -35,12 +42,17 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
 
         var dto = _mapper.Map<DispatcherReviewDto>(reviewEntity);
 
+        await _hubContext.Clients
+            .User(checkPoint.DoctorReview.DriverId.ToString())
+            .CheckPointProgressUpdated(checkPoint.Id);
+
         return dto;
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
+            .Include(x => x.DoctorReview)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)
