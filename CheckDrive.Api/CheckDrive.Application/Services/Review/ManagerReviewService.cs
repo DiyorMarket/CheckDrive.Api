@@ -137,9 +137,11 @@ internal sealed class ManagerReviewService : IManagerReviewService
         {
             Notes = review.Notes,
             Date = DateTime.UtcNow,
+            InitialMileage = review.InitialMileage,
             FinalMileage = review.FinalMileage,
-            DebtAmount = review.DebtAmount,
             FuelConsumptionAmount = review.FuelConsumption,
+            RemainingFuelAmount = review.RemainingFuelAmount,
+            DebtAmount = review.DebtAmount,
             CheckPoint = checkPoint,
             Manager = manager
         };

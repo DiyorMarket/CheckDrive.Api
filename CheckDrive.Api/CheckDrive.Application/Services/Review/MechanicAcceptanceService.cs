@@ -15,16 +15,16 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _reviewHub;
+    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
     public MechanicAcceptanceService(
         ICheckDriveDbContext context,
         IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> reviewHub)
+        IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _reviewHub = reviewHub ?? throw new ArgumentNullException(nameof(reviewHub));
+        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
     public async Task<MechanicAcceptanceReviewDto> CreateAsync(CreateMechanicAcceptanceReviewDto review)
