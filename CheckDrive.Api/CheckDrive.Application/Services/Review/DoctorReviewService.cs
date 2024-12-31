@@ -43,9 +43,8 @@ internal sealed class DoctorReviewService : IDoctorReviewService
 
         var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
 
-        await _reviewHub.Clients
-            .User(review.DriverId.ToString())
-            .CheckPointProgressUpdated(checkPoint.Id);
+        await _reviewHub.Clients.All
+                .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
@@ -98,7 +97,7 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         {
             StartDate = DateTime.UtcNow,
             Stage = CheckPointStage.DoctorReview,
-            Status = review.IsHealthy ? CheckPointStatus.InProgress : CheckPointStatus.Completed,
+            Status = review.IsHealthy ? CheckPointStatus.InProgress : CheckPointStatus.Interrupted,
             DoctorReview = review,
         };
 

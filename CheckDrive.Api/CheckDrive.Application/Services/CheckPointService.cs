@@ -34,11 +34,12 @@ internal sealed class CheckPointService : ICheckPointService
 
     public async Task<CheckPointDto> GetCurrentCheckPointByDriverIdAsync(int driverId)
     {
-        var checkPoint = await GetQuery()
-            .Where(x => x.DoctorReview != null)
+        var lastCheckPointDate = await _context.CheckPoints
             .Where(x => x.DoctorReview.DriverId == driverId)
-            .Where(x => x.StartDate.Date == DateTime.UtcNow.Date)
-            .Where(x => x.Status == CheckPointStatus.InProgress)
+            .MaxAsync(x => x.StartDate);
+        var checkPoint = await GetQuery()
+            .Where(x => x.DoctorReview.DriverId == driverId)
+            .Where(x => x.StartDate == lastCheckPointDate)
             .FirstOrDefaultAsync();
 
         if (checkPoint is null)
