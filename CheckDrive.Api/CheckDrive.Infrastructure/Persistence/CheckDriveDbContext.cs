@@ -27,6 +27,7 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public virtual DbSet<DispatcherReview> DispatcherReviews { get; set; }
     public virtual DbSet<ManagerReview> ManagerReviews { get; set; }
     public virtual DbSet<Debt> Debts { get; set; }
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public CheckDriveDbContext(DbContextOptions<CheckDriveDbContext> options)
         : base(options)
