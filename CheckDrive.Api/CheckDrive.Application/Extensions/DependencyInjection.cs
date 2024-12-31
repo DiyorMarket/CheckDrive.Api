@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<ICarService, CarService>();
         services.AddScoped<IOilMarkService, OilMarkService>();
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
+        services.AddScoped<ITokenHandler, TokenHandler>();
 
         services.AddHostedService<ResetCarLimitsService>();
         services.AddHostedService<ResetDriverStatusService>();

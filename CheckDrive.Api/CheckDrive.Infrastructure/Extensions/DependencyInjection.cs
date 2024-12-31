@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CheckDrive.Infrastructure.Helpers;
-using CheckDrive.Application.Interfaces.Auth;
+using CheckDrive.Application.Configurations;
 
 namespace CheckDrive.Infrastructure.Extensions;
 
@@ -81,7 +80,6 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
-        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
     }
 
     private static void AddIdentity(IServiceCollection services)
