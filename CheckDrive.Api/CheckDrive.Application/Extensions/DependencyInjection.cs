@@ -26,6 +26,7 @@ public static class DependencyInjection
 
     private static void AddServices(IServiceCollection services)
     {
+        services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IDoctorReviewService, DoctorReviewService>();
         services.AddScoped<IMechanicHandoverService, MechanicHandoverService>();
