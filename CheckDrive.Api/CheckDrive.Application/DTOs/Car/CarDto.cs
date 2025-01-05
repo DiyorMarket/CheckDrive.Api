@@ -5,6 +5,7 @@ namespace CheckDrive.Application.DTOs.Car;
 public record CarDto(
     int Id,
     int? OilMarkId,
+    string? OilMarkName,
     string Model,
     string Number,
     int ManufacturedYear,

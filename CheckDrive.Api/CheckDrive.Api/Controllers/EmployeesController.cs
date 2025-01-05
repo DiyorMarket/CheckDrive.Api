@@ -1,8 +1,6 @@
-﻿using CheckDrive.Application.Constants;
-using CheckDrive.Application.DTOs.Employee;
+﻿using CheckDrive.Application.DTOs.Employee;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.QueryParameters;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
@@ -27,7 +25,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet("{id}", Name = nameof(GetEmployeeByIdAsync))]
-    public async Task<ActionResult<EmployeeDto>> GetEmployeeByIdAsync(string id)
+    public async Task<ActionResult<EmployeeDto>> GetEmployeeByIdAsync(int id)
     {
         var account = await _service.GetByIdAsync(id);
 
@@ -35,7 +33,6 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = $"{Roles.Manager},{Roles.Administrator}")]
     public async Task<ActionResult<EmployeeDto>> CreateAsync([FromBody] CreateEmployeeDto account)
     {
         var createdAccount = await _service.CreateAsync(account);
@@ -44,7 +41,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<EmployeeDto>> UpdateAsync([FromRoute] string id, [FromBody] UpdateEmployeeDto account)
+    public async Task<ActionResult<EmployeeDto>> UpdateAsync([FromRoute] int id, [FromBody] UpdateEmployeeDto account)
     {
         if (id != account.Id)
         {
@@ -57,7 +54,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteAsync(string id)
+    public async Task<ActionResult> DeleteAsync(int id)
     {
         await _service.DeleteAsync(id);
 

@@ -41,14 +41,12 @@ internal sealed class EmployeeService : IEmployeeService
         return employees;
     }
 
-    public async Task<EmployeeDto> GetByIdAsync(string id)
+    public async Task<EmployeeDto> GetByIdAsync(int id)
     {
-        ArgumentNullException.ThrowIfNull(id);
-
         var account = await _context.Employees
             .AsNoTracking()
             .Include(x => x.Account)
-            .FirstOrDefaultAsync(x => x.AccountId == id);
+            .FirstOrDefaultAsync(x => x.Id == id);
 
         if (account is null)
         {
@@ -60,49 +58,73 @@ internal sealed class EmployeeService : IEmployeeService
         return dto;
     }
 
-    public async Task<EmployeeDto> CreateAsync(CreateEmployeeDto account)
+    public async Task<EmployeeDto> CreateAsync(CreateEmployeeDto request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var account = await CreateAccountAsync(request);
+        var employee = await CreateEmployeeAsync(request, account);
+
+        return _mapper.Map<EmployeeDto>(employee);
+    }
+
+    // Update Employee & Accunt
+    public async Task<EmployeeDto> UpdateAsync(UpdateEmployeeDto account)
     {
         ArgumentNullException.ThrowIfNull(account);
 
-        var user = _mapper.Map<IdentityUser>(account);
-        var result = await _userManager.CreateAsync(user, account.PasswordConfirm);
+        var employee = _mapper.Map<Employee>(account);
+
+        _context.Employees.Update(employee);
+        await _context.SaveChangesAsync();
+
+        return _mapper.Map<EmployeeDto>(employee);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var employee = await _context.Employees
+            .Include(x => x.Account)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (employee is null)
+        {
+            throw new EntityNotFoundException($"User account with id: {id} is not found.");
+        }
+
+        _context.Users.Remove(employee.Account);
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task<IdentityUser> CreateAccountAsync(CreateEmployeeDto request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var user = _mapper.Map<IdentityUser>(request);
+        var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
         {
             throw new InvalidOperationException("Could not create user account.");
         }
 
-        await AssignToRoleAsync(user, account.Position);
+        await AssignToRoleAsync(user, request.Position);
 
-        var employee = _mapper.Map<Employee>(account);
-        employee.AccountId = user.Id;
+        return user;
+    }
+
+    private async Task<Employee> CreateEmployeeAsync(CreateEmployeeDto request, IdentityUser account)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(account);
+
+        var employee = _mapper.Map<Employee>(request);
+        employee.Account = account;
 
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync();
 
-        employee.Account = user;
-        var dto = _mapper.Map<EmployeeDto>(employee);
-
-        return dto;
-    }
-
-    // Update Employee & Accunt
-    public Task<EmployeeDto> UpdateAsync(UpdateEmployeeDto account)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task DeleteAsync(string id)
-    {
-        var account = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (account is null)
-        {
-            throw new EntityNotFoundException($"User account with id: {id} is not found.");
-        }
-
-        _context.Users.Remove(account);
-        await _context.SaveChangesAsync();
+        return employee;
     }
 
     private async Task AssignToRoleAsync(IdentityUser user, EmployeePosition position)

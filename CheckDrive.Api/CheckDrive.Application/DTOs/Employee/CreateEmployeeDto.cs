@@ -3,15 +3,15 @@
 namespace CheckDrive.Application.DTOs.Employee;
 
 public record CreateEmployeeDto(
-    string Username,
-    string Password,
-    string PasswordConfirm,
-    string PhoneNumber,
-    string? Email,
     string FirstName,
     string LastName,
     string Patronymic,
-    string Address,
     string Passport,
-    DateTime Birthdate,
-    EmployeePosition Position);
+    string Username,
+    string Password,
+    string? Address,
+    string? PhoneNumber,
+    string? Email,
+    DateTime? Birthdate,
+    EmployeePosition Position,
+    string? PositionDescription);

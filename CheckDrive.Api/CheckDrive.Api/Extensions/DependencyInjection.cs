@@ -1,5 +1,5 @@
-﻿using CheckDrive.Application.Extensions;
-using CheckDrive.Infrastructure.Configurations;
+﻿using CheckDrive.Application.Configurations;
+using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
 using CheckDrive.TestDataCreator.Extensions;

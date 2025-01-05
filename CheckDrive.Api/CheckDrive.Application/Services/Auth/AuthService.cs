@@ -93,18 +93,23 @@ internal sealed class AuthService : IAuthService
 
     private async Task ReplaceRefreshTokenAsync(Employee employee, string oldToken, string newToken)
     {
-        var token = await _context.RefreshTokens
-            .FirstOrDefaultAsync(x => x.Token == oldToken);
-
-        if (token is not null)
-        {
-            token.IsRevoked = true;
-        }
+        await RevokeOldTokenAsync(oldToken);
 
         var tokenEntity = CreateTokenEntity(employee, newToken);
 
         _context.RefreshTokens.Add(tokenEntity);
         await _context.SaveChangesAsync();
+    }
+
+    private async Task RevokeOldTokenAsync(string token)
+    {
+        var existingToken = await _context.RefreshTokens
+            .FirstOrDefaultAsync(x => x.Token == token);
+
+        if (existingToken != null)
+        {
+            existingToken.IsRevoked = true;
+        }
     }
 
     private static RefreshToken CreateTokenEntity(Employee employee, string token) =>
