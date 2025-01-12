@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CheckDrive.Infrastructure.Configurations;
+namespace CheckDrive.Application.Configurations;
 
 public class JwtOptions
 {

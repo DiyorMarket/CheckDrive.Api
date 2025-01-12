@@ -6,8 +6,8 @@ namespace CheckDrive.Application.Interfaces;
 public interface IEmployeeService
 {
     Task<List<EmployeeDto>> GetAsync(EmployeeQueryParameters queryParameters);
-    Task<EmployeeDto> GetByIdAsync(string id);
+    Task<EmployeeDto> GetByIdAsync(int id);
     Task<EmployeeDto> CreateAsync(CreateEmployeeDto account);
     Task<EmployeeDto> UpdateAsync(UpdateEmployeeDto account);
-    Task DeleteAsync(string id);
+    Task DeleteAsync(int id);
 }

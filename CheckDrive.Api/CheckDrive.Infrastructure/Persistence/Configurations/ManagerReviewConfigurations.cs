@@ -32,6 +32,10 @@ internal sealed class ManagerReviewConfigurations : IEntityTypeConfiguration<Man
         #region Properties
 
         builder
+            .Property(mr => mr.InitialMileage)
+            .IsRequired();
+
+        builder
             .Property(mr => mr.FinalMileage)
             .IsRequired();
 

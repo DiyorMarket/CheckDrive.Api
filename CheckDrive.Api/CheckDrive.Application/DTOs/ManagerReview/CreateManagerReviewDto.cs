@@ -6,10 +6,11 @@ public sealed record CreateManagerReviewDto(
     int CheckPointId,
     int ReviewerId,
     string? Notes,
+    int InitialMileage,
     int FinalMileage,
-    decimal DebtAmount,
     decimal FuelConsumption,
-    decimal RemainingFuelAmount)
+    decimal RemainingFuelAmount,
+    decimal DebtAmount)
     : CreateReviewDtoBase(
         ReviewerId: ReviewerId,
         Notes: Notes);

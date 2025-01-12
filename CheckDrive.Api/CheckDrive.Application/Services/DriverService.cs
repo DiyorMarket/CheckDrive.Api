@@ -7,6 +7,8 @@ using CheckDrive.Application.QueryParameters;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Interfaces;
+using Microsoft.AspNetCore.SignalR;
+using CheckDrive.Application.Hubs;
 
 namespace CheckDrive.Application.Services;
 
@@ -14,11 +16,16 @@ internal sealed class DriverService : IDriverService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
 
-    public DriverService(ICheckDriveDbContext context, IMapper mapper)
+    public DriverService(
+        ICheckDriveDbContext context,
+        IMapper mapper,
+        IHubContext<ReviewHub, IReviewHub> hubContext)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _hubContext = hubContext ?? throw new ArgumentException(nameof(hubContext));
     }
 
     public async Task<List<DriverDto>> GetAsync(DriverQueryParameters queryParameters)
@@ -49,11 +56,18 @@ internal sealed class DriverService : IDriverService
         }
 
         await _context.SaveChangesAsync();
+
+        if (confirmation.IsAccepted)
+        {
+            await _hubContext.Clients.All
+                .CheckPointProgressUpdated(checkPoint.Id);
+        }
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
         var checkPoint = await _context.CheckPoints
+            .Include(x => x.DoctorReview)
             .Include(x => x.MechanicHandover)
             .ThenInclude(x => x.Car)
             .Include(x => x.OperatorReview)

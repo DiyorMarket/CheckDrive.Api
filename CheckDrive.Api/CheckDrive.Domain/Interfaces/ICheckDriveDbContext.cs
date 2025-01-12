@@ -29,6 +29,7 @@ public interface ICheckDriveDbContext
     DbSet<IdentityUser> Users { get; set; }
     DbSet<IdentityRole> Roles { get; set; }
     DbSet<IdentityUserRole<string>> UserRoles { get; set; }
+    DbSet<RefreshToken> RefreshTokens { get; set; }
 
     int SaveChanges();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -14,4 +14,5 @@ public record class EmployeeDto(
     string Passport,
     string Address,
     DateTime Birthdate,
-    EmployeePosition Position);
+    EmployeePosition Position,
+    string? PositionDescription);

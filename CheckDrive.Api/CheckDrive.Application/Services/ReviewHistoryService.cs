@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using CheckDrive.Application.DTOs.CheckPoint;
 using CheckDrive.Application.DTOs.DispatcherReview;
 using CheckDrive.Application.DTOs.DoctorReview;
+using CheckDrive.Application.DTOs.Driver;
 using CheckDrive.Application.DTOs.OperatorReview;
 using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Application.Interfaces.Review;
@@ -52,7 +53,6 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
         var dtos = _mapper.Map<List<CheckPointDto>>(checkPoints);
 
         return dtos;
-
     }
 
     public async Task<List<DoctorReviewDto>> GetDoctorHistoriesAsync(int doctorId)
@@ -130,5 +130,18 @@ internal sealed class ReviewHistoryService : IReviewHistoryService
             .ToListAsync();
 
         return reviews;
+    }
+
+    public async Task<List<DriverHistoryDto>> GetDriverReviewHistoriesAsync(int driverId)
+    {
+        var histories = await _context.CheckPoints
+            .Where(x => x.Status != CheckPointStatus.InProgress)
+            .Include(x => x.MechanicHandover)
+            .ThenInclude(x => x.Car)
+            .Include(x => x.ManagerReview)
+            .ProjectTo<DriverHistoryDto>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return histories;
     }
 }

@@ -3,16 +3,16 @@
 namespace CheckDrive.Application.DTOs.Employee;
 
 public record class UpdateEmployeeDto(
-    string Id,
-    string Username,
-    string Password,
-    string PasswordConfirm,
-    string PhoneNumber,
-    string? Email,
+    int Id,
+    string AccountId,
     string FirstName,
     string LastName,
     string Patronymic,
-    string Address,
     string Passport,
-    DateTime Birthdate,
-    EmployeePosition Position);
+    string Username,
+    string? Address,
+    string? PhoneNumber,
+    string? Email,
+    DateTime? Birthdate,
+    EmployeePosition Position,
+    string? PositionDescription);

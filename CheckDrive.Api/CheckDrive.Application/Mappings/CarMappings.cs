@@ -9,6 +9,7 @@ public class CarMappings : Profile
     public CarMappings()
     {
         CreateMap<Car, CarDto>()
+            .ForCtorParam(nameof(CarDto.OilMarkName), cfg => cfg.MapFrom(e => e.OilMark.Name))
             .ForCtorParam(nameof(CarDto.CurrentMonthMileage), opt => opt.MapFrom(src => src.UsageSummary.CurrentMonthDistance))
             .ForCtorParam(nameof(CarDto.CurrentYearMileage), opt => opt.MapFrom(src => src.UsageSummary.CurrentYearDistance))
             .ForCtorParam(nameof(CarDto.MonthlyDistanceLimit), opt => opt.MapFrom(src => src.Limits.MonthlyDistanceLimit))
