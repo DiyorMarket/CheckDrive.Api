@@ -1,5 +1,4 @@
 ﻿using CheckDrive.Domain.Exceptions;
-using Microsoft.AspNetCore.Http.HttpResults;
 using System.Net;
 
 namespace CheckDrive.Api.Middlewares;
@@ -17,6 +16,7 @@ public class ErrorHandlerMiddleware
 
     public async Task Invoke(HttpContext context)
     {
+        _logger.LogInformation("Something");
         try
         {
             await _next(context);
@@ -51,6 +51,9 @@ public class ErrorHandlerMiddleware
         }
 
         await context.Response.WriteAsync(message);
-        _logger.LogError($"{message}. {exception.Message}");
+        _logger.LogError(
+            exception,
+            "Unhandled exception occurred, {@Message}",
+            exception.Message);
     }
 }
