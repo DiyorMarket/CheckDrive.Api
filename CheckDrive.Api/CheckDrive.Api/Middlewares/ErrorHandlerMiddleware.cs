@@ -1,25 +1,16 @@
 ﻿using CheckDrive.Domain.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace CheckDrive.Api.Middlewares;
 
-public class ErrorHandlerMiddleware
+public class ErrorHandlerMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ErrorHandlerMiddleware> _logger;
-
-    public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task Invoke(HttpContext context)
     {
-        _logger.LogInformation("Something");
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {
@@ -27,33 +18,25 @@ public class ErrorHandlerMiddleware
         }
     }
 
-    private async Task HandleAsync(HttpContext context, Exception exception)
+    private static async Task HandleAsync(HttpContext context, Exception exception)
     {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        string message = "Internal server error. Something went wrong, please try again later.";
-
-        if (exception is EntityNotFoundException)
+        var (statusCode, title, message) = GetErrorDetails(exception);
+        var problemDetails = new ProblemDetails
         {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            message = exception.Message;
-        }
-
-        if (exception is InvalidLoginAttemptException)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            message = exception.Message;
-        }
-
-        if (exception is RegistrationFailedException)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            message = exception.Message;
-        }
-
-        await context.Response.WriteAsync(message);
-        _logger.LogError(
-            exception,
-            "Unhandled exception occurred, {@Message}",
-            exception.Message);
+            Title = title,
+            Status = statusCode,
+            Detail = message,
+        };
+        context.Response.StatusCode = statusCode;
+        await context.Response.WriteAsJsonAsync(problemDetails);
     }
+
+    private static (int statusCode, string title, string message) GetErrorDetails(Exception ex)
+        => ex switch
+        {
+            EntityNotFoundException => ((int)HttpStatusCode.NotFound, "Not Found", ex.Message),
+            InvalidLoginAttemptException => ((int)HttpStatusCode.Unauthorized, "Forbidden", ex.Message),
+            RegistrationFailedException => ((int)HttpStatusCode.Unauthorized, "Forbidden", ex.Message),
+            _ => ((int)HttpStatusCode.InternalServerError, "Internal Server Error", "Unexpected error occured. Please, try again later."),
+        };
 }
