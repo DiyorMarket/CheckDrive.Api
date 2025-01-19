@@ -5,16 +5,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseSentry(options =>
-{
-    options.TracesSampleRate = 1.0;
-    options.SetBeforeSend((@event, hint) =>
-    {
-        @event.ServerName = null;
-        return @event;
-    });
-});
-
 builder.Logging.ClearProviders();
 
 builder.Host.UseSerilog(
@@ -30,8 +20,6 @@ var app = builder.Build();
 app.UseDatabaseSeeder();
 
 app.UseErrorHandler();
-
-app.UseSentryTracing();
 
 app.UseSerilogRequestLogging();
 
