@@ -1,6 +1,5 @@
 using CheckDrive.Api.Extensions;
 using CheckDrive.Application.Hubs;
-using Hangfire;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
@@ -18,7 +17,9 @@ builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseHangfireDashboard();
+app.UseHangfire();
+
+app.UseBackgroundJobs();
 
 app.UseDatabaseSeeder();
 

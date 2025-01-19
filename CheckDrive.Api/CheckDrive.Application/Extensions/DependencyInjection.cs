@@ -1,14 +1,15 @@
-﻿using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
-using CheckDrive.Application.Interfaces.Review;
-using CheckDrive.Application.Interfaces;
-using CheckDrive.Application.Services;
-using CheckDrive.Application.Services.Review;
+﻿using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Auth;
-using CheckDrive.Application.Services.Auth;
-using CheckDrive.Application.BackgroundJobs;
-using CheckDrive.Application.Validators.Car;
+using CheckDrive.Application.Interfaces.Jobs;
+using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Application.Mappings;
+using CheckDrive.Application.Services;
+using CheckDrive.Application.Services.Auth;
+using CheckDrive.Application.Services.Jobs;
+using CheckDrive.Application.Services.Review;
+using CheckDrive.Application.Validators.Car;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CheckDrive.Application.Extensions;
 
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<CreateCarValidator>();
 
         AddServices(services);
+        AddBackgroundJobs(services);
 
         return services;
     }
@@ -44,5 +46,11 @@ public static class DependencyInjection
 
         services.AddHostedService<ResetCarLimitsService>();
         services.AddHostedService<ResetDriverStatusService>();
+    }
+
+    private static void AddBackgroundJobs(IServiceCollection services)
+    {
+        services.AddScoped<IResetCarLimitsService, ResetCarLimitsService>();
+        services.AddScoped<IResetDriverStatusService, ResetDriverStatusService>();
     }
 }

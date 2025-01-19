@@ -136,6 +136,11 @@ internal static class DependencyInjection
             .Bind(configuration.GetSection(DataSeedOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        services.AddOptions<HangfireSettings>()
+            .Bind(configuration.GetSection(HangfireSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
     }
 
     private static void AddSyncfusion(IConfiguration configuration)
