@@ -3,6 +3,7 @@ using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
 using CheckDrive.TestDataCreator.Extensions;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,7 @@ using System.Text;
 
 namespace CheckDrive.Api.Extensions;
 
-public static class DependencyInjection
+internal static class DependencyInjection
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -31,6 +32,7 @@ public static class DependencyInjection
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
         AddSyncfusion(configuration);
+        AddHangfire(services, configuration);
 
         return services;
     }
@@ -146,6 +148,22 @@ public static class DependencyInjection
         }
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
+    }
+
+    private static void AddHangfire(IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Cannot setup Hangfire without 'Connection String'");
+
+        services.AddHangfire(options =>
+        {
+            options.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseDefaultTypeSerializer()
+                .UseSqlServerStorage(connectionString);
+        });
+
+        services.AddHangfireServer();
     }
 }
 
