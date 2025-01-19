@@ -22,10 +22,8 @@ public static class DependencyInjection
         services.RegisterTestDataCreator();
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
-        services.AddSignalR(options =>
-        {
-            options.EnableDetailedErrors = true;
-        });
+        services.AddSignalR(options => options.EnableDetailedErrors = true);
+        services.AddHttpContextAccessor();
 
         AddControllers(services);
         AddSwagger(services);
@@ -67,25 +65,18 @@ public static class DependencyInjection
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
     {
-        var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
-
-        if (jwtOptions is null)
-        {
-            throw new InvalidOperationException("Could not load JWT configurations.");
-        }
+        var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("Could not load JWT configurations.");
 
         services
             .AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                options.RequireHttpsMetadata = true;
-                options.SaveToken = true;
-
                 options.TokenValidationParameters = new()
                 {
                     ValidateIssuer = false,
@@ -94,16 +85,6 @@ public static class DependencyInjection
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        context.Token = context.Request.Cookies["tasty-cookies"];
-
-                        return Task.CompletedTask;
-                    }
                 };
             });
     }
