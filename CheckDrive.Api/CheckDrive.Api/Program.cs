@@ -3,52 +3,68 @@ using CheckDrive.Application.Hubs;
 using Microsoft.AspNetCore.CookiePolicy;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+try
+{
+    Log.Logger = new LoggerConfiguration()
+        .WriteTo.File("Logs/logs_.txt")
+        .MinimumLevel.Information() // Set the minimum level for bootstrap logging
+        .CreateBootstrapLogger();
 
-builder.Logging.ClearProviders();
+    var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog(
-    (context, _, configuration) =>
+    builder.Logging.ClearProviders();
+
+    builder.Host.UseSerilog(
+        (context, _, configuration) =>
+        {
+            configuration.ReadFrom.Configuration(context.Configuration);
+        });
+
+    builder.Services.ConfigureServices(builder.Configuration);
+
+    var app = builder.Build();
+
+    Log.Logger.Information("API is starting...");
+
+    app.UseHangfire();
+
+    app.UseBackgroundJobs();
+
+    app.UseDatabaseSeeder();
+
+    app.UseErrorHandler();
+
+    app.UseSerilogRequestLogging();
+
+    app.UseSwagger();
+
+    app.UseSwaggerUI();
+
+    app.UseHttpsRedirection();
+
+    app.UseCookiePolicy(new CookiePolicyOptions
     {
-        configuration.ReadFrom.Configuration(context.Configuration);
+        MinimumSameSitePolicy = SameSiteMode.Strict,
+        HttpOnly = HttpOnlyPolicy.Always,
+        Secure = CookieSecurePolicy.Always,
     });
 
-builder.Services.ConfigureServices(builder.Configuration);
+    app.UseAuthentication();
 
-var app = builder.Build();
+    app.UseAuthorization();
 
-app.UseHangfire();
+    app.MapControllers();
 
-app.UseBackgroundJobs();
+    app.MapHub<ReviewHub>("/review-hub");
 
-app.UseDatabaseSeeder();
+    Log.Logger.Information("API is running...");
 
-app.UseErrorHandler();
-
-app.UseSerilogRequestLogging();
-
-app.UseSwagger();
-
-app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
-
-app.UseCookiePolicy(new CookiePolicyOptions
+    app.Run();
+}
+catch (Exception ex)
 {
-    MinimumSameSitePolicy = SameSiteMode.Strict,
-    HttpOnly = HttpOnlyPolicy.Always,
-    Secure = CookieSecurePolicy.Always,
-});
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.MapHub<ReviewHub>("/review-hub");
-
-app.Run();
+    Log.Logger.Error(ex, "Error occurred while starting API. {Message}", ex.Message);
+}
 
 // For API testing
 public partial class Program { }
