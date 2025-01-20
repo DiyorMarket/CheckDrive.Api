@@ -43,9 +43,6 @@ public static class DependencyInjection
         services.AddScoped<IOilMarkService, OilMarkService>();
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
         services.AddScoped<ITokenHandler, TokenHandler>();
-
-        services.AddHostedService<ResetCarLimitsService>();
-        services.AddHostedService<ResetDriverStatusService>();
     }
 
     private static void AddBackgroundJobs(IServiceCollection services)
