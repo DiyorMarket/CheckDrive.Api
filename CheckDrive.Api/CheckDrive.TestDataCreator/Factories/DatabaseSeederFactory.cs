@@ -14,6 +14,7 @@ internal sealed class DatabaseSeederFactory : IDatabaseSeederFactory
             "development" => new DevelopmentDatabaseSeeder(),
             "testing" => new TestingDatabaseSeeder(),
             "staging" => new StagingDatabaseSeeder(),
+            "production" => new ProductionDatabaseSeeder(),
             _ => throw new ArgumentOutOfRangeException($"Could not resolve environment: {environment}."),
         };
     }
