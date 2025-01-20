@@ -27,6 +27,9 @@ public static class StartupExtensions
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
         var options = scope.ServiceProvider.GetRequiredService<IOptions<DataSeedOptions>>();
 
+        context.EnsureCreated();
+        context.Migrate();
+
         var seederFactory = scope.ServiceProvider.GetRequiredService<IDatabaseSeederFactory>();
         var seeder = seederFactory.CreateSeeder(app.Environment.EnvironmentName);
 
