@@ -6,7 +6,7 @@ using Serilog;
 try
 {
     Log.Logger = new LoggerConfiguration()
-        .WriteTo.File("Logs/logs_.txt")
+        .WriteTo.File("Logs/startup_logs.txt")
         .MinimumLevel.Information() // Set the minimum level for bootstrap logging
         .CreateBootstrapLogger();
 
@@ -30,7 +30,7 @@ try
 
     app.UseBackgroundJobs();
 
-    app.UseDatabaseSeeder();
+    await app.UseDatabaseSeederAsync();
 
     app.UseErrorHandler();
 

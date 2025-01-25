@@ -12,7 +12,7 @@ internal sealed class DevelopmentDatabaseSeeder : IDatabaseSeeder
         "80", "90", "95", "98", "100", "110"
     ];
 
-    public void SeedDatabase(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    public async Task SeedDatabaseAsync(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
     {
         CreateOilMarks(context);
         CreateCars(context, options);

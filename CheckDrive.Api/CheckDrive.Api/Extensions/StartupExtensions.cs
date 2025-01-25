@@ -20,7 +20,7 @@ public static class StartupExtensions
         return app;
     }
 
-    public static IApplicationBuilder UseDatabaseSeeder(this WebApplication app)
+    public static async Task<IApplicationBuilder> UseDatabaseSeederAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ICheckDriveDbContext>();
@@ -33,7 +33,7 @@ public static class StartupExtensions
         var seederFactory = scope.ServiceProvider.GetRequiredService<IDatabaseSeederFactory>();
         var seeder = seederFactory.CreateSeeder(app.Environment.EnvironmentName);
 
-        seeder.SeedDatabase(context, userManager, options.Value);
+        await seeder.SeedDatabaseAsync(context, userManager, options.Value);
 
         return app;
     }
