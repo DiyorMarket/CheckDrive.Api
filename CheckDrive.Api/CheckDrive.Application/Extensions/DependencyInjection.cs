@@ -1,11 +1,10 @@
-﻿using CheckDrive.Application.Interfaces;
+﻿using CheckDrive.Application.BackgroundJobs;
+using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Auth;
-using CheckDrive.Application.Interfaces.Jobs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Application.Mappings;
 using CheckDrive.Application.Services;
 using CheckDrive.Application.Services.Auth;
-using CheckDrive.Application.Services.Jobs;
 using CheckDrive.Application.Services.Review;
 using CheckDrive.Application.Validators.Car;
 using FluentValidation;
@@ -39,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<ICheckPointService, CheckPointService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IDriverService, DriverService>();
+        services.AddScoped<IDebtService, DebtService>();
         services.AddScoped<ICarService, CarService>();
         services.AddScoped<IOilMarkService, OilMarkService>();
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
