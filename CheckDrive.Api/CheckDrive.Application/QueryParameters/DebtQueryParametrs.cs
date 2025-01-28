@@ -1,3 +1,5 @@
-﻿namespace CheckDrive.Application.QueryParameters;
+﻿using CheckDrive.Domain.Enums;
+
+namespace CheckDrive.Application.QueryParameters;
 public sealed record DebtQueryParametrs(
-    string? SearchText);
+    string? SearchText, DebtStatus? Status);

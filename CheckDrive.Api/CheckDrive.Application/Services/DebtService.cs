@@ -84,6 +84,12 @@ internal sealed class DebtService : IDebtService
             query = query.Where(d =>
                 d.CheckPoint.DoctorReview.Driver.FirstName.Contains(queryParameters.SearchText) ||
                 d.CheckPoint.DoctorReview.Driver.LastName.Contains(queryParameters.SearchText));
+            
+        }
+
+        if (queryParameters.Status != null)
+        {
+            query = query.Where(d => d.Status == queryParameters.Status);
         }
 
         return query;
