@@ -9,7 +9,7 @@ using CheckDrive.Domain.Interfaces;
 using CheckDrive.Application.QueryParameters;
 
 namespace CheckDrive.Application.Services;
-internal sealed class DebtService : IDebtService
+public sealed class DebtService : IDebtService
 {
     private readonly ICheckDriveDbContext _context;
     private readonly IMapper _mapper;
@@ -19,6 +19,7 @@ internal sealed class DebtService : IDebtService
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
+
     public async Task<List<DebtDto>> GetAsync(DebtQueryParametrs queryParameters)
     {
         var query = await GetQuery(queryParameters);
@@ -71,6 +72,19 @@ internal sealed class DebtService : IDebtService
         return _mapper.Map<DebtDto>(debts);
     }
 
+    public async Task DeleteAsync(int id)
+    {
+        var debt = _context.Debts.FirstOrDefault(x => x.Id == id);
+
+        if(debt is null)
+        {
+            throw new EntityNotFoundException($"Debt with id: {id} is not found.");
+        }
+
+        _context.Debts.Remove(debt);
+
+        await _context.SaveChangesAsync();
+    }
     private async Task<IQueryable<Debt>> GetQuery(DebtQueryParametrs queryParameters)
     {
         var query =  _context.Debts
