@@ -1,12 +1,14 @@
 ﻿using CheckDrive.Application.DTOs.Employee;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.QueryParameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
 
 [Route("api/employees")]
 [ApiController]
+[Authorize]
 public class EmployeesController : ControllerBase
 {
     private readonly IEmployeeService _service;

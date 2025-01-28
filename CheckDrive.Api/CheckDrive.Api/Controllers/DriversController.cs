@@ -1,12 +1,14 @@
 ﻿using CheckDrive.Application.DTOs.Driver;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.QueryParameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
 
 [Route("api/drivers")]
 [ApiController]
+[Authorize]
 public class DriversController : ControllerBase
 {
     private readonly IDriverService _driverService;

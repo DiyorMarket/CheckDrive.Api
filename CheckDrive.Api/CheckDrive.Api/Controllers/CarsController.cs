@@ -5,6 +5,7 @@ using CheckDrive.Application.QueryParameters;
 using CheckDrive.Domain.Entities;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
@@ -12,6 +13,7 @@ namespace CheckDrive.Api.Controllers;
 
 [Route("api/cars")]
 [ApiController]
+[Authorize]
 public class CarsController : ControllerBase
 {
     private readonly ICarService _carService;

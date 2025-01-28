@@ -1,12 +1,14 @@
 ﻿using CheckDrive.Application.DTOs.CheckPoint;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.QueryParameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
 
 [Route("api/checkPoints")]
 [ApiController]
+[Authorize]
 public class CheckPointsController : ControllerBase
 {
     private readonly ICheckPointService _service;

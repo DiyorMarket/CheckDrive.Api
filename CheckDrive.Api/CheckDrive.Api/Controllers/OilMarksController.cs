@@ -1,12 +1,14 @@
 ﻿using CheckDrive.Application.DTOs.OilMark;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.QueryParameters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers;
 
 [Route("api/oilMarks")]
 [ApiController]
+[Authorize]
 public class OilMarksController : ControllerBase
 {
     private readonly IOilMarkService _oilMarkService;
