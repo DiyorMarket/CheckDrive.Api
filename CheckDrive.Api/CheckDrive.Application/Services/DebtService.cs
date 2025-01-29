@@ -22,18 +22,7 @@ public sealed class DebtService : IDebtService
 
     public async Task<List<DebtDto>> GetAsync(DebtQueryParametrs queryParameters)
     {
-        var query = await GetQuery(queryParameters);
-
-        //var result1 = await query.AsNoTracking().Select(d => new DebtDto(
-        //    d.Id,
-        //    d.CheckPoint.DoctorReview.Driver.FirstName,
-        //    d.CheckPoint.DoctorReview.Driver.LastName,
-        //    d.FuelAmount,
-        //    d.PaidAmount,
-        //    d.Status
-        //)).ToListAsync();
-
-        //pasdagi map ishlamay qolsa tepadagi komentareyidagini ishlatib ko'rish kk , test qiladigan odam
+        var query = await GetQuery(queryParameters);        
 
         var result = await query.AsNoTracking().ProjectTo<DebtDto>(_mapper.ConfigurationProvider).ToListAsync();
 

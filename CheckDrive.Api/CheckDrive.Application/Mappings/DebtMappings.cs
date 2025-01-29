@@ -11,7 +11,7 @@ internal sealed class DebtMappings : Profile
         CreateMap<Debt, DebtDto>()
            .ForCtorParam(nameof(DebtDto.Id), cfg => cfg.MapFrom(e =>
            e.Id))
-           .ForCtorParam(nameof(DebtDto.FirsName), cfg => cfg.MapFrom(e =>
+           .ForCtorParam(nameof(DebtDto.FirstName), cfg => cfg.MapFrom(e =>
            e.CheckPoint.DoctorReview.Driver.FirstName))
            .ForCtorParam(nameof(DebtDto.LastName), cfg => cfg.MapFrom(e =>
            e.CheckPoint.DoctorReview.Driver.LastName))

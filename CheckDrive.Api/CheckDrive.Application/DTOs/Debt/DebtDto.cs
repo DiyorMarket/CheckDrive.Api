@@ -4,7 +4,7 @@ namespace CheckDrive.Application.DTOs.Debt;
 
 public record class DebtDto(
     int Id,
-    string FirsName,
+    string FirstName,
     string LastName,
     decimal FualAmount,
     decimal PaidAmount,
