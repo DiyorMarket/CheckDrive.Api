@@ -5,7 +5,6 @@ namespace CheckDrive.Application.DTOs.Car;
 public record UpdateCarDto(
     int Id,
     string Model,
-    string Color,
     string Number,
     int ManufacturedYear,
     int Mileage,

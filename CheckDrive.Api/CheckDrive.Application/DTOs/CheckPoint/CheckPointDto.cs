@@ -11,17 +11,24 @@ using CheckDrive.Domain.Enums;
 
 namespace CheckDrive.Application.DTOs.CheckPoint;
 
-public sealed record CheckPointDto(
-    int Id,
-    DateTime StartDate,
-    CheckPointStatus Status,
-    CheckPointStage Stage,
-    DoctorReviewDto DoctorReview,
-    MechanicHandoverReviewDto? MechanicHandover,
-    OperatorReviewDto? OperatorReview,
-    MechanicAcceptanceReviewDto? MechanicAcceptance,
-    DispatcherReviewDto? DispatcherReview,
-    ManagerReviewDto? ManagerReview,
-    DebtDto? Debt,
-    DriverDto Driver,
-    CarDto Car);
+public sealed class CheckPointDto
+{
+    public CheckPointDto()
+    {
+
+    }
+
+    public int Id { get; init; }
+    public DateTime StartDate { get; init; }
+    public CheckPointStatus Status { get; init; }
+    public CheckPointStage Stage { get; init; }
+    public DoctorReviewDto DoctorReview { get; init; }
+    public MechanicHandoverReviewDto? MechanicHandover { get; init; }
+    public OperatorReviewDto? OperatorReview { get; init; }
+    public MechanicAcceptanceReviewDto? MechanicAcceptance { get; init; }
+    public DispatcherReviewDto? DispatcherReview { get; init; }
+    public ManagerReviewDto? ManagerReview { get; init; }
+    public DebtDto? Debt { get; init; }
+    public DriverDto Driver { get; init; }
+    public CarDto Car { get; init; }
+}
