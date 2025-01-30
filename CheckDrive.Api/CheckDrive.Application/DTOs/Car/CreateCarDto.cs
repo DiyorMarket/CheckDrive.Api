@@ -3,15 +3,15 @@
 namespace CheckDrive.Application.DTOs.Car;
 
 public record CreateCarDto(
+    int OilMarkId,
     string Model,
-    string Color,
     string Number,
     int ManufacturedYear,
-    int Mileage,
-    int CurrentMonthMileage,
-    int CurrentYearMileage,
-    int MonthlyDistanceLimit,
-    int YearlyDistanceLimit,
+    decimal Mileage,
+    decimal CurrentMonthMileage,
+    decimal CurrentYearMileage,
+    decimal MonthlyDistanceLimit,
+    decimal YearlyDistanceLimit,
     decimal CurrentMonthFuelConsumption,
     decimal CurrentYearFuelConsumption,
     decimal MonthlyFuelConsumptionLimit,
