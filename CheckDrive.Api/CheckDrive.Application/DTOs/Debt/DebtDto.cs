@@ -8,4 +8,5 @@ public record class DebtDto(
     string LastName,
     decimal FualAmount,
     decimal PaidAmount,
+    int CheckPointId,
     DebtStatus Status);

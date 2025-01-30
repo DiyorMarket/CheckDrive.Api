@@ -20,6 +20,14 @@ internal sealed class DebtMappings : Profile
            .ForCtorParam(nameof(DebtDto.PaidAmount), cfg => cfg.MapFrom(e =>
            e.PaidAmount))
            .ForCtorParam(nameof(DebtDto.Status), cfg => cfg.MapFrom(e =>
-           e.Status));
+           e.Status))
+           .ForCtorParam(nameof(DebtDto.CheckPointId), cfg => cfg.MapFrom(e => e.CheckPointId));
+
+        CreateMap<DebtDto, Debt>()
+           .ForMember(dest => dest.Id, cfg => cfg.MapFrom(e => e.Id))
+           .ForMember(dest => dest.FuelAmount, cfg => cfg.MapFrom(e => e.FualAmount))
+           .ForMember(dest => dest.PaidAmount, cfg => cfg.MapFrom(e => e.PaidAmount))
+           .ForMember(dest => dest.Status, cfg => cfg.MapFrom(e => e.Status))
+           .ForMember(dest => dest.CheckPointId, cfg => cfg.MapFrom(e => e.CheckPointId));
     }
 }
