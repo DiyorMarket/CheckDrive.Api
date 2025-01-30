@@ -25,9 +25,9 @@ public class DoctorReviewsController : ControllerBase
             return BadRequest($"Route id: {doctorId} does not match with body id: {review.DoctorId}.");
         }
 
-        var craetedReview = await _reviewService.CreateAsync(review);
+        var createdReview = await _reviewService.CreateAsync(review);
 
         // TODO: change it to CreatedAtAction
-        return Created("", craetedReview);
+        return Created();
     }
 }
