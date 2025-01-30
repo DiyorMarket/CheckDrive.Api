@@ -117,6 +117,8 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         ArgumentNullException.ThrowIfNull(review);
         ArgumentNullException.ThrowIfNull(checkPoint);
 
+        checkPoint.Stage = CheckPointStage.MechanicHandover;
+
         var entity = new MechanicHandover()
         {
             Notes = review.Notes,
@@ -125,7 +127,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
             Status = ReviewStatus.Pending,
             CheckPoint = checkPoint,
             Car = car,
-            Mechanic = mechanic
+            Mechanic = mechanic,
         };
 
         var existingReview = await _context.MechanicHandovers

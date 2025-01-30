@@ -99,6 +99,8 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         Mechanic mechanic,
         CreateMechanicAcceptanceReviewDto review)
     {
+        checkPoint.Stage = CheckPointStage.MechanicAcceptance;
+
         var entity = new MechanicAcceptance
         {
             Notes = review.Notes,

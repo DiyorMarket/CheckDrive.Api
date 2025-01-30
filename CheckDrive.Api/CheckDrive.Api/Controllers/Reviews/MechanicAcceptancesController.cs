@@ -28,6 +28,6 @@ public class MechanicAcceptancesController : ControllerBase
         var createdReview = await _reviewService.CreateAsync(review);
 
         // TOODO: Change to CreatedAtAction
-        return Created("", createdReview);
+        return Created();
     }
 }
