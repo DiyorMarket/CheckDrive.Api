@@ -30,7 +30,7 @@ public class CarsController : ControllerBase
     }
 
     [HttpGet("{id:int}", Name = "GetCarByIdAsync")]
-    public async Task<ActionResult<CarDto>> GetByIdAsync(int id)
+    public async Task<ActionResult<CarDto>> GetCarByIdAsync(int id)
     {
         var car = await _carService.GetByIdAsync(id);
 
@@ -38,11 +38,11 @@ public class CarsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CarDto>> CreateAsync(CreateCarDto car)
+    public async Task<ActionResult<CarDto>> CreateAsync([FromBody] CreateCarDto car)
     {
         var createdCar = await _carService.CreateAsync(car);
 
-        return CreatedAtAction("GetCarByIdAsync", createdCar, new { id = createdCar.Id });
+        return CreatedAtAction(nameof(GetCarByIdAsync), new { id = createdCar.Id }, createdCar);
     }
 
     [HttpPost("upload")]
@@ -73,8 +73,8 @@ public class CarsController : ControllerBase
         }
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<CarDto>> UpdateAsync(int id, UpdateCarDto car)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<CarDto>> UpdateAsync([FromRoute] int id, [FromBody] UpdateCarDto car)
     {
         if (id != car.Id)
         {
