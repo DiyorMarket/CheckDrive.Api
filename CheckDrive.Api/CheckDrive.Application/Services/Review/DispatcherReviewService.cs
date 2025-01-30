@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.DispatcherReview;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using CheckDrive.Application.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
@@ -34,7 +34,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var dispatcher = await GetAndValidateDispatcherAsync(review.DispatcherId);
 
-        checkPoint.Stage = CheckPointStage.DispatcherReview;
+
         var reviewEntity = CreateReview(checkPoint, dispatcher, review);
 
         _context.DispatcherReviews.Add(reviewEntity);
@@ -92,6 +92,8 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
     {
         ArgumentNullException.ThrowIfNull(checkPoint);
         ArgumentNullException.ThrowIfNull(dispatcher);
+
+        checkPoint.Stage = CheckPointStage.DispatcherReview;
 
         var entity = new DispatcherReview
         {

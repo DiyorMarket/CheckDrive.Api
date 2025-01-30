@@ -28,6 +28,6 @@ public class DispatcherReviewsController : ControllerBase
         var createdReview = await _reviewService.CreateAsync(review);
 
         // TODO: Change to CreatedAtAction method
-        return Created("", createdReview);
+        return Created();
     }
 }
