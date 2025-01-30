@@ -9,74 +9,59 @@ using CheckDrive.Domain.Interfaces;
 using CheckDrive.Application.QueryParameters;
 
 namespace CheckDrive.Application.Services;
-public sealed class DebtService : IDebtService
+public sealed class DebtService(ICheckDriveDbContext context, IMapper mapper) : IDebtService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-
-    public DebtService(ICheckDriveDbContext context, IMapper mapper)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
-
     public async Task<List<DebtDto>> GetAsync(DebtQueryParametrs queryParameters)
     {
         var query = await GetQuery(queryParameters);        
 
-        var result = await query.AsNoTracking().ProjectTo<DebtDto>(_mapper.ConfigurationProvider).ToListAsync();
+        var result = await query
+            .AsNoTracking()
+            .ProjectTo<DebtDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
 
         return result;
     }
 
     public async Task<DebtDto> GetByIdAsync(int id)
     {
-        var debt = await _context.Debts
+        var debt = await context.Debts
             .AsNoTracking()
             .Include(d => d.CheckPoint)
             .ThenInclude(cp => cp.DoctorReview)
             .ThenInclude(dr => dr.Driver)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id);        
 
-        if (debt is null)
-        {
-            throw new EntityNotFoundException($"Debt with id: {id} is not found.");
-        }
-
-        var dto = _mapper.Map<DebtDto>(debt);
-
-        return dto;
+        return debt is null ? throw new EntityNotFoundException($"Debt with id: {id} is not found.") : mapper.Map<DebtDto>(debt);
     }
 
     public async Task<DebtDto> UpdateAsync(DebtDto debt)
     {
         ArgumentNullException.ThrowIfNull(debt);
 
-        var debts = _mapper.Map<Debt>(debt);
+        var debts = mapper.Map<Debt>(debt);
 
-         _context.Debts.Update(debts);
+        context.Debts.Update(debts);
+        await context.SaveChangesAsync();
 
-        await _context.SaveChangesAsync();
-
-        return _mapper.Map<DebtDto>(debts);
+        return mapper.Map<DebtDto>(debts);
     }
 
     public async Task DeleteAsync(int id)
     {
-        var debt = _context.Debts.FirstOrDefault(x => x.Id == id);
+        var debt = context.Debts.FirstOrDefault(x => x.Id == id);
 
         if(debt is null)
         {
             throw new EntityNotFoundException($"Debt with id: {id} is not found.");
         }
 
-        _context.Debts.Remove(debt);
-
-        await _context.SaveChangesAsync();
+        context.Debts.Remove(debt);
+        await context.SaveChangesAsync();
     }
     private async Task<IQueryable<Debt>> GetQuery(DebtQueryParametrs queryParameters)
     {
-        var query =  _context.Debts
+        var query =  context.Debts
             .Include(d => d.CheckPoint)
             .ThenInclude(cp => cp.DoctorReview)
             .ThenInclude(dr => dr.Driver)

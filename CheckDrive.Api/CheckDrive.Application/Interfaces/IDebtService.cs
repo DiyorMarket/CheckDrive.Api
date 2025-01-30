@@ -2,6 +2,7 @@
 using CheckDrive.Application.QueryParameters;
 
 namespace CheckDrive.Application.Interfaces;
+
 public interface IDebtService
 {
     Task<List<DebtDto>> GetAsync(DebtQueryParametrs queryParameters);

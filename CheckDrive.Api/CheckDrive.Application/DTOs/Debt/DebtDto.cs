@@ -2,7 +2,7 @@
 
 namespace CheckDrive.Application.DTOs.Debt;
 
-public record class DebtDto(
+public record DebtDto(
     int Id,
     string FirstName,
     string LastName,

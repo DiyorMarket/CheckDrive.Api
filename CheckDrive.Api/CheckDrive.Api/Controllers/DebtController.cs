@@ -7,20 +7,13 @@ namespace CheckDrive.Api.Controllers;
 
 [Route("api/debts")]
 [ApiController]
-public class DebtController : ControllerBase
+public class DebtController(IDebtService debtService) : ControllerBase
 {
-    private readonly IDebtService _debtService;
-
-    public DebtController(IDebtService debtService)
-    {
-        _debtService = debtService ?? throw new ArgumentNullException(nameof(debtService));
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<DebtDto>>> GetAsync([FromQuery]
     DebtQueryParametrs queryParametrs)
     {
-        var debts = await _debtService.GetAsync(queryParametrs);
+        var debts = await debtService.GetAsync(queryParametrs);
 
         return Ok(debts);
     }
@@ -28,7 +21,7 @@ public class DebtController : ControllerBase
     [HttpGet("{id}", Name = nameof(GetDebtByIdAsync))]
     public async Task<ActionResult<DebtDto>> GetDebtByIdAsync(int id)
     {
-        var debt = await _debtService.GetByIdAsync(id);
+        var debt = await debtService.GetByIdAsync(id);
 
         return Ok(debt);
     }
@@ -42,7 +35,7 @@ public class DebtController : ControllerBase
             return BadRequest($"Route id: {id} does not match with body id: {debt.Id}.");
         }
 
-        var updatedDebt = await _debtService.UpdateAsync(debt);
+        var updatedDebt = await debtService.UpdateAsync(debt);
 
         return Ok(updatedDebt);
     }
