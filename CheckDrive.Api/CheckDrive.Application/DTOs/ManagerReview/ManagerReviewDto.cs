@@ -13,6 +13,7 @@ public sealed record ManagerReviewDto(
     DateTime Date,
     int FinalMileage,
     decimal DebtAmount,
+    int InitialMillage,
     decimal FuelConsumptionAmount,
     decimal RemainingFuelAmount)
     : ReviewDtoBase(

@@ -20,6 +20,6 @@ public class ManagerReviewsController : ControllerBase
     {
         var result = await _reviewService.CreateAsync(review);
 
-        return Created("", result);
+        return Created();
     }
 }

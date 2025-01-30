@@ -133,6 +133,8 @@ internal sealed class ManagerReviewService : IManagerReviewService
         ArgumentNullException.ThrowIfNull(review);
         ArgumentNullException.ThrowIfNull(checkPoint);
 
+        checkPoint.Stage = CheckPointStage.ManagerReview;
+
         var entity = new ManagerReview
         {
             Notes = review.Notes,
