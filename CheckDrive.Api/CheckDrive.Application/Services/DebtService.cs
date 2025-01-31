@@ -39,12 +39,12 @@ public sealed class DebtService(ICheckDriveDbContext context, IMapper mapper) : 
     {
         ArgumentNullException.ThrowIfNull(debt);
 
-        var debts = mapper.Map<Debt>(debt);
+        var resulDebt = mapper.Map<Debt>(debt);
 
-        context.Debts.Update(debts);
+        context.Debts.Update(resulDebt);
         await context.SaveChangesAsync();
 
-        return mapper.Map<DebtDto>(debts);
+        return mapper.Map<DebtDto>(resulDebt);
     }
 
     public async Task DeleteAsync(int id)

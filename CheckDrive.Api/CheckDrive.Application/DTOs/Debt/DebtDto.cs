@@ -6,7 +6,7 @@ public record DebtDto(
     int Id,
     string FirstName,
     string LastName,
-    decimal FualAmount,
+    decimal FuelAmount,
     decimal PaidAmount,
     int CheckPointId,
     DebtStatus Status);
