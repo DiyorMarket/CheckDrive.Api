@@ -9,8 +9,6 @@ namespace CheckDrive.Api.Controllers;
 [ApiController]
 public class EmployeesController(IEmployeeService service) : ControllerBase
 {
-    private readonly IEmployeeService service = service ?? throw new ArgumentNullException(nameof(service));
-
     [HttpGet]
     public async Task<ActionResult<List<EmployeeDto>>> GetAsync([FromQuery] EmployeeQueryParameters queryParameters)
     {
