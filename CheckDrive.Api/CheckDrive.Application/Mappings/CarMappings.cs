@@ -9,15 +9,20 @@ public class CarMappings : Profile
     public CarMappings()
     {
         CreateMap<Car, CarDto>()
-            .ForMember(dest => dest.OilMarkId, opt => opt.MapFrom(src => src.OilMark!.Id))
-            .ForMember(dest => dest.CurrentMonthMileage, opt => opt.MapFrom(src => src.UsageSummary.CurrentMonthDistance))
-            .ForMember(dest => dest.CurrentYearMileage, opt => opt.MapFrom(src => src.UsageSummary.CurrentYearDistance))
-            .ForMember(dest => dest.MonthlyDistanceLimit, opt => opt.MapFrom(src => src.Limits.MonthlyDistanceLimit))
-            .ForMember(dest => dest.YearlyDistanceLimit, opt => opt.MapFrom(src => src.Limits.YearlyDistanceLimit))
-            .ForMember(dest => dest.CurrentMonthFuelConsumption, opt => opt.MapFrom(src => src.UsageSummary.CurrentMonthFuelConsumption))
-            .ForMember(dest => dest.CurrentYearFuelConsumption, opt => opt.MapFrom(src => src.UsageSummary.CurrentYearFuelConsumption))
-            .ForMember(dest => dest.MonthlyFuelConsumptionLimit, opt => opt.MapFrom(src => src.Limits.MonthlyFuelConsumptionLimit))
-            .ForMember(dest => dest.YearlyFuelConsumptionLimit, opt => opt.MapFrom(src => src.Limits.YearlyFuelConsumptionLimit));
+            .ForCtorParam(nameof(CarDto.Id), cfg => cfg.MapFrom(c => c.Id))
+            .ForCtorParam(nameof(CarDto.OilMarkId), cfg => cfg.MapFrom(c => c.OilMarkId))
+            .ForCtorParam(nameof(CarDto.Model), cfg => cfg.MapFrom(c => c.Model))
+            .ForCtorParam(nameof(CarDto.Number), cfg => cfg.MapFrom(c => c.Number))
+            .ForCtorParam(nameof(CarDto.ManufacturedYear), cfg => cfg.MapFrom(c => c.ManufacturedYear))
+            .ForCtorParam(nameof(CarDto.Mileage), cfg => cfg.MapFrom(c => c.Mileage))
+            .ForCtorParam(nameof(CarDto.CurrentMonthFuelConsumption), cfg => cfg.MapFrom(c => c.UsageSummary.CurrentMonthFuelConsumption))
+            .ForCtorParam(nameof(CarDto.CurrentYearFuelConsumption), cfg => cfg.MapFrom(c => c.UsageSummary.CurrentYearFuelConsumption))
+            .ForCtorParam(nameof(CarDto.MonthlyFuelConsumptionLimit), cfg => cfg.MapFrom(c => c.Limits.MonthlyFuelConsumptionLimit))
+            .ForCtorParam(nameof(CarDto.YearlyFuelConsumptionLimit), cfg => cfg.MapFrom(c => c.Limits.YearlyFuelConsumptionLimit))
+            .ForCtorParam(nameof(CarDto.CurrentMonthMileage), cfg => cfg.MapFrom(c => c.UsageSummary.CurrentMonthDistance))
+            .ForCtorParam(nameof(CarDto.CurrentYearMileage), cfg => cfg.MapFrom(c => c.UsageSummary.CurrentYearDistance))
+            .ForCtorParam(nameof(CarDto.MonthlyDistanceLimit), cfg => cfg.MapFrom(c => c.Limits.MonthlyDistanceLimit))
+            .ForCtorParam(nameof(CarDto.YearlyDistanceLimit), cfg => cfg.MapFrom(c => c.Limits.YearlyDistanceLimit));
 
         CreateMap<CreateCarDto, Car>()
             .ForPath(dest => dest.OilMarkId, opt => opt.MapFrom(src => src.OilMarkId))
@@ -29,7 +34,7 @@ public class CarMappings : Profile
             .ForPath(dest => dest.UsageSummary.CurrentYearFuelConsumption, opt => opt.MapFrom(src => src.CurrentYearFuelConsumption))
             .ForPath(dest => dest.Limits.MonthlyFuelConsumptionLimit, opt => opt.MapFrom(src => src.MonthlyFuelConsumptionLimit))
             .ForPath(dest => dest.Limits.YearlyFuelConsumptionLimit, opt => opt.MapFrom(src => src.YearlyFuelConsumptionLimit));
-        
+
         CreateMap<UpdateCarDto, Car>()
             .ForPath(dest => dest.OilMarkId, opt => opt.MapFrom(src => src.OilMarkId))
             .ForPath(dest => dest.UsageSummary.CurrentMonthDistance, opt => opt.MapFrom(src => src.CurrentYearMileage))
