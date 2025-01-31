@@ -4,8 +4,7 @@ namespace CheckDrive.Application.DTOs.Debt;
 
 public record DebtDto(
     int Id,
-    string FirstName,
-    string LastName,
+    string DriverFullName,
     decimal FuelAmount,
     decimal PaidAmount,
     int CheckPointId,

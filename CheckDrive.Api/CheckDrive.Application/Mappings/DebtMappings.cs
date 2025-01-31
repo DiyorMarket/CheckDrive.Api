@@ -10,8 +10,7 @@ internal sealed class DebtMappings : Profile
     {
         CreateMap<Debt, DebtDto>()
            .ForCtorParam(nameof(DebtDto.Id), cfg => cfg.MapFrom(e => e.Id))
-           .ForCtorParam(nameof(DebtDto.FirstName), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.Driver.FirstName))
-           .ForCtorParam(nameof(DebtDto.LastName), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.Driver.LastName))
+           .ForCtorParam(nameof(DebtDto.DriverFullName), cfg => cfg.MapFrom(e => e.CheckPoint.DoctorReview.Driver.LastName + " " + e.CheckPoint.DoctorReview.Driver.FirstName))
            .ForCtorParam(nameof(DebtDto.FuelAmount), cfg => cfg.MapFrom(e => e.FuelAmount))
            .ForCtorParam(nameof(DebtDto.PaidAmount), cfg => cfg.MapFrom(e => e.PaidAmount))
            .ForCtorParam(nameof(DebtDto.Status), cfg => cfg.MapFrom(e => e.Status))
