@@ -4,8 +4,8 @@ namespace CheckDrive.Domain.Entities;
 
 public class ManagerReview : ReviewBase
 {
-    public required int InitialMileage { get; set; }
-    public required int FinalMileage { get; set; }
+    public required decimal InitialMileage { get; set; }
+    public required decimal FinalMileage { get; set; }
     public required decimal DebtAmount { get; set; }
     public required decimal FuelConsumptionAmount { get; set; }
     public required decimal RemainingFuelAmount { get; set; }
