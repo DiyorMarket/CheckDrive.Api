@@ -11,20 +11,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
+internal sealed class MechanicAcceptanceService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    IHubContext<ReviewHub, IReviewHub> hubContext)
+    : IMechanicAcceptanceService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
-
-    public MechanicAcceptanceService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> hubContext)
+    public async Task<MechanicAcceptanceReviewDto> GetByIdAsync(int reviewId)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+        var review = await GetAndValidateReviewAsync(reviewId);
+
+        var dto = mapper.Map<MechanicAcceptanceReviewDto>(review);
+
+        return dto;
     }
 
     public async Task<MechanicAcceptanceReviewDto> CreateAsync(CreateMechanicAcceptanceReviewDto review)
@@ -37,24 +36,43 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
         ValidateMileage(checkPoint, review);
         var reviewEntity = await CreateReviewAsync(checkPoint, mechanic, review);
 
-        _context.MechanicAcceptances.Update(reviewEntity);
-        await _context.SaveChangesAsync();
+        context.MechanicAcceptances.Update(reviewEntity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<MechanicAcceptanceReviewDto>(reviewEntity);
+        var dto = mapper.Map<MechanicAcceptanceReviewDto>(reviewEntity);
 
-        await _hubContext.Clients
+        await hubContext.Clients
             .User(checkPoint.DoctorReview.DriverId.ToString())
             .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
 
+    private async Task<MechanicAcceptance> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.MechanicAcceptances
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        if (review is null)
+        {
+            throw new EntityNotFoundException($"Mechanic Acceptance Review with id: {reviewId} is not found.");
+        }
+
+        if (review.Status is not ReviewStatus.Pending)
+        {
+            throw new InvalidOperationException($"Review's status is invalid to perform Mechanic Acceptance.");
+        }
+
+        return review;
+    }
+
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .Include(x => x.MechanicHandover)
-            .ThenInclude(x => x.Car)
+            .ThenInclude(x => x!.Car)
             .Include(x => x.OperatorReview)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
@@ -82,7 +100,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
 
     private async Task<Mechanic> GetAndValidateMechanicAsync(int mechanicId)
     {
-        var mechanic = await _context.Mechanics
+        var mechanic = await context.Mechanics
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
@@ -112,7 +130,7 @@ internal sealed class MechanicAcceptanceService : IMechanicAcceptanceService
             Mechanic = mechanic
         };
 
-        var existingReview = await _context.MechanicAcceptances
+        var existingReview = await context.MechanicAcceptances
             .FirstOrDefaultAsync(x => x.CheckPointId == review.CheckPointId);
         if (existingReview is not null)
         {

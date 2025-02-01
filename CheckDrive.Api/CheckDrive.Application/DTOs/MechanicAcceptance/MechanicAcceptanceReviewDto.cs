@@ -3,6 +3,7 @@
 namespace CheckDrive.Application.DTOs.MechanicAcceptance;
 
 public sealed record MechanicAcceptanceReviewDto(
+    int Id,
     int CheckPointId,
     int MechanicId,
     string MechanicName,
