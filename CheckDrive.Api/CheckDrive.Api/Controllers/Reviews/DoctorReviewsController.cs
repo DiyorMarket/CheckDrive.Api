@@ -6,13 +6,14 @@ namespace CheckDrive.Api.Controllers.Reviews;
 
 [Route("api/reviews/doctors/{doctorId:int}")]
 [ApiController]
-public class DoctorReviewsController : ControllerBase
+public class DoctorReviewsController(IDoctorReviewService reviewService) : ControllerBase
 {
-    private readonly IDoctorReviewService _reviewService;
-
-    public DoctorReviewsController(IDoctorReviewService reviewService)
+    [HttpGet("{reviewId}", Name = nameof(GetReviewByIdAsync))]
+    public async Task<ActionResult<DoctorReviewDto>> GetReviewByIdAsync(int reviewId)
     {
-        _reviewService = reviewService ?? throw new ArgumentNullException(nameof(reviewService));
+        var checkPoint = await reviewService.GetByIdAsync(reviewId);
+
+        return Ok(checkPoint);
     }
 
     [HttpPost]
@@ -25,9 +26,11 @@ public class DoctorReviewsController : ControllerBase
             return BadRequest($"Route id: {doctorId} does not match with body id: {review.DoctorId}.");
         }
 
-        var createdReview = await _reviewService.CreateAsync(review);
+        var createdReview = await reviewService.CreateAsync(review);
 
-        // TODO: change it to CreatedAtAction
-        return Created();
+        return CreatedAtAction(
+            nameof(GetReviewByIdAsync),
+            new { doctorId = createdReview.DoctorId, reviewId = createdReview.Id },
+            createdReview);
     }
 }

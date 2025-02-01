@@ -11,20 +11,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class DoctorReviewService : IDoctorReviewService
+internal sealed class DoctorReviewService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    IHubContext<ReviewHub, IReviewHub> reviewHub)
+    : IDoctorReviewService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _reviewHub;
-
-    public DoctorReviewService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> reviewHub)
+    public async Task<DoctorReviewDto> GetByIdAsync(int id)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _reviewHub = reviewHub ?? throw new ArgumentNullException(nameof(reviewHub));
+        var review = await GetAndValidateReviewAsync(id);
+
+        var dto = mapper.Map<DoctorReviewDto>(review);
+
+        return dto;
     }
 
     public async Task<DoctorReviewDto> CreateAsync(CreateDoctorReviewDto review)
@@ -38,20 +37,33 @@ internal sealed class DoctorReviewService : IDoctorReviewService
         var checkPoint = CreateCheckPoint(reviewEntity);
         driver.Status = review.IsHealthy ? DriverStatus.OnRide : DriverStatus.NotHealthy;
 
-        _context.CheckPoints.Add(checkPoint);
-        await _context.SaveChangesAsync();
+        context.CheckPoints.Add(checkPoint);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<DoctorReviewDto>(reviewEntity);
+        var dto = mapper.Map<DoctorReviewDto>(reviewEntity);
 
-        await _reviewHub.Clients.All
+        await reviewHub.Clients.All
                 .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
 
+    private async Task<DoctorReview> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.DoctorReviews
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        if (review is null)
+        {
+            throw new EntityNotFoundException($"Review with id: {reviewId} is not found.");
+        }
+
+        return review;
+    }
+
     private async Task<Driver> GetAndValidateDriverAsync(int driverId)
     {
-        var driver = await _context.Drivers
+        var driver = await context.Drivers
             .FirstOrDefaultAsync(x => x.Id == driverId);
 
         if (driver is null)
@@ -69,7 +81,7 @@ internal sealed class DoctorReviewService : IDoctorReviewService
 
     private async Task<Doctor> GetAndValidateDoctorAsync(int doctorId)
     {
-        var doctor = await _context.Doctors
+        var doctor = await context.Doctors
             .FirstOrDefaultAsync(x => x.Id == doctorId);
 
         if (doctor is null)
@@ -82,7 +94,7 @@ internal sealed class DoctorReviewService : IDoctorReviewService
 
     private DoctorReview CreateReview(CreateDoctorReviewDto review, Doctor doctor, Driver driver)
     {
-        var entity = _mapper.Map<DoctorReview>(review);
+        var entity = mapper.Map<DoctorReview>(review);
         entity.Doctor = doctor;
         entity.Driver = driver;
 
