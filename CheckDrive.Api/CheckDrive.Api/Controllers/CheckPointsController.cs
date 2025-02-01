@@ -7,19 +7,13 @@ namespace CheckDrive.Api.Controllers;
 
 [Route("api/checkPoints")]
 [ApiController]
-public class CheckPointsController : ControllerBase
+public class CheckPointsController(ICheckPointService service) : ControllerBase
 {
-    private readonly ICheckPointService _service;
-
-    public CheckPointsController(ICheckPointService service)
-    {
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-    }
 
     [HttpGet]
     public async Task<ActionResult<List<CheckPointDto>>> GetCheckPointsAsync([FromQuery] CheckPointQueryParameters queryParameters)
     {
-        var checkPoints = await _service.GetCheckPointsAsync(queryParameters);
+        var checkPoints = await service.GetAsync(queryParameters);
 
         return Ok(checkPoints);
     }
@@ -27,7 +21,7 @@ public class CheckPointsController : ControllerBase
     [HttpGet("drivers/{driverId:int}/current")]
     public async Task<ActionResult<CheckPointDto>> GetCurrentCheckPointByDriverIdAsync(int driverId)
     {
-        var checkPoint = await _service.GetCurrentCheckPointByDriverIdAsync(driverId);
+        var checkPoint = await service.GetCurrentByDriverIdAsync(driverId);
 
         return Ok(checkPoint);
     }
@@ -35,7 +29,7 @@ public class CheckPointsController : ControllerBase
     [HttpPut("{id:int}/cancel")]
     public async Task<ActionResult<CheckPointDto>> CancelCheckPoint(int id)
     {
-        await _service.CancelCheckPointAsync(id);
+        await service.CancelAsync(id);
 
         return NoContent();
     }

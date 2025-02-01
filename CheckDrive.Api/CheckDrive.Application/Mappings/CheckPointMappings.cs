@@ -1,26 +1,26 @@
 ﻿using AutoMapper;
 using CheckDrive.Application.DTOs.CheckPoint;
-using CheckDrive.Application.DTOs.Debt;
 using CheckDrive.Domain.Entities;
 
 namespace CheckDrive.Application.Mappings;
 
 internal sealed class CheckPointMappings : Profile
 {
-
     public CheckPointMappings()
     {
-        CreateMap<Debt, DebtDto>();
-
         CreateMap<CheckPoint, CheckPointDto>()
-        .ForMember(dest => dest.Driver, cfg => cfg.MapFrom(src => src.DoctorReview.Driver))
-        .ForMember(dest => dest.Car, cfg => cfg.MapFrom(src => src.MechanicHandover.Car))
-        .ForMember(dest => dest.Debt, cfg => cfg.MapFrom(src => src.Debt))
-        .ForMember(dest => dest.DoctorReview, cfg => cfg.MapFrom(src => src.DoctorReview))
-        .ForMember(dest => dest.MechanicHandover, cfg => cfg.MapFrom(src => src.MechanicHandover))
-        .ForMember(dest => dest.OperatorReview, cfg => cfg.MapFrom(src => src.OperatorReview))
-        .ForMember(dest => dest.MechanicAcceptance, cfg => cfg.MapFrom(src => src.MechanicAcceptance))
-        .ForMember(dest => dest.DispatcherReview, cfg => cfg.MapFrom(src => src.DispatcherReview))
-        .ForMember(dest => dest.ManagerReview, cfg => cfg.MapFrom(src => src.ManagerReview));
+            .ForCtorParam(nameof(CheckPointDto.Driver), opt => opt.MapFrom(src => $"{src.DoctorReview.Driver.FirstName} {src.DoctorReview.Driver.LastName}"))
+            .ForCtorParam(nameof(CheckPointDto.CarModel), opt => opt.MapFrom(src => $"{src.MechanicHandover!.Car.Model}"))
+            .ForCtorParam(nameof(CheckPointDto.CurrentFuelAmount), opt => opt.MapFrom(src => src.OperatorReview!.InitialOilAmount))
+            .ForCtorParam(nameof(CheckPointDto.Mechanic), opt => opt.MapFrom(src => $"{src.MechanicHandover!.Mechanic.FirstName} {src.MechanicHandover.Mechanic.LastName}"))
+            .ForCtorParam(nameof(CheckPointDto.InitialMillage), opt => opt.MapFrom(src => src.MechanicHandover!.InitialMileage))
+            .ForCtorParam(nameof(CheckPointDto.FinalMileage), opt => opt.MapFrom(src => src.DispatcherReview!.FinalMileage))
+            .ForCtorParam(nameof(CheckPointDto.Operator), opt => opt.MapFrom(src => $"{src.OperatorReview!.Operator.FirstName} {src.OperatorReview.Operator.LastName}"))
+            .ForCtorParam(nameof(CheckPointDto.InitialOilAmount), opt => opt.MapFrom(src => src.OperatorReview!.InitialOilAmount))
+            .ForCtorParam(nameof(CheckPointDto.OilRefillAmount), opt => opt.MapFrom(src => src.OperatorReview!.OilRefillAmount))
+            .ForCtorParam(nameof(CheckPointDto.Oil), opt => opt.MapFrom(src => src.MechanicHandover!.Car.OilMark!.Name))
+            .ForCtorParam(nameof(CheckPointDto.Dispatcher), opt => opt.MapFrom(src => $"{src.DispatcherReview!.Dispatcher.FirstName} {src.DispatcherReview.Dispatcher.LastName}"))
+            .ForCtorParam(nameof(CheckPointDto.FuelConsumptionAdjustment), opt => opt.MapFrom(src => src.DispatcherReview!.FuelConsumptionAmount))
+            .ForCtorParam(nameof(CheckPointDto.DebtAmount), opt => opt.MapFrom(src => src.ManagerReview!.DebtAmount));
     }
 }
