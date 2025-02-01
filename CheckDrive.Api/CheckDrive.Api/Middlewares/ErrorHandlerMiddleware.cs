@@ -37,6 +37,6 @@ public class ErrorHandlerMiddleware(RequestDelegate next)
             EntityNotFoundException => ((int)HttpStatusCode.NotFound, "Not Found", ex.Message),
             InvalidLoginAttemptException => ((int)HttpStatusCode.Unauthorized, "Forbidden", ex.Message),
             RegistrationFailedException => ((int)HttpStatusCode.Unauthorized, "Forbidden", ex.Message),
-            _ => ((int)HttpStatusCode.InternalServerError, "Internal Server Error", "Unexpected error occured. Please, try again later."),
+            _ => ((int)HttpStatusCode.InternalServerError, "Internal Server Error", "Unexpected error occurred. Please, try again later."),
         };
 }
