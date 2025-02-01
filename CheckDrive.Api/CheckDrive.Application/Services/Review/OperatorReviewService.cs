@@ -129,7 +129,6 @@ internal sealed class OperatorReviewService(
         Operator @operator,
         CreateOperatorReviewDto review)
     {
-        checkPoint.Stage = CheckPointStage.OperatorReview;
 
         var entity = new OperatorReview()
         {

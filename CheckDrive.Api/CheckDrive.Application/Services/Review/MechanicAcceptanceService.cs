@@ -117,7 +117,6 @@ internal sealed class MechanicAcceptanceService(
         Mechanic mechanic,
         CreateMechanicAcceptanceReviewDto review)
     {
-        checkPoint.Stage = CheckPointStage.MechanicAcceptance;
 
         var entity = new MechanicAcceptance
         {

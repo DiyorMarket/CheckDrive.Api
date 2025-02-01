@@ -134,8 +134,6 @@ internal sealed class MechanicHandoverService(
         ArgumentNullException.ThrowIfNull(review);
         ArgumentNullException.ThrowIfNull(checkPoint);
 
-        checkPoint.Stage = CheckPointStage.MechanicHandover;
-
         var entity = new MechanicHandover()
         {
             Notes = review.Notes,
