@@ -5,7 +5,7 @@ namespace CheckDrive.Domain.Entities;
 
 public class MechanicHandover : ReviewBase
 {
-    public int InitialMileage { get; set; }
+    public decimal InitialMileage { get; set; }
     public ReviewStatus Status { get; set; }
 
     public int CheckPointId { get; set; }

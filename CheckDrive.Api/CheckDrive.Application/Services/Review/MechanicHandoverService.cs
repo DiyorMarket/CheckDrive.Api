@@ -11,22 +11,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class MechanicHandoverService : IMechanicHandoverService
+internal sealed class MechanicHandoverService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    IHubContext<ReviewHub, IReviewHub> hubContext)
+    : IMechanicHandoverService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
-
-    public MechanicHandoverService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> hubContext)
+    public async Task<MechanicHandoverReviewDto> GetByIdAsync(int reviewId)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
-    }
+        var review = await GetAndValidateReviewAsync(reviewId);
 
+        var dto = mapper.Map<MechanicHandoverReviewDto>(review);
+
+        return dto;
+    }
     /// <summary>
     /// Creates new Mechanic Handover review. If review already exists, then existing one is updated.
     /// </summary>
@@ -43,21 +41,40 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
         ValidateMileage(car, review);
         var reviewEntity = await CreateReviewAsync(review, checkPoint, mechanic, car);
 
-        _context.MechanicHandovers.Update(reviewEntity);
-        await _context.SaveChangesAsync();
+        context.MechanicHandovers.Update(reviewEntity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<MechanicHandoverReviewDto>(reviewEntity);
+        var dto = mapper.Map<MechanicHandoverReviewDto>(reviewEntity);
 
-        await _hubContext.Clients
+        await hubContext.Clients
             .User(checkPoint.DoctorReview.DriverId.ToString())
             .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
 
+    private async Task<MechanicHandover> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.MechanicHandovers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        if (review is null)
+        {
+            throw new EntityNotFoundException($"Mechanic Handover Review with id: {reviewId} is not found.");
+        }
+
+        if (review.Status is not ReviewStatus.Pending)
+        {
+            throw new InvalidOperationException($"Review's status is invalid to perform Mechanic Handover.");
+        }
+
+        return review;
+    }
+
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
@@ -69,7 +86,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
 
         if (checkPoint.Stage != CheckPointStage.DoctorReview || checkPoint.Status != CheckPointStatus.InProgress)
         {
-            throw new InvalidOperationException($"Check Point's stage or status is invalid to perform Mechanid Handover.");
+            throw new InvalidOperationException($"Check Point's stage or status is invalid to perform Mechanic Handover.");
         }
 
         return checkPoint;
@@ -77,7 +94,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
 
     private async Task<Mechanic> GetAndValidateMechanicAsync(int mechanicId)
     {
-        var mechanic = await _context.Mechanics
+        var mechanic = await context.Mechanics
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
@@ -91,7 +108,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
 
     private async Task<Car> GetAndValidateCarAsync(int carId)
     {
-        var car = await _context.Cars
+        var car = await context.Cars
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == carId);
 
@@ -130,7 +147,7 @@ internal sealed class MechanicHandoverService : IMechanicHandoverService
             Mechanic = mechanic,
         };
 
-        var existingReview = await _context.MechanicHandovers
+        var existingReview = await context.MechanicHandovers
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.CheckPointId == review.CheckPointId);
         if (existingReview is not null)
