@@ -11,20 +11,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class DispatcherReviewService : IDispatcherReviewService
+internal sealed class DispatcherReviewService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    IHubContext<ReviewHub, IReviewHub> hubContext)
+    : IDispatcherReviewService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
-
-    public DispatcherReviewService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> hubContext)
+    public async Task<DispatcherReviewDto> GetByIdAsync(int reviewId)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+        var review = await GetAndValidateReviewAsync(reviewId);
+
+        var dto = mapper.Map<DispatcherReviewDto>(review);
+
+        return dto;
     }
 
     public async Task<DispatcherReviewDto> CreateAsync(CreateDispatcherReviewDto review)
@@ -34,24 +33,39 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         var checkPoint = await GetAndValidateCheckPointAsync(review.CheckPointId);
         var dispatcher = await GetAndValidateDispatcherAsync(review.DispatcherId);
 
+        checkPoint.Stage = CheckPointStage.DispatcherReview;
 
         var reviewEntity = CreateReview(checkPoint, dispatcher, review);
 
-        _context.DispatcherReviews.Add(reviewEntity);
-        await _context.SaveChangesAsync();
+        context.DispatcherReviews.Add(reviewEntity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<DispatcherReviewDto>(reviewEntity);
+        var dto = mapper.Map<DispatcherReviewDto>(reviewEntity);
 
-        await _hubContext.Clients
+        await hubContext.Clients
             .User(checkPoint.DoctorReview.DriverId.ToString())
             .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
 
+    private async Task<DispatcherReview> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.DispatcherReviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        if (review is null)
+        {
+            throw new EntityNotFoundException($"Dispatcher Review with id: {reviewId} is not found.");
+        }
+
+        return review;
+    }
+
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
@@ -77,7 +91,7 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
 
     private async Task<Dispatcher> GetAndValidateDispatcherAsync(int dispatcherId)
     {
-        var dispatcher = await _context.Dispatchers
+        var dispatcher = await context.Dispatchers
             .FirstOrDefaultAsync(x => x.Id == dispatcherId);
 
         if (dispatcher is null)
@@ -92,8 +106,6 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
     {
         ArgumentNullException.ThrowIfNull(checkPoint);
         ArgumentNullException.ThrowIfNull(dispatcher);
-
-        checkPoint.Stage = CheckPointStage.DispatcherReview;
 
         var entity = new DispatcherReview
         {
