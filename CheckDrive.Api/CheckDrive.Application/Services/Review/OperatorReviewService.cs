@@ -11,20 +11,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class OperatorReviewService : IOperatorReviewService
+internal sealed class OperatorReviewService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    IHubContext<ReviewHub, IReviewHub> hubContext)
+    : IOperatorReviewService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
-
-    public OperatorReviewService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> hubContext)
+    public async Task<OperatorReviewDto> GetByIdAsync(int reviewId)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+        var review = await GetAndValidateReviewAsync(reviewId);
+
+        var dto = mapper.Map<OperatorReviewDto>(review);
+
+        return dto;
     }
 
     /// <summary>
@@ -43,21 +42,40 @@ internal sealed class OperatorReviewService : IOperatorReviewService
         ValidateOilAmount(checkPoint, review);
         var reviewEntity = await CreateReviewAsync(checkPoint, oilMark, @operator, review);
 
-        _context.OperatorReviews.Update(reviewEntity);
-        await _context.SaveChangesAsync();
+        context.OperatorReviews.Update(reviewEntity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<OperatorReviewDto>(reviewEntity);
+        var dto = mapper.Map<OperatorReviewDto>(reviewEntity);
 
-        await _hubContext.Clients
+        await hubContext.Clients
             .User(checkPoint.DoctorReview.DriverId.ToString())
             .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
 
+    private async Task<OperatorReview> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.OperatorReviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        if (review is null)
+        {
+            throw new EntityNotFoundException($"Operator Review with id: {reviewId} is not found.");
+        }
+
+        if (review.Status is not ReviewStatus.Pending)
+        {
+            throw new InvalidOperationException($"Review's status is invalid to perform Operator.");
+        }
+
+        return review;
+    }
+
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .ThenInclude(x => x.Driver)
             .Include(x => x.MechanicHandover)
@@ -79,7 +97,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
 
     private async Task<Operator> GetAndValidateOperatorAsync(int operatorId)
     {
-        var @operator = await _context.Operators
+        var @operator = await context.Operators
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == operatorId);
 
@@ -93,7 +111,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
 
     private async Task<OilMark> GetAndValidateOilMarkAsync(int oilMarkId)
     {
-        var oilMark = await _context.OilMarks
+        var oilMark = await context.OilMarks
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == oilMarkId);
 
@@ -125,7 +143,7 @@ internal sealed class OperatorReviewService : IOperatorReviewService
             Operator = @operator
         };
 
-        var existingReview = await _context.OperatorReviews
+        var existingReview = await context.OperatorReviews
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.CheckPointId == review.CheckPointId);
 
