@@ -9,6 +9,7 @@ using CheckDrive.Domain.Interfaces;
 using CheckDrive.Application.QueryParameters;
 
 namespace CheckDrive.Application.Services;
+
 public sealed class DebtService(ICheckDriveDbContext context, IMapper mapper) : IDebtService
 {
     public async Task<List<DebtDto>> GetAsync(DebtQueryParametrs queryParameters)
@@ -59,6 +60,7 @@ public sealed class DebtService(ICheckDriveDbContext context, IMapper mapper) : 
         context.Debts.Remove(debt);
         await context.SaveChangesAsync();
     }
+    
     private async Task<IQueryable<Debt>> GetQuery(DebtQueryParametrs queryParameters)
     {
         var query =  context.Debts
@@ -71,8 +73,7 @@ public sealed class DebtService(ICheckDriveDbContext context, IMapper mapper) : 
         {
             query = query.Where(d =>
                 d.CheckPoint.DoctorReview.Driver.FirstName.Contains(queryParameters.SearchText) ||
-                d.CheckPoint.DoctorReview.Driver.LastName.Contains(queryParameters.SearchText));
-            
+                d.CheckPoint.DoctorReview.Driver.LastName.Contains(queryParameters.SearchText));            
         }
 
         if (queryParameters.Status != null)
