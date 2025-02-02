@@ -27,7 +27,7 @@ internal sealed class CheckPointService(ICheckDriveDbContext context, IMapper ma
 
     public async Task<CheckPointDto> GetByIdAsync(int id)
     {
-        var checkPoint = context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .AsNoTracking()
             .Include(x => x.DoctorReview)
             .ThenInclude(x => x.Driver)
