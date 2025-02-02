@@ -1,15 +1,17 @@
-﻿using CheckDrive.Domain.Interfaces;
+﻿using CheckDrive.Application.Configurations;
 using CheckDrive.Application.Interfaces;
+using CheckDrive.Application.Interfaces.Reports;
+using CheckDrive.Domain.Interfaces;
 using CheckDrive.Infrastructure.Configurations;
 using CheckDrive.Infrastructure.Email;
 using CheckDrive.Infrastructure.Persistence;
+using CheckDrive.Infrastructure.Reports;
 using CheckDrive.Infrastructure.Sms;
 using FluentEmail.MailKitSmtp;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CheckDrive.Application.Configurations;
 
 namespace CheckDrive.Infrastructure.Extensions;
 
@@ -80,6 +82,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ISmsService, SmsService>();
+        services.AddScoped<IReportGenerator, ReportGenerator>();
     }
 
     private static void AddIdentity(IServiceCollection services)

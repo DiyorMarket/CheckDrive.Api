@@ -1,11 +1,13 @@
 ﻿using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.Interfaces.Auth;
 using CheckDrive.Application.Interfaces.Jobs;
+using CheckDrive.Application.Interfaces.Reports;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Application.Mappings;
 using CheckDrive.Application.Services;
 using CheckDrive.Application.Services.Auth;
 using CheckDrive.Application.Services.Jobs;
+using CheckDrive.Application.Services.Reports;
 using CheckDrive.Application.Services.Review;
 using CheckDrive.Application.Validators.Car;
 using FluentValidation;
@@ -43,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IOilMarkService, OilMarkService>();
         services.AddScoped<IReviewHistoryService, ReviewHistoryService>();
         services.AddScoped<ITokenHandler, TokenHandler>();
+        services.AddScoped<IReportService, ReportService>();
     }
 
     private static void AddBackgroundJobs(IServiceCollection services)
