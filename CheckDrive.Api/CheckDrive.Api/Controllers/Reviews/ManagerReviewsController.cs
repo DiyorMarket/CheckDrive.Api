@@ -6,20 +6,24 @@ namespace CheckDrive.Api.Controllers.Reviews;
 
 [ApiController]
 [Route("api/reviews/managers/{managerId:int}")]
-public class ManagerReviewsController : ControllerBase
+public class ManagerReviewsController(IManagerReviewService reviewService) : ControllerBase
 {
-    private readonly IManagerReviewService _reviewService;
-
-    public ManagerReviewsController(IManagerReviewService reviewService)
+    [HttpGet("{reviewId}", Name = nameof(GetManagerReviewByIdAsync))]
+    public async Task<ActionResult<ManagerReviewDto>> GetManagerReviewByIdAsync(int reviewId)
     {
-        _reviewService = reviewService;
+        var review = await reviewService.GetByIdAsync(reviewId);
+
+        return Ok(review);
     }
 
     [HttpPost]
     public async Task<ActionResult<ManagerReviewDto>> CreateReview([FromBody] CreateManagerReviewDto review)
     {
-        var result = await _reviewService.CreateAsync(review);
+        var createdReview = await reviewService.CreateAsync(review);
 
-        return Created("", result);
+        return CreatedAtAction(
+            nameof(GetManagerReviewByIdAsync),
+            new { managerId = createdReview.ReviewerId, reviewId = createdReview.Id },
+            createdReview);
     }
 }

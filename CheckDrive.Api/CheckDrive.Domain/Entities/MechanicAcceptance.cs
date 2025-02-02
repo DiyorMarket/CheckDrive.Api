@@ -5,7 +5,7 @@ namespace CheckDrive.Domain.Entities;
 
 public class MechanicAcceptance : ReviewBase
 {
-    public int FinalMileage { get; set; }
+    public decimal FinalMileage { get; set; }
     public bool IsCarInGoodCondition { get; set; }
     public ReviewStatus Status { get; set; }
 

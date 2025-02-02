@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CheckDrive.Application.DTOs.CheckPoint;
+﻿using CheckDrive.Application.DTOs.CheckPoint;
+using CheckDrive.Application.DTOs.DispatcherReview;
 using CheckDrive.Application.DTOs.DoctorReview;
 using CheckDrive.Application.DTOs.OperatorReview;
 using CheckDrive.Application.DTOs.Review;
 using CheckDrive.Application.Interfaces.Review;
-using CheckDrive.Application.DTOs.DispatcherReview;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CheckDrive.Api.Controllers.Reviews;
 

@@ -5,6 +5,7 @@ using CheckDrive.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,9 +13,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CheckDrive.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CheckDriveDbContext))]
-    partial class CheckDriveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250131121502_Change_Distnace_And_Amounts_To_Decimal")]
+    partial class Change_Distnace_And_Amounts_To_Decimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,8 +45,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("ManufacturedYear")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Mileage")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Mileage")
+                        .HasColumnType("int");
 
                     b.Property<string>("Model")
                         .IsRequired()
@@ -72,14 +75,14 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         {
                             b1.IsRequired();
 
-                            b1.Property<decimal>("MonthlyDistanceLimit")
-                                .HasColumnType("decimal(18,2)");
+                            b1.Property<int>("MonthlyDistanceLimit")
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("MonthlyFuelConsumptionLimit")
                                 .HasColumnType("decimal(18,2)");
 
-                            b1.Property<decimal>("YearlyDistanceLimit")
-                                .HasColumnType("decimal(18,2)");
+                            b1.Property<int>("YearlyDistanceLimit")
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("YearlyFuelConsumptionLimit")
                                 .HasColumnType("decimal(18,2)");
@@ -89,14 +92,14 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         {
                             b1.IsRequired();
 
-                            b1.Property<decimal>("CurrentMonthDistance")
-                                .HasColumnType("decimal(18,2)");
+                            b1.Property<int>("CurrentMonthDistance")
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("CurrentMonthFuelConsumption")
                                 .HasColumnType("decimal(18,2)");
 
-                            b1.Property<decimal>("CurrentYearDistance")
-                                .HasColumnType("decimal(18,2)");
+                            b1.Property<int>("CurrentYearDistance")
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("CurrentYearFuelConsumption")
                                 .HasColumnType("decimal(18,2)");
