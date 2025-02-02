@@ -101,7 +101,9 @@ internal sealed class OperatorReviewService(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == operatorId);
 
-        return @operator is null ? throw new EntityNotFoundException($"Operator with id: {operatorId} is not found.") : @operator;
+        return @operator is null
+            ? throw new EntityNotFoundException($"Operator with id: {operatorId} is not found.")
+            : @operator;
     }
 
     private async Task<OilMark> GetAndValidateOilMarkAsync(int oilMarkId)
@@ -110,7 +112,9 @@ internal sealed class OperatorReviewService(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == oilMarkId);
 
-        return oilMark is null ? throw new EntityNotFoundException($"Oil mark with id: {oilMarkId} is not found.") : oilMark;
+        return oilMark is null
+            ? throw new EntityNotFoundException($"Oil mark with id: {oilMarkId} is not found.")
+            : oilMark;
     }
 
     private async Task<OperatorReview> CreateReviewAsync(

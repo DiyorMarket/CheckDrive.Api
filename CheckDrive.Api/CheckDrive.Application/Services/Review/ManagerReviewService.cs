@@ -72,7 +72,9 @@ internal sealed class ManagerReviewService(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-        return review is null ? throw new EntityNotFoundException($"Manager Review with id: {reviewId} is not found.") : review;
+        return review is null
+            ? throw new EntityNotFoundException($"Manager Review with id: {reviewId} is not found.")
+            : review;
     }
 
     private async Task<Manager> GetAndValidateManagerAsync(int managerId)
@@ -80,7 +82,9 @@ internal sealed class ManagerReviewService(
         var manager = await context.Managers
             .FirstOrDefaultAsync(x => x.Id == managerId);
 
-        return manager is null ? throw new EntityNotFoundException($"Manager with id: {managerId} is not found.") : manager;
+        return manager is null
+            ? throw new EntityNotFoundException($"Manager with id: {managerId} is not found.")
+            : manager;
     }
 
     private void CreateDebt(CreateManagerReviewDto review, CheckPoint checkPoint)

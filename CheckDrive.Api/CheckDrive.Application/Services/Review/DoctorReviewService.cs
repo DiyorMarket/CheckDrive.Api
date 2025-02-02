@@ -53,7 +53,9 @@ internal sealed class DoctorReviewService(
         var review = await context.DoctorReviews
             .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-        return review is null ? throw new EntityNotFoundException($"Review with id: {reviewId} is not found.") : review;
+        return review is null
+            ? throw new EntityNotFoundException($"Review with id: {reviewId} is not found.")
+            : review;
     }
 
     private async Task<Driver> GetAndValidateDriverAsync(int driverId)
@@ -79,12 +81,9 @@ internal sealed class DoctorReviewService(
         var doctor = await context.Doctors
             .FirstOrDefaultAsync(x => x.Id == doctorId);
 
-        if (doctor is null)
-        {
-            throw new EntityNotFoundException($"Doctor with id: {doctorId} is not found.");
-        }
-
-        return doctor;
+        return doctor is null
+            ? throw new EntityNotFoundException($"Doctor with id: {doctorId} is not found.")
+            : doctor;
     }
 
     private DoctorReview CreateReview(CreateDoctorReviewDto review, Doctor doctor, Driver driver)

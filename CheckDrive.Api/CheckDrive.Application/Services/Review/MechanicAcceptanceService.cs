@@ -104,7 +104,9 @@ internal sealed class MechanicAcceptanceService(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
-        return mechanic is null ? throw new EntityNotFoundException($"Mechanic with id: {mechanicId} is not found.") : mechanic;
+        return mechanic is null
+            ? throw new EntityNotFoundException($"Mechanic with id: {mechanicId} is not found.")
+            : mechanic;
     }
 
     private async Task<MechanicAcceptance> CreateReviewAsync(
