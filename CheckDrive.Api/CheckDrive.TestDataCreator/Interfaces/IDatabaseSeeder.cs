@@ -6,7 +6,7 @@ namespace CheckDrive.TestDataCreator.Interfaces;
 
 public interface IDatabaseSeeder
 {
-    void SeedDatabase(
+    Task SeedDatabaseAsync(
         ICheckDriveDbContext context,
         UserManager<IdentityUser> userManager,
         DataSeedOptions options);

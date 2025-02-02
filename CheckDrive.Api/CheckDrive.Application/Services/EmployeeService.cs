@@ -13,29 +13,19 @@ using CheckDrive.Application.DTOs.Employee;
 
 namespace CheckDrive.Application.Services;
 
-internal sealed class EmployeeService : IEmployeeService
+internal sealed class EmployeeService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    UserManager<IdentityUser> userManager) : IEmployeeService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly UserManager<IdentityUser> _userManager;
-
-    public EmployeeService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        UserManager<IdentityUser> userManager)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-    }
-
     public async Task<List<EmployeeDto>> GetAsync(EmployeeQueryParameters queryParameters)
     {
         var query = GetQuery(queryParameters);
 
         var employees = await query
             .AsNoTracking()
-            .ProjectTo<EmployeeDto>(_mapper.ConfigurationProvider)
+            .OrderByDescending(x => x.Id)
+            .ProjectTo<EmployeeDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return employees;
@@ -43,7 +33,7 @@ internal sealed class EmployeeService : IEmployeeService
 
     public async Task<EmployeeDto> GetByIdAsync(int id)
     {
-        var account = await _context.Employees
+        var account = await context.Employees
             .AsNoTracking()
             .Include(x => x.Account)
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -53,7 +43,7 @@ internal sealed class EmployeeService : IEmployeeService
             throw new EntityNotFoundException($"Account with id: {id} is not found.");
         }
 
-        var dto = _mapper.Map<EmployeeDto>(account);
+        var dto = mapper.Map<EmployeeDto>(account);
 
         return dto;
     }
@@ -65,7 +55,7 @@ internal sealed class EmployeeService : IEmployeeService
         var account = await CreateAccountAsync(request);
         var employee = await CreateEmployeeAsync(request, account);
 
-        return _mapper.Map<EmployeeDto>(employee);
+        return mapper.Map<EmployeeDto>(employee);
     }
 
     // Update Employee & Accunt
@@ -73,17 +63,17 @@ internal sealed class EmployeeService : IEmployeeService
     {
         ArgumentNullException.ThrowIfNull(account);
 
-        var employee = _mapper.Map<Employee>(account);
+        var employee = mapper.Map<Employee>(account);
 
-        _context.Employees.Update(employee);
-        await _context.SaveChangesAsync();
+        context.Employees.Update(employee);
+        await context.SaveChangesAsync();
 
-        return _mapper.Map<EmployeeDto>(employee);
+        return mapper.Map<EmployeeDto>(employee);
     }
 
     public async Task DeleteAsync(int id)
     {
-        var employee = await _context.Employees
+        var employee = await context.Employees
             .Include(x => x.Account)
             .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -92,16 +82,16 @@ internal sealed class EmployeeService : IEmployeeService
             throw new EntityNotFoundException($"User account with id: {id} is not found.");
         }
 
-        _context.Users.Remove(employee.Account);
-        await _context.SaveChangesAsync();
+        context.Users.Remove(employee.Account);
+        await context.SaveChangesAsync();
     }
 
     private async Task<IdentityUser> CreateAccountAsync(CreateEmployeeDto request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = _mapper.Map<IdentityUser>(request);
-        var result = await _userManager.CreateAsync(user, request.Password);
+        var user = mapper.Map<IdentityUser>(request);
+        var result = await userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
         {
@@ -118,11 +108,11 @@ internal sealed class EmployeeService : IEmployeeService
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(account);
 
-        var employee = _mapper.Map<Employee>(request);
+        var employee = mapper.Map<Employee>(request);
         employee.Account = account;
 
-        _context.Employees.Add(employee);
-        await _context.SaveChangesAsync();
+        context.Employees.Add(employee);
+        await context.SaveChangesAsync();
 
         return employee;
     }
@@ -140,7 +130,7 @@ internal sealed class EmployeeService : IEmployeeService
             _ => throw new InvalidOperationException("Invalid position for role assignment.")
         };
 
-        var roleResult = await _userManager.AddToRoleAsync(user, role.ToString());
+        var roleResult = await userManager.AddToRoleAsync(user, role.ToString());
 
         if (!roleResult.Succeeded)
         {
@@ -150,7 +140,7 @@ internal sealed class EmployeeService : IEmployeeService
 
     private IQueryable<Employee> GetQuery(EmployeeQueryParameters queryParameters)
     {
-        var query = _context.Employees
+        var query = context.Employees
             .Include(x => x.Account)
             .AsQueryable();
 

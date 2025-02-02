@@ -7,19 +7,12 @@ namespace CheckDrive.Api.Controllers;
 
 [Route("api/employees")]
 [ApiController]
-public class EmployeesController : ControllerBase
+public class EmployeesController(IEmployeeService service) : ControllerBase
 {
-    private readonly IEmployeeService _service;
-
-    public EmployeesController(IEmployeeService service)
-    {
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<EmployeeDto>>> GetAsync([FromQuery] EmployeeQueryParameters queryParameters)
     {
-        var accounts = await _service.GetAsync(queryParameters);
+        var accounts = await service.GetAsync(queryParameters);
 
         return Ok(accounts);
     }
@@ -27,7 +20,7 @@ public class EmployeesController : ControllerBase
     [HttpGet("{id}", Name = nameof(GetEmployeeByIdAsync))]
     public async Task<ActionResult<EmployeeDto>> GetEmployeeByIdAsync(int id)
     {
-        var account = await _service.GetByIdAsync(id);
+        var account = await service.GetByIdAsync(id);
 
         return Ok(account);
     }
@@ -35,7 +28,7 @@ public class EmployeesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<EmployeeDto>> CreateAsync([FromBody] CreateEmployeeDto account)
     {
-        var createdAccount = await _service.CreateAsync(account);
+        var createdAccount = await service.CreateAsync(account);
 
         return CreatedAtAction(nameof(GetEmployeeByIdAsync), new { id = createdAccount.Id }, createdAccount);
     }
@@ -48,7 +41,7 @@ public class EmployeesController : ControllerBase
             return BadRequest($"Route id: {id} does not match with body id: {account.Id}.");
         }
 
-        var updatedAccount = await _service.UpdateAsync(account);
+        var updatedAccount = await service.UpdateAsync(account);
 
         return Ok(updatedAccount);
     }
@@ -56,7 +49,7 @@ public class EmployeesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(int id)
     {
-        await _service.DeleteAsync(id);
+        await service.DeleteAsync(id);
 
         return NoContent();
     }

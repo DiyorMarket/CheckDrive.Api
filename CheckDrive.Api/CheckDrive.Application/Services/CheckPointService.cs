@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper.QueryableExtensions;
 using CheckDrive.Application.DTOs.CheckPoint;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Domain.Entities;
@@ -7,34 +7,62 @@ using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
 using CheckDrive.Domain.QueryParameters;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services;
 
-internal sealed class CheckPointService : ICheckPointService
+internal sealed class CheckPointService(ICheckDriveDbContext context, IMapper mapper) : ICheckPointService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-
-    public CheckPointService(ICheckDriveDbContext context, IMapper mapper)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
-
-    public async Task<List<CheckPointDto>> GetCheckPointsAsync(CheckPointQueryParameters queryParameters)
+    public async Task<List<CheckPointDto>> GetAsync(CheckPointQueryParameters queryParameters)
     {
         ArgumentNullException.ThrowIfNull(queryParameters);
 
         var query = GetQuery(queryParameters);
-        var checkPoints = await query.ToArrayAsync();
-        var dtos = _mapper.Map<List<CheckPointDto>>(checkPoints);
+        var dtos = await query
+            .ProjectTo<CheckPointDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
 
         return dtos;
     }
 
-    public async Task<CheckPointDto> GetCurrentCheckPointByDriverIdAsync(int driverId)
+    public async Task<CheckPointDto> GetByIdAsync(int id)
     {
-        var lastCheckPointDate = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
+            .AsNoTracking()
+            .Include(x => x.DoctorReview)
+            .ThenInclude(x => x.Driver)
+            .Include(x => x.DoctorReview)
+            .ThenInclude(x => x.Doctor)
+            .Include(x => x.MechanicHandover)
+            .ThenInclude(x => x.Mechanic)
+            .Include(x => x.MechanicHandover)
+            .ThenInclude(x => x.Car)
+            .Include(x => x.OperatorReview)
+            .ThenInclude(x => x.Operator)
+            .Include(x => x.OperatorReview)
+            .ThenInclude(x => x.OilMark)
+            .Include(x => x.MechanicAcceptance)
+            .ThenInclude(x => x.Mechanic)
+            .Include(x => x.DispatcherReview)
+            .ThenInclude(x => x.Dispatcher)
+            .Include(x => x.ManagerReview)
+            .ThenInclude(x => x.Manager)
+            .Include(x => x.Debt)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (checkPoint is null)
+        {
+            throw new EntityNotFoundException($"CheckPoint with id: {id} is not found.");
+        }
+
+        var dto = mapper.Map<CheckPointDto>(checkPoint);
+
+        return dto;
+    }
+
+    public async Task<CheckPointDto> GetCurrentByDriverIdAsync(int driverId)
+    {
+        var lastCheckPointDate = await context.CheckPoints
             .Where(x => x.DoctorReview.DriverId == driverId)
             .MaxAsync(x => x.StartDate);
         var checkPoint = await GetQuery()
@@ -47,12 +75,12 @@ internal sealed class CheckPointService : ICheckPointService
             throw new EntityNotFoundException($"Driver with id: {driverId} does not have current active Check Point.");
         }
 
-        var dto = _mapper.Map<CheckPointDto>(checkPoint);
+        var dto = mapper.Map<CheckPointDto>(checkPoint);
 
         return dto;
     }
 
-    public async Task CancelCheckPointAsync(int id)
+    public async Task CancelAsync(int id)
     {
         var checkPoint = await GetAndValidateAsync(id);
 
@@ -62,12 +90,12 @@ internal sealed class CheckPointService : ICheckPointService
         }
 
         checkPoint.Status = CheckPointStatus.ClosedByManager;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     private IQueryable<CheckPoint> GetQuery(CheckPointQueryParameters? queryParameters = null)
     {
-        var query = _context.CheckPoints
+        var query = context.CheckPoints
             .AsNoTracking()
             .Include(x => x.DoctorReview)
             .ThenInclude(x => x.Driver)
@@ -143,7 +171,7 @@ internal sealed class CheckPointService : ICheckPointService
 
     private async Task<CheckPoint> GetAndValidateAsync(int id)
     {
-        var checkPoint = await _context.CheckPoints.FirstOrDefaultAsync(x => x.Id == id);
+        var checkPoint = await context.CheckPoints.FirstOrDefaultAsync(x => x.Id == id);
 
         if (checkPoint is null)
         {

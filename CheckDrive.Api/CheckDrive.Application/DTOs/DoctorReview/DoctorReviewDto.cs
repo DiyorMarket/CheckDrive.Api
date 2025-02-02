@@ -1,6 +1,7 @@
 ﻿namespace CheckDrive.Application.DTOs.DoctorReview;
 
 public sealed record DoctorReviewDto(
+    int Id,
     int CheckPointId,
     int DoctorId,
     string DoctorName,

@@ -3,6 +3,7 @@ using CheckDrive.Application.Extensions;
 using CheckDrive.Infrastructure.Extensions;
 using CheckDrive.TestDataCreator.Configurations;
 using CheckDrive.TestDataCreator.Extensions;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,7 @@ using System.Text;
 
 namespace CheckDrive.Api.Extensions;
 
-public static class DependencyInjection
+internal static class DependencyInjection
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
@@ -22,10 +23,8 @@ public static class DependencyInjection
         services.RegisterTestDataCreator();
 
         services.AddSingleton<FileExtensionContentTypeProvider>();
-        services.AddSignalR(options =>
-        {
-            options.EnableDetailedErrors = true;
-        });
+        services.AddSignalR(options => options.EnableDetailedErrors = true);
+        services.AddHttpContextAccessor();
 
         AddControllers(services);
         AddSwagger(services);
@@ -33,6 +32,7 @@ public static class DependencyInjection
         AddAuthorization(services);
         AddConfigurationOptiosn(services, configuration);
         AddSyncfusion(configuration);
+        AddHangfire(services, configuration);
 
         return services;
     }
@@ -67,25 +67,18 @@ public static class DependencyInjection
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
     {
-        var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
-
-        if (jwtOptions is null)
-        {
-            throw new InvalidOperationException("Could not load JWT configurations.");
-        }
+        var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("Could not load JWT configurations.");
 
         services
             .AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                options.RequireHttpsMetadata = true;
-                options.SaveToken = true;
-
                 options.TokenValidationParameters = new()
                 {
                     ValidateIssuer = false,
@@ -94,16 +87,6 @@ public static class DependencyInjection
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        context.Token = context.Request.Cookies["tasty-cookies"];
-
-                        return Task.CompletedTask;
-                    }
                 };
             });
     }
@@ -153,6 +136,11 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(DataSeedOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        services.AddOptions<HangfireSettings>()
+            .Bind(configuration.GetSection(HangfireSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
     }
 
     private static void AddSyncfusion(IConfiguration configuration)
@@ -165,6 +153,22 @@ public static class DependencyInjection
         }
 
         Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
+    }
+
+    private static void AddHangfire(IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Cannot setup Hangfire without 'Connection String'");
+
+        services.AddHangfire(options =>
+        {
+            options.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseDefaultTypeSerializer()
+                .UseSqlServerStorage(connectionString);
+        });
+
+        services.AddHangfireServer();
     }
 }
 

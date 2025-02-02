@@ -5,4 +5,5 @@ namespace CheckDrive.Application.Interfaces.Review;
 public interface IDoctorReviewService
 {
     Task<DoctorReviewDto> CreateAsync(CreateDoctorReviewDto review);
+    Task<DoctorReviewDto> GetByIdAsync(int id);
 }

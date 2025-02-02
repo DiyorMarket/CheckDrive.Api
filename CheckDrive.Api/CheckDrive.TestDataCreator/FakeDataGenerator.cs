@@ -28,16 +28,21 @@ public static class FakeDataGenerator
         .RuleFor(x => x.ManufacturedYear, f => f.Date.Between(DateTime.Now.AddYears(-20), DateTime.Now.AddYears(-2)).Year)
         .RuleFor(x => x.Mileage, f => f.Random.Number(0, 500_000))
         .RuleFor(x => x.FuelCapacity, f => f.Random.Number(50, 100))
-        .RuleFor(x => x.AverageFuelConsumption, f => f.Random.Number(10, 20))
+        .RuleFor(x => x.AverageFuelConsumption, f => f.Random.Number(10, 50))
         .RuleFor(x => x.RemainingFuel, (f, x) => f.Random.Decimal(0, x.FuelCapacity))
         .RuleFor(x => x.Status, _ => CarStatus.Free)
-        .RuleFor(x => x.Limits, _ => GetCarLimit().Generate())
+        .RuleFor(x => x.Limits, (_, car) => GetCarLimit(car).Generate())
         .RuleFor(x => x.UsageSummary, _ => new CarUsageSummary())
         .RuleFor(x => x.OilMarkId, f => f.PickRandom(oilMarks));
 
-    public static Faker<CarLimits> GetCarLimit() => new Faker<CarLimits>()
+    public static Faker<CarLimits> GetCarLimit(Car car) => new Faker<CarLimits>()
         .RuleFor(x => x.MonthlyDistanceLimit, f => f.Random.Int(1_000, 5_000))
         .RuleFor(x => x.YearlyDistanceLimit, (_, limits) => limits.MonthlyDistanceLimit * 12)
-        .RuleFor(x => x.MonthlyFuelConsumptionLimit, f => f.Random.Int(300, 500))
+        .RuleFor(x => x.MonthlyFuelConsumptionLimit, (_, limits) => GetMonthlyLimit(car.AverageFuelConsumption, limits.MonthlyDistanceLimit))
         .RuleFor(x => x.YearlyFuelConsumptionLimit, (_, limits) => limits.MonthlyFuelConsumptionLimit * 12);
+
+    private static decimal GetMonthlyLimit(decimal averageFuelConsumption, decimal monthlyDistanceLimit)
+    {
+        return (averageFuelConsumption * monthlyDistanceLimit) / 100;
+    }
 }

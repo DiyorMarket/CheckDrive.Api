@@ -8,7 +8,7 @@ public class Car : EntityBase
     public required string Model { get; set; }
     public required string Number { get; set; }
     public int ManufacturedYear { get; set; }
-    public int Mileage { get; set; }
+    public decimal Mileage { get; set; }
     public decimal FuelCapacity { get; set; }
     public decimal AverageFuelConsumption { get; set; }
     public decimal RemainingFuel { get; set; }
