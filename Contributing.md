@@ -1,8 +1,3 @@
----
-
-## 2. `CONTRIBUTING.md`
-
-```markdown
 # Contributing to the Government Vehicle Management System
 
 We appreciate your interest in contributing! This document outlines the process for developing new features or fixing bugs, including branching strategy, coding standards, test coverage, and CI requirements.
@@ -11,12 +6,14 @@ We appreciate your interest in contributing! This document outlines the process 
 
 ## Table of Contents
 
-1. [Issue Tracking & Branching](#issue-tracking--branching)
-2. [Coding Standards](#coding-standards)
-3. [Testing & Coverage](#testing--coverage)
-4. [Continuous Integration](#continuous-integration)
-5. [Pull Request Guidelines](#pull-request-guidelines)
-6. [Code Reviews](#code-reviews)
+- [Contributing to the Government Vehicle Management System](#contributing-to-the-government-vehicle-management-system)
+  - [Table of Contents](#table-of-contents)
+  - [Issue Tracking \& Branching](#issue-tracking--branching)
+  - [Coding Standards](#coding-standards)
+  - [Testing \& Coverage](#testing--coverage)
+  - [Continuous Integration](#continuous-integration)
+  - [Pull Request Guidelines](#pull-request-guidelines)
+  - [Code Reviews](#code-reviews)
 
 ---
 

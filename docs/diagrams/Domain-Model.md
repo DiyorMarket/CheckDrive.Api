@@ -1,9 +1,3 @@
----
-
-# 2. `docs/diagrams/domain-model.md`
-
-```markdown
-
 # Domain Model
 
 This document provides an overview of the core entities and their relationships.  

@@ -1,9 +1,3 @@
----
-
-# 1. `docs/diagrams/architecture.md`
-
-```markdown
-
 # System Architecture
 
 This document describes the high-level architecture of our Government Vehicle Management System.  
