@@ -32,7 +32,7 @@ internal sealed class ReportGenerator : IReportGenerator
     private static void FormatCarSheet(IWorksheet workSheet, MonthlyReportSummary summary)
     {
         // Title
-        workSheet.Range["A2:D2"].Merge();
+        workSheet.Range["A2:I2"].Merge();
         workSheet.Range["A2"].Text = "Oylik avtomobillar xisoboti";
         workSheet.Range["A2"].CellStyle.Font.Bold = true;
         workSheet.Range["A2"].CellStyle.Font.Size = 20;
@@ -50,10 +50,11 @@ internal sealed class ReportGenerator : IReportGenerator
         workSheet.Range["B6"].Number = (double)summary.LimitsExceededCarsCount;
         workSheet.Range["A7"].Text = "Limitga yaqinlashgan avtomobillar soni";
         workSheet.Range["B7"].Number = summary.TotalAnomalies;
+
         workSheet.Range["A4:A7"].CellStyle.Font.Bold = true;
         workSheet.Range["B4:B7"].CellStyle.Font.Bold = true;
-        workSheet.Range["A4:A7"].CellStyle.Font.RGBColor = Syncfusion.Drawing.Color.FromArgb(0, 128, 128, 128);
-        workSheet.Range["B4:B7"].CellStyle.Font.RGBColor = Syncfusion.Drawing.Color.FromArgb(0, 174, 170, 170);
+        workSheet.Range["A4:A7"].CellStyle.Font.RGBColor = Syncfusion.Drawing.Color.DimGray;
+        workSheet.Range["B4:B7"].CellStyle.Font.RGBColor = Syncfusion.Drawing.Color.DimGray;
         workSheet.Range["A4:B7"].CellStyle.Font.FontName = "Verdana";
 
         // Main Report Table Headers
@@ -62,6 +63,7 @@ internal sealed class ReportGenerator : IReportGenerator
         workSheet.Range["A9:I9"].CellStyle.Font.Color = ExcelKnownColors.White;
         workSheet.Range["A9:I9"].CellStyle.Font.FontName = "Verdana";
         workSheet.Range["A9:I9"].CellStyle.Font.Size = 10;
+
         workSheet.Range["A9"].Text = "Avtomobil";
         workSheet.Range["B9"].Text = "Yoqilg'i turi";
         workSheet.Range["C9"].Text = "O'rtacha yoqilg'i sarfi";
@@ -80,7 +82,7 @@ internal sealed class ReportGenerator : IReportGenerator
 
             if (row % 2 == 0)
             {
-                workSheet.Range[$"A{row}:I{row}"].CellStyle.Color = Syncfusion.Drawing.Color.LightGray;
+                workSheet.Range[$"A{row}:I{row}"].CellStyle.Color = Syncfusion.Drawing.Color.FromArgb(231, 239, 246);
             }
 
             workSheet.Range[$"A{row}"].Text = car.CarName;
@@ -124,7 +126,7 @@ internal sealed class ReportGenerator : IReportGenerator
             sheet.Range[$"A{row}:C{row}"].CellStyle.Font.Size = 10;
             if (row % 2 == 0)
             {
-                sheet.Range[$"A{row}:C{row}"].CellStyle.Color = Syncfusion.Drawing.Color.LightGray;
+                sheet.Range[$"A{row}:I{row}"].CellStyle.Color = Syncfusion.Drawing.Color.FromArgb(231, 239, 246);
             }
             sheet.Range[$"A{row}"].Text = "Ai-" + oil.OilMark;
             sheet.Range[$"B{row}"].Number = (double)oil.TotalFuelConsumed;
