@@ -12,22 +12,13 @@ using CheckDrive.Domain.Entities;
 
 namespace CheckDrive.Application.Services;
 
-internal sealed class CarService : ICarService
+internal sealed class CarService(ICheckDriveDbContext context, IMapper mapper) : ICarService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-
-    public CarService(ICheckDriveDbContext context, IMapper mapper)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-    }
-
     public async Task<List<CarDto>> GetAvailableCarsAsync()
     {
-        var cars = await _context.Cars
+        var cars = await context.Cars
             .Where(x => x.Status == CarStatus.Free)
-            .ProjectTo<CarDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<CarDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return cars;
@@ -37,7 +28,7 @@ internal sealed class CarService : ICarService
     {
         ArgumentNullException.ThrowIfNull(queryParameters);
 
-        var query = _context.Cars
+        var query = context.Cars
             .AsNoTracking()
             .AsQueryable();
 
@@ -52,7 +43,8 @@ internal sealed class CarService : ICarService
         }
 
         var cars = await query
-            .ProjectTo<CarDto>(_mapper.ConfigurationProvider)
+            .OrderByDescending(c => c.Id)
+            .ProjectTo<CarDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return cars;
@@ -60,14 +52,14 @@ internal sealed class CarService : ICarService
 
     public async Task<CarDto> GetByIdAsync(int id)
     {
-        var car = await _context.Cars.FirstOrDefaultAsync(x => x.Id == id);
+        var car = await context.Cars.FirstOrDefaultAsync(x => x.Id == id);
 
         if (car is null)
         {
             throw new EntityNotFoundException($"Car with id: {id} is not found.");
         }
 
-        var dto = _mapper.Map<CarDto>(car);
+        var dto = mapper.Map<CarDto>(car);
 
         return dto;
     }
@@ -76,12 +68,12 @@ internal sealed class CarService : ICarService
     {
         ArgumentNullException.ThrowIfNull(car);
 
-        var entity = _mapper.Map<Car>(car);
+        var entity = mapper.Map<Car>(car);
 
-        _context.Cars.Add(entity);
-        await _context.SaveChangesAsync();
+        context.Cars.Add(entity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<CarDto>(entity);
+        var dto = mapper.Map<CarDto>(entity);
 
         return dto;
     }
@@ -90,32 +82,32 @@ internal sealed class CarService : ICarService
     {
         ArgumentNullException.ThrowIfNull(car);
 
-        if (!await _context.Cars.AnyAsync(x => x.Id == car.Id))
+        if (!await context.Cars.AnyAsync(x => x.Id == car.Id))
         {
             throw new EntityNotFoundException($"Car with id: {car.Id} is not found.");
         }
 
-        var entity = _mapper.Map<Car>(car);
+        var entity = mapper.Map<Car>(car);
 
-        _context.Cars.Update(entity);
-        await _context.SaveChangesAsync();
+        context.Cars.Update(entity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<CarDto>(entity);
+        var dto = mapper.Map<CarDto>(entity);
 
         return dto;
     }
 
     public async Task DeleteAsync(int id)
     {
-        var entity = await _context.Cars.FirstOrDefaultAsync(x => x.Id == id);
+        var entity = await context.Cars.FirstOrDefaultAsync(x => x.Id == id);
 
         if (entity is null)
         {
             throw new EntityNotFoundException($"Car with id: {id} is not found.");
         }
 
-        _context.Cars.Remove(entity);
-        await _context.SaveChangesAsync();
+        context.Cars.Remove(entity);
+        await context.SaveChangesAsync();
     }
 
     public async Task CompleteRide(RideDetailsDto rideDetails)
@@ -137,7 +129,7 @@ internal sealed class CarService : ICarService
                 Status = DebtStatus.Unpaid,
             };
 
-            _context.Debts.Add(debt);
+            context.Debts.Add(debt);
         }
 
         car.RemainingFuel = rideDetails.RemainingFuelAmount;
@@ -147,12 +139,12 @@ internal sealed class CarService : ICarService
             car.Status = CarStatus.LimitReached;
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     private async Task<Car> GetAndValidateCarAsync(RideDetailsDto rideDetails)
     {
-        var car = await _context.Cars
+        var car = await context.Cars
             .FirstOrDefaultAsync(x => x.Id == rideDetails.CarId);
 
         if (car is null)
@@ -170,7 +162,7 @@ internal sealed class CarService : ICarService
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
         if (checkPoint is null)

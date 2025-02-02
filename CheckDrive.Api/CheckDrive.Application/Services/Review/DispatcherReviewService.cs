@@ -1,30 +1,29 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.DispatcherReview;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces.Review;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Exceptions;
 using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using CheckDrive.Application.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class DispatcherReviewService : IDispatcherReviewService
+internal sealed class DispatcherReviewService(
+    ICheckDriveDbContext context,
+    IMapper mapper,
+    IHubContext<ReviewHub, IReviewHub> hubContext)
+    : IDispatcherReviewService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
-
-    public DispatcherReviewService(
-        ICheckDriveDbContext context,
-        IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> hubContext)
+    public async Task<DispatcherReviewDto> GetByIdAsync(int reviewId)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+        var review = await GetAndValidateReviewAsync(reviewId);
+
+        var dto = mapper.Map<DispatcherReviewDto>(review);
+
+        return dto;
     }
 
     public async Task<DispatcherReviewDto> CreateAsync(CreateDispatcherReviewDto review)
@@ -35,23 +34,35 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
         var dispatcher = await GetAndValidateDispatcherAsync(review.DispatcherId);
 
         checkPoint.Stage = CheckPointStage.DispatcherReview;
+
         var reviewEntity = CreateReview(checkPoint, dispatcher, review);
 
-        _context.DispatcherReviews.Add(reviewEntity);
-        await _context.SaveChangesAsync();
+        context.DispatcherReviews.Add(reviewEntity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<DispatcherReviewDto>(reviewEntity);
+        var dto = mapper.Map<DispatcherReviewDto>(reviewEntity);
 
-        await _hubContext.Clients
+        await hubContext.Clients
             .User(checkPoint.DoctorReview.DriverId.ToString())
             .CheckPointProgressUpdated(checkPoint.Id);
 
         return dto;
     }
 
+    private async Task<DispatcherReview> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.DispatcherReviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        return review is null
+            ? throw new EntityNotFoundException($"Dispatcher Review with id: {reviewId} is not found.")
+            : review;
+    }
+
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .FirstOrDefaultAsync(x => x.Id == checkPointId);
 
@@ -77,15 +88,12 @@ internal sealed class DispatcherReviewService : IDispatcherReviewService
 
     private async Task<Dispatcher> GetAndValidateDispatcherAsync(int dispatcherId)
     {
-        var dispatcher = await _context.Dispatchers
+        var dispatcher = await context.Dispatchers
             .FirstOrDefaultAsync(x => x.Id == dispatcherId);
 
-        if (dispatcher is null)
-        {
-            throw new EntityNotFoundException($"Dispatcher with id: {dispatcherId} is not found.");
-        }
-
-        return dispatcher;
+        return dispatcher is null
+            ? throw new EntityNotFoundException($"Dispatcher with id: {dispatcherId} is not found.")
+            : dispatcher;
     }
 
     private static DispatcherReview CreateReview(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)

@@ -2,8 +2,8 @@
 
 public class CarLimits
 {
-    public int MonthlyDistanceLimit { get; set; }
-    public int YearlyDistanceLimit { get; set; }
+    public decimal MonthlyDistanceLimit { get; set; }
+    public decimal YearlyDistanceLimit { get; set; }
     public decimal MonthlyFuelConsumptionLimit { get; set; }
     public decimal YearlyFuelConsumptionLimit { get; set; }
 }

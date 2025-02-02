@@ -4,6 +4,7 @@ using CheckDrive.Domain.Enums;
 namespace CheckDrive.Application.DTOs.ManagerReview;
 
 public sealed record ManagerReviewDto(
+    int Id,
     int CheckPointId,
     int ReviewerId,
     string ReviewerName,
@@ -13,6 +14,7 @@ public sealed record ManagerReviewDto(
     DateTime Date,
     int FinalMileage,
     decimal DebtAmount,
+    int InitialMillage,
     decimal FuelConsumptionAmount,
     decimal RemainingFuelAmount)
     : ReviewDtoBase(

@@ -32,7 +32,6 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
     public CheckDriveDbContext(DbContextOptions<CheckDriveDbContext> options)
         : base(options)
     {
-        // Database.EnsureCreated();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -132,4 +131,10 @@ public class CheckDriveDbContext : IdentityDbContext, ICheckDriveDbContext
 
     public IDbContextTransaction BeginTransaction()
         => Database.BeginTransaction();
+
+    public bool EnsureCreated()
+        => Database.EnsureCreated();
+
+    public void Migrate()
+        => Database.Migrate();
 }

@@ -1,40 +1,28 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
 using CheckDrive.Application.DTOs.Driver;
+using CheckDrive.Application.Hubs;
 using CheckDrive.Application.Interfaces;
 using CheckDrive.Application.QueryParameters;
 using CheckDrive.Domain.Entities;
 using CheckDrive.Domain.Enums;
 using CheckDrive.Domain.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using CheckDrive.Application.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services;
 
-internal sealed class DriverService : IDriverService
-{
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IHubContext<ReviewHub, IReviewHub> _hubContext;
-
-    public DriverService(
-        ICheckDriveDbContext context,
+internal sealed class DriverService(ICheckDriveDbContext context,
         IMapper mapper,
-        IHubContext<ReviewHub, IReviewHub> hubContext)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _hubContext = hubContext ?? throw new ArgumentException(nameof(hubContext));
-    }
-
+        IHubContext<ReviewHub, IReviewHub> hubContext) : IDriverService
+{
     public async Task<List<DriverDto>> GetAsync(DriverQueryParameters queryParameters)
     {
         var query = GetQuery(queryParameters);
 
         var drivers = await query
             .AsNoTracking()
-            .ProjectTo<DriverDto>(_mapper.ConfigurationProvider)
+            .ProjectTo<DriverDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return drivers;
@@ -55,18 +43,18 @@ internal sealed class DriverService : IDriverService
             RejectReview(checkPoint, confirmation);
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         if (confirmation.IsAccepted)
         {
-            await _hubContext.Clients.All
+            await hubContext.Clients.All
                 .CheckPointProgressUpdated(checkPoint.Id);
         }
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .Include(x => x.MechanicHandover)
             .ThenInclude(x => x.Car)
@@ -90,7 +78,7 @@ internal sealed class DriverService : IDriverService
 
     private IQueryable<Driver> GetQuery(DriverQueryParameters queryParameters)
     {
-        var query = _context.Drivers.AsQueryable();
+        var query = context.Drivers.AsQueryable();
 
         if (!string.IsNullOrEmpty(queryParameters.SearchText))
         {

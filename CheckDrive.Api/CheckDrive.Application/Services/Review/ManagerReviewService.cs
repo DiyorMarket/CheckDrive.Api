@@ -9,15 +9,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CheckDrive.Application.Services.Review;
 
-internal sealed class ManagerReviewService : IManagerReviewService
+internal sealed class ManagerReviewService(
+    ICheckDriveDbContext context,
+    IMapper mapper)
+    : IManagerReviewService
 {
-    private readonly ICheckDriveDbContext _context;
-    private readonly IMapper _mapper;
-
-    public ManagerReviewService(ICheckDriveDbContext context, IMapper mapper)
+    public async Task<ManagerReviewDto> GetByIdAsync(int reviewId)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        var review = await GetAndValidateReviewAsync(reviewId);
+
+        var dto = mapper.Map<ManagerReviewDto>(review);
+
+        return dto;
     }
 
     public async Task<ManagerReviewDto> CreateAsync(CreateManagerReviewDto review)
@@ -32,17 +35,17 @@ internal sealed class ManagerReviewService : IManagerReviewService
         UpdateCar(review, checkPoint);
         var reviewEntity = CreateReview(review, checkPoint, manager);
 
-        _context.ManagerReviews.Add(reviewEntity);
-        await _context.SaveChangesAsync();
+        context.ManagerReviews.Add(reviewEntity);
+        await context.SaveChangesAsync();
 
-        var dto = _mapper.Map<ManagerReviewDto>(reviewEntity);
+        var dto = mapper.Map<ManagerReviewDto>(reviewEntity);
 
         return dto;
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
     {
-        var checkPoint = await _context.CheckPoints
+        var checkPoint = await context.CheckPoints
             .Include(x => x.DoctorReview)
             .ThenInclude(x => x.Driver)
             .Include(x => x.MechanicHandover)
@@ -63,17 +66,25 @@ internal sealed class ManagerReviewService : IManagerReviewService
         return checkPoint;
     }
 
+    private async Task<ManagerReview> GetAndValidateReviewAsync(int reviewId)
+    {
+        var review = await context.ManagerReviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == reviewId);
+
+        return review is null
+            ? throw new EntityNotFoundException($"Manager Review with id: {reviewId} is not found.")
+            : review;
+    }
+
     private async Task<Manager> GetAndValidateManagerAsync(int managerId)
     {
-        var manager = await _context.Managers
+        var manager = await context.Managers
             .FirstOrDefaultAsync(x => x.Id == managerId);
 
-        if (manager is null)
-        {
-            throw new EntityNotFoundException($"Manager with id: {managerId} is not found.");
-        }
-
-        return manager;
+        return manager is null
+            ? throw new EntityNotFoundException($"Manager with id: {managerId} is not found.")
+            : manager;
     }
 
     private void CreateDebt(CreateManagerReviewDto review, CheckPoint checkPoint)
@@ -92,7 +103,7 @@ internal sealed class ManagerReviewService : IManagerReviewService
             CheckPoint = checkPoint
         };
 
-        _context.Debts.Add(debt);
+        context.Debts.Add(debt);
     }
 
     private static void UpdateDriver(CheckPoint checkPoint)

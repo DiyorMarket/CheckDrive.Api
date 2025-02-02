@@ -34,4 +34,6 @@ public interface ICheckDriveDbContext
     int SaveChanges();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     IDbContextTransaction BeginTransaction();
+    bool EnsureCreated();
+    void Migrate();
 }

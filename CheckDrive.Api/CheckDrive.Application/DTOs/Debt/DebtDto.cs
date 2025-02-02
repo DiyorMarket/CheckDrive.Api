@@ -2,8 +2,10 @@
 
 namespace CheckDrive.Application.DTOs.Debt;
 
-public sealed record DebtDto(
-    int CheckPointId,
-    decimal FualAmount,
+public record DebtDto(
+    int Id,
+    string DriverFullName,
+    decimal FuelAmount,
     decimal PaidAmount,
+    int CheckPointId,
     DebtStatus Status);

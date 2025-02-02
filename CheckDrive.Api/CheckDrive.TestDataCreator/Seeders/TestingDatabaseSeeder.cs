@@ -7,7 +7,7 @@ namespace CheckDrive.TestDataCreator.Seeders;
 
 internal sealed class TestingDatabaseSeeder : IDatabaseSeeder
 {
-    public void SeedDatabase(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
+    public Task SeedDatabaseAsync(ICheckDriveDbContext context, UserManager<IdentityUser> userManager, DataSeedOptions options)
     {
         throw new NotImplementedException();
     }

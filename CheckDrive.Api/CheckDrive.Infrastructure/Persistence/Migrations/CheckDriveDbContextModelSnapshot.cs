@@ -42,8 +42,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("ManufacturedYear")
                         .HasColumnType("int");
 
-                    b.Property<int>("Mileage")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Mileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Model")
                         .IsRequired()
@@ -72,14 +72,14 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         {
                             b1.IsRequired();
 
-                            b1.Property<int>("MonthlyDistanceLimit")
-                                .HasColumnType("int");
+                            b1.Property<decimal>("MonthlyDistanceLimit")
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<decimal>("MonthlyFuelConsumptionLimit")
                                 .HasColumnType("decimal(18,2)");
 
-                            b1.Property<int>("YearlyDistanceLimit")
-                                .HasColumnType("int");
+                            b1.Property<decimal>("YearlyDistanceLimit")
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<decimal>("YearlyFuelConsumptionLimit")
                                 .HasColumnType("decimal(18,2)");
@@ -89,14 +89,14 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         {
                             b1.IsRequired();
 
-                            b1.Property<int>("CurrentMonthDistance")
-                                .HasColumnType("int");
+                            b1.Property<decimal>("CurrentMonthDistance")
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<decimal>("CurrentMonthFuelConsumption")
                                 .HasColumnType("decimal(18,2)");
 
-                            b1.Property<int>("CurrentYearDistance")
-                                .HasColumnType("int");
+                            b1.Property<decimal>("CurrentYearDistance")
+                                .HasColumnType("decimal(18,2)");
 
                             b1.Property<decimal>("CurrentYearFuelConsumption")
                                 .HasColumnType("decimal(18,2)");
@@ -186,8 +186,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<int>("DispatcherId")
                         .HasColumnType("int");
 
-                    b.Property<int>("FinalMileage")
-                        .HasColumnType("int");
+                    b.Property<decimal>("FinalMileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("FuelConsumptionAmount")
                         .HasPrecision(18, 2)
@@ -325,15 +325,15 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("FinalMileage")
-                        .HasColumnType("int");
+                    b.Property<decimal>("FinalMileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("FuelConsumptionAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("InitialMileage")
-                        .HasColumnType("int");
+                    b.Property<decimal>("InitialMileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ManagerId")
                         .HasColumnType("int");
@@ -369,8 +369,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FinalMileage")
-                        .HasColumnType("int");
+                    b.Property<decimal>("FinalMileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsCarInGoodCondition")
                         .HasColumnType("bit");
@@ -411,8 +411,8 @@ namespace CheckDrive.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("InitialMileage")
-                        .HasColumnType("int");
+                    b.Property<decimal>("InitialMileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("MechanicId")
                         .HasColumnType("int");
