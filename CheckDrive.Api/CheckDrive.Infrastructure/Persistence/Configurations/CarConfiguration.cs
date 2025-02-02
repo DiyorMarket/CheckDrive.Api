@@ -46,6 +46,7 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
             .IsRequired();
 
         builder.Property(c => c.Mileage)
+            .HasPrecision(18, 2)
             .IsRequired();
 
         builder.Property(c => c.FuelCapacity)
@@ -65,13 +66,43 @@ internal sealed class CarConfiguration : IEntityTypeConfiguration<Car>
             .HasDefaultValue(CarStatus.Free)
             .IsRequired();
 
-        builder
-            .ComplexProperty(c => c.Limits)
-            .IsRequired();
+        builder.OwnsOne(c => c.Limits, limits =>
+        {
+            limits.Property(l => l.MonthlyDistanceLimit)
+                .HasPrecision(18, 2)
+                .IsRequired();
 
-        builder
-            .ComplexProperty(c => c.UsageSummary)
-            .IsRequired();
+            limits.Property(l => l.YearlyDistanceLimit)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            limits.Property(l => l.MonthlyFuelConsumptionLimit)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            limits.Property(l => l.YearlyFuelConsumptionLimit)
+                .HasPrecision(18, 2)
+                .IsRequired();
+        });
+
+        builder.OwnsOne(c => c.UsageSummary, usageSummary =>
+        {
+            usageSummary.Property(u => u.CurrentMonthDistance)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            usageSummary.Property(u => u.CurrentYearDistance)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            usageSummary.Property(u => u.CurrentMonthFuelConsumption)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            usageSummary.Property(u => u.CurrentYearFuelConsumption)
+                .HasPrecision(18, 2)
+                .IsRequired();
+        });
 
         #endregion
     }

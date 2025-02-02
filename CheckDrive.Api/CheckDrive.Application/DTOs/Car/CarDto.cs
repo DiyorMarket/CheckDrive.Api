@@ -1,19 +1,19 @@
 ﻿using CheckDrive.Domain.Enums;
+using System;
 
 namespace CheckDrive.Application.DTOs.Car;
 
 public record CarDto(
     int Id,
-    int? OilMarkId,
-    string? OilMarkName,
+    int OilMarkId,
     string Model,
     string Number,
     int ManufacturedYear,
-    int Mileage,
-    int CurrentMonthMileage,
-    int CurrentYearMileage,
-    int MonthlyDistanceLimit,
-    int YearlyDistanceLimit,
+    decimal Mileage,
+    decimal CurrentMonthMileage,
+    decimal CurrentYearMileage,
+    decimal MonthlyDistanceLimit,
+    decimal YearlyDistanceLimit,
     decimal CurrentMonthFuelConsumption,
     decimal CurrentYearFuelConsumption,
     decimal MonthlyFuelConsumptionLimit,
