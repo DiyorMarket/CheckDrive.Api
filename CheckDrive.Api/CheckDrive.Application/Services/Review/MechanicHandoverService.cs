@@ -98,12 +98,7 @@ internal sealed class MechanicHandoverService(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == mechanicId);
 
-        if (mechanic is null)
-        {
-            throw new EntityNotFoundException($"Mechanic with id: {mechanicId} is not found.");
-        }
-
-        return mechanic;
+        return mechanic is null ? throw new EntityNotFoundException($"Mechanic with id: {mechanicId} is not found.") : mechanic;
     }
 
     private async Task<Car> GetAndValidateCarAsync(int carId)

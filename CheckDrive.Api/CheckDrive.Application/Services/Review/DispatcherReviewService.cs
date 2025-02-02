@@ -55,12 +55,7 @@ internal sealed class DispatcherReviewService(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == reviewId);
 
-        if (review is null)
-        {
-            throw new EntityNotFoundException($"Dispatcher Review with id: {reviewId} is not found.");
-        }
-
-        return review;
+        return review is null ? throw new EntityNotFoundException($"Dispatcher Review with id: {reviewId} is not found.") : review;
     }
 
     private async Task<CheckPoint> GetAndValidateCheckPointAsync(int checkPointId)
@@ -94,12 +89,7 @@ internal sealed class DispatcherReviewService(
         var dispatcher = await context.Dispatchers
             .FirstOrDefaultAsync(x => x.Id == dispatcherId);
 
-        if (dispatcher is null)
-        {
-            throw new EntityNotFoundException($"Dispatcher with id: {dispatcherId} is not found.");
-        }
-
-        return dispatcher;
+        return dispatcher is null ? throw new EntityNotFoundException($"Dispatcher with id: {dispatcherId} is not found.") : dispatcher;
     }
 
     private static DispatcherReview CreateReview(CheckPoint checkPoint, Dispatcher dispatcher, CreateDispatcherReviewDto review)
