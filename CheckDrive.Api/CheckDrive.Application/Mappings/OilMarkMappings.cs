@@ -9,7 +9,9 @@ public sealed class OilMarkMappings : Profile
     public OilMarkMappings()
     {
         CreateMap<OilMark, OilMarkDto>();
-        CreateMap<CreateOilMarkDto, OilMark>();
+        CreateMap<CreateOilMarkDto, OilMark>()
+            .ForPath(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
         CreateMap<UpdateOilMarkDto, OilMark>();
     }
 }
